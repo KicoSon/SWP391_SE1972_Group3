@@ -42,6 +42,16 @@ public class Staff {
         this.isActive = isActive;
     }
 
+    public Staff(int id, int roleId, String email, String password, String fullName, String department, boolean isActive) {
+        this.id = id;
+        this.roleId = roleId;
+        this.email = email;
+        this.password = password;
+        this.fullName = fullName;
+        this.department = department;
+        this.isActive = isActive;
+    }
+
     public int getId() {
         return id;
     }
@@ -98,12 +108,12 @@ public class Staff {
         this.createAt = createAt;
     }
 
-    public boolean isIsActive() {
+    public boolean isActive() {
         return isActive;
     }
-
-    public void setIsActive(boolean isActive) {
-        this.isActive = isActive;
+    
+    public void setActive(boolean active) {
+        isActive = active;
     }
 
     @Override

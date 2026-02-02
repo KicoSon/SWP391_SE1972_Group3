@@ -2,7 +2,6 @@ package dal;
 
 import model.Permission;
 import model.Role;
-import model.RolePermission;
 import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
@@ -81,7 +80,6 @@ public class PermissionDAO extends DBContext {
                 Role role = new Role();
                 role.setId(rs.getInt("id"));
                 role.setName(rs.getString("name"));
-                role.setDescription(rs.getString("description"));
                 roles.add(role);
             }
         } catch (SQLException e) {

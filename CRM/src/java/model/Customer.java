@@ -13,6 +13,7 @@ public class Customer {
     private int tier;
     private String fullName;
     private String email;
+    private String password;
     private String phone;
     private String address;
     private String profileURL;
@@ -45,6 +46,18 @@ public class Customer {
         this.updateAt = updateAt;
         this.isActive = isActive;
     }
+
+    public Customer(int id, String fullName, String email, String password, String phone, String address, boolean isActive) {
+        this.id = id;
+        this.fullName = fullName;
+        this.email = email;
+        this.password = password;
+        this.phone = phone;
+        this.address = address;
+        this.isActive = isActive;
+    }
+
+    
 
     
     public int getId() {
@@ -111,9 +124,6 @@ public class Customer {
         this.updateAt = updateAt;
     }
 
-    public boolean isIsActive() {
-        return isActive;
-    }
 
     public int getTier() {
         return tier;
@@ -124,10 +134,20 @@ public class Customer {
     }
 
     
-    public void setIsActive(boolean isActive) {
-        this.isActive = isActive;
+    public String getPassword() {
+        return password;
     }
 
+    public void setPassword(String password) {
+        this.password = password;
+    }
+    public boolean isActive() {
+        return isActive;
+    }
+    
+    public void setActive(boolean active) {
+        isActive = active;
+    }
     
     @Override
     public String toString() {
