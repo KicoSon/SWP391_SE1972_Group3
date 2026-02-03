@@ -3,11 +3,16 @@
     <editor-bookmarks xmlns="http://www.netbeans.org/ns/editor-bookmarks/2" lastBookmarkId="0"/>
     <open-files xmlns="http://www.netbeans.org/ns/projectui-open-files/2">
         <group>
+            <file>file:/D:/SWP391_SE1972_Group3/CRM/src/java/model/activity/ActivityComment.java</file>
+            <file>file:/D:/SWP391_SE1972_Group3/CRM/src/java/model/activity/Notification.java</file>
+            <file>file:/D:/SWP391_SE1972_Group3/CRM/src/java/model/activity/Activity.java</file>
+            <file>file:/D:/SWP391_SE1972_Group3/CRM/src/java/model/activity/ActivityAttachment.java</file>
             <file>file:/D:/SWP391_SE1972_Group3/CRM/src/java/controller/LoginController.java</file>
             <file>file:/D:/SWP391_SE1972_Group3/CRM/src/java/dal/DBContext.java</file>
             <file>file:/D:/SWP391_SE1972_Group3/CRM/src/java/filter/AuthorizationFilter.java</file>
             <file>file:/D:/SWP391_SE1972_Group3/CRM/src/java/util/PermissionChecker.java</file>
             <file>file:/D:/SWP391_SE1972_Group3/CRM/src/java/dal/PermissionDAO.java</file>
+            <file>file:/D:/SWP391_SE1972_Group3/CRM/src/java/model/activity/ActivityParticipant.java</file>
         </group>
     </open-files>
 </project-private>
