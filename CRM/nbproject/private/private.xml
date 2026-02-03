@@ -3,12 +3,11 @@
     <editor-bookmarks xmlns="http://www.netbeans.org/ns/editor-bookmarks/2" lastBookmarkId="0"/>
     <open-files xmlns="http://www.netbeans.org/ns/projectui-open-files/2">
         <group>
-            <file>file:/C:/Users/Admin/Documents/SP26/SWP391/CRM/src/java/controller/LoginController.java</file>
-            <file>file:/C:/Users/Admin/Documents/SP26/SWP391/CRM/src/java/dal/AuthDAO.java</file>
-            <file>file:/C:/Users/Admin/Documents/SP26/SWP391/CRM/src/java/model/Customer.java</file>
-            <file>file:/C:/Users/Admin/Documents/SP26/SWP391/CRM/src/java/model/Staff.java</file>
-            <file>file:/C:/Users/Admin/Documents/SP26/SWP391/CRM/src/java/model/UserSession.java</file>
-            <file>file:/C:/Users/Admin/Documents/SP26/SWP391/CRM/web/login.jsp</file>
+            <file>file:/D:/SWP391_SE1972_Group3/CRM/src/java/controller/LoginController.java</file>
+            <file>file:/D:/SWP391_SE1972_Group3/CRM/src/java/dal/DBContext.java</file>
+            <file>file:/D:/SWP391_SE1972_Group3/CRM/src/java/filter/AuthorizationFilter.java</file>
+            <file>file:/D:/SWP391_SE1972_Group3/CRM/src/java/util/PermissionChecker.java</file>
+            <file>file:/D:/SWP391_SE1972_Group3/CRM/src/java/dal/PermissionDAO.java</file>
         </group>
     </open-files>
 </project-private>
