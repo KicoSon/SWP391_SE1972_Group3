@@ -1,0 +1,13 @@
+# NetBeans build & dist
+CRM/build/
+CRM/dist/
+
+# IDE private settings
+CRM/nbproject/private/
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Bỏ qua file cấu hình Database cá nhân
+CRM/src/java/dal/DBContext.java
