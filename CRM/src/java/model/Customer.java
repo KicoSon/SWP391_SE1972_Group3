@@ -19,6 +19,7 @@ public class Customer {
     private String profileURL;
     private String createAt;
     private String updateAt;
+    private int ownerId;
     private boolean isActive;
 
     public Customer() {
@@ -54,6 +55,37 @@ public class Customer {
         this.password = password;
         this.phone = phone;
         this.address = address;
+        this.isActive = isActive;
+    }
+
+    public Customer(int id, int tier, String fullName, String email, String password, String phone, String address, String profileURL, String createAt, String updateAt, int ownerId, boolean isActive) {
+        this.id = id;
+        this.tier = tier;
+        this.fullName = fullName;
+        this.email = email;
+        this.password = password;
+        this.phone = phone;
+        this.address = address;
+        this.profileURL = profileURL;
+        this.createAt = createAt;
+        this.updateAt = updateAt;
+        this.ownerId = ownerId;
+        this.isActive = isActive;
+    }
+
+    public int getOwnerId() {
+        return ownerId;
+    }
+
+    public void setOwnerId(int ownerId) {
+        this.ownerId = ownerId;
+    }
+
+    public boolean isIsActive() {
+        return isActive;
+    }
+
+    public void setIsActive(boolean isActive) {
         this.isActive = isActive;
     }
 
@@ -148,11 +180,13 @@ public class Customer {
     public void setActive(boolean active) {
         isActive = active;
     }
-    
+
     @Override
     public String toString() {
-        return "Customer{" + "id=" + id + ", fullName=" + fullName + ", email=" + email + ", phone=" + phone + ", address=" + address + ", profileURL=" + profileURL + ", isActive=" + isActive + '}';
+        return "Customer{" + "id=" + id + ", tier=" + tier + ", fullName=" + fullName + ", email=" + email + ", password=" + password + ", phone=" + phone + ", address=" + address + ", profileURL=" + profileURL + ", createAt=" + createAt + ", updateAt=" + updateAt + ", ownerId=" + ownerId + ", isActive=" + isActive + '}';
     }
+    
+    
     
     
 }
