@@ -36,7 +36,7 @@ public class AuthDAO extends DBContext {
                     rs.getString("password"),
                     rs.getString("phone"),
                     rs.getString("address"),
-                    rs.getBoolean("is_active")
+                    rs.getString("status")
                 );
             }
         } catch (SQLException e) {
@@ -49,7 +49,7 @@ public class AuthDAO extends DBContext {
      * Authenticate customer login
      */
     public Customer loginCustomer(String email, String password) {
-        String sql = "SELECT * FROM customers WHERE email = ? AND password = ? AND is_active = 1";
+        String sql = "SELECT * FROM customers WHERE email = ? AND password = ? AND status = 'Active'";
         try (PreparedStatement stmt = connection.prepareStatement(sql)) {
             stmt.setString(1, email);
             stmt.setString(2, password);
@@ -63,7 +63,7 @@ public class AuthDAO extends DBContext {
                     rs.getString("password"),
                     rs.getString("phone"),
                     rs.getString("address"),
-                    rs.getBoolean("is_active")
+                    rs.getString("status")
                 );
             }
         } catch (SQLException e) {
@@ -78,13 +78,13 @@ public class AuthDAO extends DBContext {
      */
     public Staff checkStaffAccount(String email, String password) {
         String sql = "SELECT u.id, "
-                + "u.roleid, "
+                + "u.role_id, "
                 + "u.email, "
                 + "u.password_hash, "
                 + "u.full_name, "
                 + "u.department, "
-                + "u.is_active from users u" +
-                    "WHERE u.email = ? AND u.password_hash = ?";
+                + "u.is_active from users u " +
+                "WHERE u.email = ? AND u.password_hash = ?";
         try (PreparedStatement stmt = connection.prepareStatement(sql)) {
             stmt.setString(1, email);
             stmt.setString(2, password);
@@ -93,9 +93,9 @@ public class AuthDAO extends DBContext {
             if (rs.next()) {
                 return new Staff(
                     rs.getInt("id"),
-                    rs.getInt("roleid"),
+                    rs.getInt("role_id"),
                     rs.getString("email"),
-                    rs.getString("password"),
+                    rs.getString("password_hash"),
                     rs.getString("full_name"),
                     rs.getString("department"),
                     rs.getBoolean("is_active")
@@ -112,12 +112,12 @@ public class AuthDAO extends DBContext {
      */
     public Staff loginStaff(String email, String password) {
         String sql = "SELECT u.id, "
-                + "u.roleid, "
+                + "u.role_id, "
                 + "u.email, "
                 + "u.password_hash, "
                 + "u.full_name, "
                 + "u.department, "
-                + "u.is_active from users u" +
+                + "u.is_active from users u " +
                     "WHERE u.email = ? AND u.password_hash = ?";
         try (PreparedStatement stmt = connection.prepareStatement(sql)) {
             stmt.setString(1, email);
@@ -129,7 +129,7 @@ public class AuthDAO extends DBContext {
                     rs.getInt("id"),
                     rs.getInt("role_id"),
                     rs.getString("email"),
-                    rs.getString("password"),
+                    rs.getString("password_hash"),
                     rs.getString("full_name"),
                     rs.getString("department"),
                     rs.getBoolean("is_active")
@@ -243,7 +243,7 @@ public class AuthDAO extends DBContext {
      * Find customer by email only (for forgot password)
      */
     public Customer findCustomerByEmail(String email) {
-        String sql = "SELECT * FROM customers WHERE email = ? AND is_active = 1";
+        String sql = "SELECT * FROM customers WHERE email = ? AND status = 'Active'";
         try (PreparedStatement stmt = connection.prepareStatement(sql)) {
             stmt.setString(1, email);
             
@@ -256,7 +256,7 @@ public class AuthDAO extends DBContext {
                     rs.getString("password"),
                     rs.getString("phone"),
                     rs.getString("address"),
-                    rs.getBoolean("is_active")
+                    rs.getString("status")
                 );
             }
         } catch (SQLException e) {
@@ -279,7 +279,7 @@ public class AuthDAO extends DBContext {
                     rs.getInt("id"),
                     rs.getInt("role_id"),
                     rs.getString("email"),
-                    rs.getString("password"),
+                    rs.getString("password_hash"),
                     rs.getString("full_name"),
                     rs.getString("department"),
                     rs.getBoolean("is_active")
@@ -324,5 +324,4 @@ public class AuthDAO extends DBContext {
         }
         return false;
     }
-
 }

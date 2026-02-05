@@ -19,12 +19,12 @@ public class Customer {
     private String profileURL;
     private String createAt;
     private String updateAt;
-    private boolean isActive;
+    private String status;
 
     public Customer() {
     }
 
-    public Customer(int id, String fullName, String email, String phone, String address, String profileURL, String createAt, String updateAt, boolean isActive) {
+    public Customer(int id, String fullName, String email, String phone, String address, String profileURL, String createAt, String updateAt, String status) {
         this.id = id;
         this.fullName = fullName;
         this.email = email;
@@ -33,10 +33,10 @@ public class Customer {
         this.profileURL = profileURL;
         this.createAt = createAt;
         this.updateAt = updateAt;
-        this.isActive = isActive;
+        this.status = status;
     }
 
-    public Customer(String fullName, String email, String phone, String address, String profileURL, String createAt, String updateAt, boolean isActive) {
+    public Customer(String fullName, String email, String phone, String address, String profileURL, String createAt, String updateAt, String status) {
         this.fullName = fullName;
         this.email = email;
         this.phone = phone;
@@ -44,17 +44,17 @@ public class Customer {
         this.profileURL = profileURL;
         this.createAt = createAt;
         this.updateAt = updateAt;
-        this.isActive = isActive;
+        this.status = status;
     }
 
-    public Customer(int id, String fullName, String email, String password, String phone, String address, boolean isActive) {
+    public Customer(int id, String fullName, String email, String password, String phone, String address, String status) {
         this.id = id;
         this.fullName = fullName;
         this.email = email;
         this.password = password;
         this.phone = phone;
         this.address = address;
-        this.isActive = isActive;
+        this.status = status;
     }
 
     
@@ -141,18 +141,21 @@ public class Customer {
     public void setPassword(String password) {
         this.password = password;
     }
-    public boolean isActive() {
-        return isActive;
+
+    public String getStatus() {
+        return status;
     }
-    
-    public void setActive(boolean active) {
-        isActive = active;
+
+    public void setStatus(String status) {
+        this.status = status;
     }
-    
+
     @Override
     public String toString() {
-        return "Customer{" + "id=" + id + ", fullName=" + fullName + ", email=" + email + ", phone=" + phone + ", address=" + address + ", profileURL=" + profileURL + ", isActive=" + isActive + '}';
+        return "Customer{" + "id=" + id + ", tier=" + tier + ", fullName=" + fullName + ", email=" + email + ", password=" + password + ", phone=" + phone + ", address=" + address + ", profileURL=" + profileURL + ", createAt=" + createAt + ", updateAt=" + updateAt + ", status=" + status + '}';
     }
+    
+    
     
     
 }

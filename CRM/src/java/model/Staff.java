@@ -15,30 +15,30 @@ public class Staff {
     private String password;
     private String fullName;
     private String department;
-    private String createAt;
+    private String createdAt;
     private boolean isActive;
 
     public Staff() {
     }
 
-    public Staff(int id, int roleId, String email, String password, String fullName, String department, String createAt, boolean isActive) {
+    public Staff(int id, int roleId, String email, String password, String fullName, String department, String createdAt, boolean isActive) {
         this.id = id;
         this.roleId = roleId;
         this.email = email;
         this.password = password;
         this.fullName = fullName;
         this.department = department;
-        this.createAt = createAt;
+        this.createdAt = createdAt;
         this.isActive = isActive;
     }
 
-    public Staff(int roleId, String email, String password, String fullName, String department, String createAt, boolean isActive) {
+    public Staff(int roleId, String email, String password, String fullName, String department, String createdAt, boolean isActive) {
         this.roleId = roleId;
         this.email = email;
         this.password = password;
         this.fullName = fullName;
         this.department = department;
-        this.createAt = createAt;
+        this.createdAt = createdAt;
         this.isActive = isActive;
     }
 
@@ -100,12 +100,12 @@ public class Staff {
         this.department = department;
     }
 
-    public String getCreateAt() {
-        return createAt;
+    public String getCreatedAt() {
+        return createdAt;
     }
 
-    public void setCreateAt(String createAt) {
-        this.createAt = createAt;
+    public void setCreatedAt(String createAt) {
+        this.createdAt = createAt;
     }
 
     public boolean isActive() {
