@@ -124,7 +124,7 @@ public class PermissionDAO extends DBContext {
         List<Permission> permissions = new ArrayList<>();
         String sql = "SELECT DISTINCT p.* FROM permissions p " +
                     "INNER JOIN role_permission rp ON p.id = rp.permission_id " +
-                    "INNER JOIN staff_role sr ON rp.role_id = sr.role_id " +
+                    "INNER JOIN roles sr ON rp.role_id = sr.role_id " +
                     "WHERE sr.staff_id = ?";
         
         try (PreparedStatement stmt = connection.prepareStatement(sql)) {
@@ -152,7 +152,7 @@ public class PermissionDAO extends DBContext {
     public boolean hasPermission(int staffId, String resource, String action) {
         String sql = "SELECT COUNT(*) FROM permissions p " +
                     "INNER JOIN role_permission rp ON p.id = rp.permission_id " +
-                    "INNER JOIN staff_role sr ON rp.role_id = sr.role_id " +
+                    "INNER JOIN roles sr ON rp.role_id = sr.role_id " +
                     "WHERE sr.staff_id = ? AND p.resource = ? AND p.action = ?";
         
         try (PreparedStatement stmt = connection.prepareStatement(sql)) {
