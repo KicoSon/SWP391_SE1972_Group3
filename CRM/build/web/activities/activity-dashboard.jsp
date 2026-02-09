@@ -55,7 +55,7 @@
                 <!-- Action Bar -->
                 <div class="action-bar">
                     <div class="action-buttons">
-                        <a href="activity-create.jsp" class="btn btn-primary" style="text-decoration: none; display: inline-flex; align-items: center; justify-content: center;">
+                        <a href="${pageContext.request.contextPath}/activities/create" class="btn btn-primary" style="text-decoration: none; display: inline-flex; align-items: center; justify-content: center;">
                             + Add activity
                         </a>
                         <button class="btn btn-success">

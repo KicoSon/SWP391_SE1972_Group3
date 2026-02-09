@@ -1,52 +1,42 @@
-/*
- * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
- * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
- */
 package model;
 
-/**
- *
- * @author Admin
- */
+import java.sql.Timestamp;
+
 public class Customer {
     private int id;
-    private int tier;
-    private String fullName;
+    private String fullName;      // Map với full_name
     private String email;
-    private String password;
+    private String password;      // Có lệnh ALTER TABLE ADD password trong SQL
     private String phone;
     private String address;
-    private String profileURL;
-    private String createAt;
-    private String updateAt;
-    private String status;
+    private int tierId;           // Map với tier_id (Default 1)
+    private String status;        // Active/Inactive
+    private String profilePicUrl; // Map với profile_pic_url
+    private int ownerId;          // Map với owner_id (Liên kết với bảng users)
+    private Timestamp createdAt;
+    private Timestamp updatedAt;
 
+    // 1. Constructor rỗng (Bắt buộc cho JavaBean)
     public Customer() {
     }
 
-    public Customer(int id, String fullName, String email, String phone, String address, String profileURL, String createAt, String updateAt, String status) {
+    // 2. Constructor đầy đủ (Dùng khi lấy dữ liệu full từ DB)
+    public Customer(int id, String fullName, String email, String password, String phone, String address, int tierId, String status, String profilePicUrl, int ownerId, Timestamp createdAt, Timestamp updatedAt) {
         this.id = id;
         this.fullName = fullName;
         this.email = email;
+        this.password = password;
         this.phone = phone;
         this.address = address;
-        this.profileURL = profileURL;
-        this.createAt = createAt;
-        this.updateAt = updateAt;
+        this.tierId = tierId;
         this.status = status;
+        this.profilePicUrl = profilePicUrl;
+        this.ownerId = ownerId;
+        this.createdAt = createdAt;
+        this.updatedAt = updatedAt;
     }
 
-    public Customer(String fullName, String email, String phone, String address, String profileURL, String createAt, String updateAt, String status) {
-        this.fullName = fullName;
-        this.email = email;
-        this.phone = phone;
-        this.address = address;
-        this.profileURL = profileURL;
-        this.createAt = createAt;
-        this.updateAt = updateAt;
-        this.status = status;
-    }
-
+    // 3. Constructor rút gọn (Tương thích với AuthDAO cũ nếu cần)
     public Customer(int id, String fullName, String email, String password, String phone, String address, String status) {
         this.id = id;
         this.fullName = fullName;
@@ -57,9 +47,8 @@ public class Customer {
         this.status = status;
     }
 
-    
+    // --- GETTERS AND SETTERS ---
 
-    
     public int getId() {
         return id;
     }
@@ -84,6 +73,14 @@ public class Customer {
         this.email = email;
     }
 
+    public String getPassword() {
+        return password;
+    }
+
+    public void setPassword(String password) {
+        this.password = password;
+    }
+
     public String getPhone() {
         return phone;
     }
@@ -100,46 +97,12 @@ public class Customer {
         this.address = address;
     }
 
-    public String getProfileURL() {
-        return profileURL;
+    public int getTierId() {
+        return tierId;
     }
 
-    public void setProfileURL(String profileURL) {
-        this.profileURL = profileURL;
-    }
-
-    public String getCreateAt() {
-        return createAt;
-    }
-
-    public void setCreateAt(String createAt) {
-        this.createAt = createAt;
-    }
-
-    public String getUpdateAt() {
-        return updateAt;
-    }
-
-    public void setUpdateAt(String updateAt) {
-        this.updateAt = updateAt;
-    }
-
-
-    public int getTier() {
-        return tier;
-    }
-
-    public void setTier(int tier) {
-        this.tier = tier;
-    }
-
-    
-    public String getPassword() {
-        return password;
-    }
-
-    public void setPassword(String password) {
-        this.password = password;
+    public void setTierId(int tierId) {
+        this.tierId = tierId;
     }
 
     public String getStatus() {
@@ -150,12 +113,35 @@ public class Customer {
         this.status = status;
     }
 
-    @Override
-    public String toString() {
-        return "Customer{" + "id=" + id + ", tier=" + tier + ", fullName=" + fullName + ", email=" + email + ", password=" + password + ", phone=" + phone + ", address=" + address + ", profileURL=" + profileURL + ", createAt=" + createAt + ", updateAt=" + updateAt + ", status=" + status + '}';
+    public String getProfilePicUrl() {
+        return profilePicUrl;
     }
-    
-    
-    
-    
+
+    public void setProfilePicUrl(String profilePicUrl) {
+        this.profilePicUrl = profilePicUrl;
+    }
+
+    public int getOwnerId() {
+        return ownerId;
+    }
+
+    public void setOwnerId(int ownerId) {
+        this.ownerId = ownerId;
+    }
+
+    public Timestamp getCreatedAt() {
+        return createdAt;
+    }
+
+    public void setCreatedAt(Timestamp createdAt) {
+        this.createdAt = createdAt;
+    }
+
+    public Timestamp getUpdatedAt() {
+        return updatedAt;
+    }
+
+    public void setUpdatedAt(Timestamp updatedAt) {
+        this.updatedAt = updatedAt;
+    }
 }
