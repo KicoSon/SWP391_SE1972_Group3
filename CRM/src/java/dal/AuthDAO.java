@@ -194,7 +194,7 @@ public class AuthDAO extends DBContext {
      */
     public List<Permission> getStaffPermissions(int staffId) {
         List<Permission> permissions = new ArrayList<>();
-        String sql = "SELECT DISTINCT p.* FROM permissions p " +
+        String sql = "SELECT DISTINCT p.* FROM permission p " +
                     "JOIN role_permission rp ON p.id = rp.permission_id " +
                     "JOIN roles r ON rp.role_id = r.id " +
                     "JOIN users u ON r.id = u.role_id " +
