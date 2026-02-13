@@ -1,0 +1,410 @@
+/* Ticket list page styling */
+:root {
+    --primary-color: #6366f1;
+    --primary-dark: #4338ca;
+    --gray-50: #f8fafc;
+    --gray-100: #f1f5f9;
+    --gray-200: #e2e8f0;
+    --gray-300: #cbd5e1;
+    --gray-400: #94a3b8;
+    --gray-500: #64748b;
+    --gray-700: #334155;
+    --success: #10b981;
+    --warning: #f59e0b;
+    --danger: #ef4444;
+}
+
+body {
+    background: var(--gray-50);
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+}
+
+.main-content {
+    flex: 1;
+    margin-left: 280px;
+    transition: margin-left 0.3s ease;
+    background: var(--gray-50);
+    min-height: 100vh;
+}
+
+.content-wrapper {
+    max-width: 1400px;
+    margin: 0 auto;
+    padding: 2.5rem 2rem;
+}
+
+.page-header {
+    background: #fff;
+    border-radius: 18px;
+    padding: 2rem;
+    margin-bottom: 2rem;
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 1.5rem;
+    border: 1px solid var(--gray-200);
+    box-shadow: 0 18px 40px -20px rgba(15, 23, 42, 0.25);
+}
+
+.page-header h1 {
+    font-size: 1.9rem;
+    font-weight: 700;
+    color: var(--gray-700);
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+}
+
+.page-header p {
+    color: var(--gray-500);
+    margin-top: 0.35rem;
+}
+
+.summary-cards {
+    display: flex;
+    gap: 1rem;
+    flex-wrap: wrap;
+}
+
+.summary-card {
+    background: linear-gradient(145deg, #fff, var(--gray-100));
+    padding: 1rem 1.5rem;
+    border-radius: 16px;
+    min-width: 150px;
+    box-shadow: 0 18px 35px -25px rgba(15, 23, 42, 0.35);
+}
+
+.summary-card strong {
+    font-size: 1.25rem;
+    display: block;
+    color: var(--gray-700);
+}
+
+.summary-card span {
+    color: var(--gray-500);
+    font-size: 0.9rem;
+}
+
+.filters-card {
+    background: linear-gradient(180deg, #ffffff 0%, #f7f9ff 100%);
+    border-radius: 20px;
+    padding: 2rem;
+    margin-bottom: 2rem;
+    border: 1px solid rgba(99, 102, 241, 0.12);
+    box-shadow: 0 24px 50px -30px rgba(15, 23, 42, 0.25);
+}
+
+.filters-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 1.25rem;
+}
+
+.filter-field label {
+    display: block;
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: var(--gray-500);
+    margin-bottom: 0.5rem;
+}
+
+.filter-field input,
+.filter-field select {
+    width: 100%;
+    padding: 0.8rem 1rem;
+    border-radius: 12px;
+    border: 1px solid var(--gray-300);
+    background: #fdfdff;
+    transition: border-color 0.2s ease, box-shadow 0.2s ease, transform 0.2s ease;
+}
+
+.filter-field input:focus,
+.filter-field select:focus {
+    border-color: var(--primary-color);
+    box-shadow: 0 8px 22px -16px rgba(99, 102, 241, 0.65);
+    outline: none;
+    background: #fff;
+    transform: translateY(-1px);
+}
+
+.filter-field input::placeholder {
+    color: var(--gray-400);
+}
+
+.filter-actions {
+    display: flex;
+    gap: 0.75rem;
+    align-items: flex-end;
+    flex-wrap: wrap;
+}
+
+.btn-primary {
+    background: var(--primary-color);
+    color: white;
+    border: none;
+    padding: 0.8rem 1.75rem;
+    border-radius: 12px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.btn-secondary {
+    background: var(--gray-100);
+    color: var(--gray-500);
+    border: 1px solid var(--gray-200);
+    padding: 0.8rem 1.75rem;
+    border-radius: 12px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.btn-primary:hover {
+    background: var(--primary-dark);
+    transform: translateY(-1px);
+}
+
+.btn-secondary:hover {
+    background: var(--gray-200);
+}
+
+.ticket-card {
+    background: #fff;
+    border-radius: 16px;
+    border: 1px solid var(--gray-200);
+    box-shadow: 0 20px 40px -24px rgba(15, 23, 42, 0.3);
+}
+
+.table-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 1.25rem 1.5rem;
+    border-bottom: 1px solid var(--gray-200);
+}
+
+.table-header h3 {
+    font-size: 1.1rem;
+    color: var(--gray-700);
+}
+
+.page-size-selector {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    color: var(--gray-500);
+    font-size: 0.9rem;
+}
+
+.ticket-table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.ticket-table th,
+.ticket-table td {
+    padding: 1rem 1.5rem;
+    text-align: left;
+    border-bottom: 1px solid var(--gray-100);
+}
+
+.ticket-table thead th {
+    font-size: 0.78rem;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: var(--gray-500);
+    background: var(--gray-100);
+}
+
+.ticket-subject {
+    font-weight: 600;
+    color: var(--gray-700);
+}
+
+.ticket-meta {
+    color: var(--gray-500);
+    font-size: 0.85rem;
+    margin-top: 0.25rem;
+}
+
+.status-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    padding: 0.35rem 0.75rem;
+    border-radius: 999px;
+    font-size: 0.75rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+}
+
+.status-badge.OPEN {
+    background: rgba(99, 102, 241, 0.12);
+    color: var(--primary-dark);
+}
+
+.status-badge.PENDING,
+.status-badge.IN_PROGRESS {
+    background: rgba(245, 158, 11, 0.12);
+    color: var(--warning);
+}
+
+.status-badge.RESOLVED {
+    background: rgba(16, 185, 129, 0.12);
+    color: var(--success);
+}
+
+.priority-pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.3rem;
+    padding: 0.35rem 0.6rem;
+    border-radius: 8px;
+    font-size: 0.75rem;
+    font-weight: 600;
+}
+
+.priority-pill.HIGH {
+    background: rgba(239, 68, 68, 0.12);
+    color: var(--danger);
+}
+
+.priority-pill.MEDIUM {
+    background: rgba(245, 158, 11, 0.1);
+    color: var(--warning);
+}
+
+.priority-pill.LOW {
+    background: rgba(59, 130, 246, 0.12);
+    color: #2563eb;
+}
+
+.actionss {
+    display: flex;
+    gap: 0.6rem;
+}
+
+.actionss a {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 36px;
+    height: 36px;
+    border-radius: 10px;
+    border: 1px solid var(--gray-200);
+    color: var(--gray-500);
+    transition: all 0.2s ease;
+}
+
+.actionss a:hover {
+    border-color: var(--primary-color);
+    color: var(--primary-color);
+    transform: translateY(-1px);
+}
+
+.empty-state {
+    text-align: center;
+    padding: 3rem 1rem;
+    color: var(--gray-500);
+}
+
+.empty-state i {
+    font-size: 2.5rem;
+    margin-bottom: 1rem;
+    color: var(--gray-300);
+}
+
+.pagination-wrapper {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 1.25rem 1.5rem;
+}
+
+.pagination-info {
+    color: var(--gray-500);
+    font-size: 0.9rem;
+}
+
+.pagination {
+    display: flex;
+    gap: 0.4rem;
+}
+
+.pagination a,
+.pagination span {
+    display: inline-flex;
+    width: 40px;
+    height: 40px;
+    align-items: center;
+    justify-content: center;
+    border-radius: 10px;
+    border: 1px solid var(--gray-200);
+    color: var(--gray-500);
+    font-weight: 600;
+    text-decoration: none;
+    transition: all 0.2s ease;
+}
+
+.pagination a:hover {
+    border-color: var(--primary-color);
+    color: var(--primary-color);
+}
+
+.pagination .active {
+    background: var(--primary-color);
+    border-color: var(--primary-color);
+    color: white;
+}
+
+.alert {
+    padding: 0.9rem 1.1rem;
+    border-radius: 12px;
+    margin-bottom: 1.5rem;
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    border: 1px solid transparent;
+    font-weight: 500;
+}
+
+.alert-success {
+    background: rgba(16, 185, 129, 0.12);
+    border-color: rgba(16, 185, 129, 0.25);
+    color: var(--success);
+}
+
+.alert-error {
+    background: rgba(239, 68, 68, 0.12);
+    border-color: rgba(239, 68, 68, 0.25);
+    color: var(--danger);
+}
+
+@media (max-width: 1024px) {
+    .main-content {
+        margin-left: 0;
+    }
+
+    .content-wrapper {
+        padding: 1.5rem;
+    }
+}
+
+@media (max-width: 768px) {
+    .filters-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .table-header,
+    .pagination-wrapper {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 1rem;
+    }
+
+    .actions {
+        flex-wrap: wrap;
+    }
+}
