@@ -15,11 +15,9 @@ public class Campaign {
     private Date createdAt;
     private Date updatedAt;
 
-    // Constructor rỗng
     public Campaign() {
     }
 
-    // Constructor đầy đủ
     public Campaign(long id, String name, String description, String bannerUrl,
                     Date startDate, Date endDate, String status,
                     long createdBy, Date createdAt, Date updatedAt) {
@@ -36,7 +34,6 @@ public class Campaign {
         this.updatedAt = updatedAt;
     }
 
-    // GETTER SETTER
 
     public long getId() {
         return id;
