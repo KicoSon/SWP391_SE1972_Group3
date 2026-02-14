@@ -2,6 +2,26 @@
 <project-private xmlns="http://www.netbeans.org/ns/project-private/1">
     <editor-bookmarks xmlns="http://www.netbeans.org/ns/editor-bookmarks/2" lastBookmarkId="0"/>
     <open-files xmlns="http://www.netbeans.org/ns/projectui-open-files/2">
-        <group/>
+        <group>
+            <file>file:/C:/Users/Huynguyen/OneDrive/Desktop/projectSwp/SWP391_SE1972_Group3/CRM/src/java/controller/ActivityCreateController.java</file>
+            <file>file:/C:/Users/Huynguyen/OneDrive/Desktop/projectSwp/SWP391_SE1972_Group3/CRM/src/java/controller/LoginController.java</file>
+            <file>file:/C:/Users/Huynguyen/OneDrive/Desktop/projectSwp/SWP391_SE1972_Group3/CRM/src/java/dal/DBContext.java</file>
+            <file>file:/C:/Users/Huynguyen/OneDrive/Desktop/projectSwp/SWP391_SE1972_Group3/CRM/src/java/dal/AuthDAO.java</file>
+            <file>file:/C:/Users/Huynguyen/OneDrive/Desktop/projectSwp/SWP391_SE1972_Group3/CRM/src/java/controller/MarketingDashboardController.java</file>
+            <file>file:/C:/Users/Huynguyen/OneDrive/Desktop/projectSwp/SWP391_SE1972_Group3/CRM/web/marketingg/dashboard.jsp</file>
+            <file>file:/C:/Users/Huynguyen/OneDrive/Desktop/projectSwp/SWP391_SE1972_Group3/CRM/src/java/model/UserSession.java</file>
+            <file>file:/C:/Users/Huynguyen/OneDrive/Desktop/projectSwp/SWP391_SE1972_Group3/CRM/web/login.jsp</file>
+            <file>file:/C:/Users/Huynguyen/OneDrive/Desktop/projectSwp/SWP391_SE1972_Group3/CRM/web/assets/css/activity-dashboard.css</file>
+            <file>file:/C:/Users/Huynguyen/OneDrive/Desktop/projectSwp/SWP391_SE1972_Group3/CRM/web/activities/activity-dashboard.jsp</file>
+            <file>file:/C:/Users/Huynguyen/OneDrive/Desktop/projectSwp/SWP391_SE1972_Group3/CRM/src/java/model/Staff.java</file>
+            <file>file:/C:/Users/Huynguyen/OneDrive/Desktop/projectSwp/SWP391_SE1972_Group3/CRM/src/java/model/RolePermission.java</file>
+            <file>file:/C:/Users/Huynguyen/OneDrive/Desktop/projectSwp/SWP391_SE1972_Group3/CRM/src/java/model/Role.java</file>
+            <file>file:/C:/Users/Huynguyen/OneDrive/Desktop/projectSwp/SWP391_SE1972_Group3/CRM/src/java/util/PermissionChecker.java</file>
+            <file>file:/C:/Users/Huynguyen/OneDrive/Desktop/projectSwp/SWP391_SE1972_Group3/CRM/web/assets/css/dashboard.css</file>
+            <file>file:/C:/Users/Huynguyen/OneDrive/Desktop/projectSwp/SWP391_SE1972_Group3/CRM/src/java/model/Customer.java</file>
+            <file>file:/C:/Users/Huynguyen/OneDrive/Desktop/projectSwp/SWP391_SE1972_Group3/CRM/web/marketingg/sidebar.jsp</file>
+            <file>file:/C:/Users/Huynguyen/OneDrive/Desktop/projectSwp/SWP391_SE1972_Group3/CRM/src/java/controller/Logout.java</file>
+            <file>file:/C:/Users/Huynguyen/OneDrive/Desktop/projectSwp/SWP391_SE1972_Group3/CRM/web/META-INF/context.xml</file>
+        </group>
     </open-files>
 </project-private>

@@ -137,7 +137,8 @@ public class UserSession {
     }    
     
     public boolean isMarketingStaff() {
-        return hasRole("MARKETING_STAFF");
-    }
+    return hasRole("Marketing");
+}
+
     
 }
