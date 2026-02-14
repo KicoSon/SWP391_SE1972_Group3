@@ -169,10 +169,9 @@
                 </a>
             </div>
 
-            <div class="nav-section">Quản lý chính</div>
             <div class="nav-item">
-                <a href="${pageContext.request.contextPath}/admin/categoryManagement" class="nav-link">
-                    <i class="fas fa-box"></i> Quản lý danh mục
+                <a href="${pageContext.request.contextPath}/marketing/campaignmanagement" class="nav-link">
+                    <i class="fas fa-box"></i> Quản lý chiến dịch
                 </a>
 
             </div>
