@@ -5,28 +5,23 @@
         <group>
             <file>file:/D:/Project/SWP391_SE1972_Group3/CRM/web/index.html</file>
             <file>file:/D:/Project/SWP391_SE1972_Group3/CRM/src/java/dal/CustomerDAO.java</file>
+            <file>file:/D:/Project/SWP391_SE1972_Group3/CRM/web/activities/activity-timeline.jsp</file>
             <file>file:/D:/Project/SWP391_SE1972_Group3/CRM/src/java/dal/OpportunityDAO.java</file>
+            <file>file:/D:/Project/SWP391_SE1972_Group3/CRM/src/java/dal/StaffDAO.java</file>
             <file>file:/D:/Project/SWP391_SE1972_Group3/CRM/src/java/controller/ActivityCreateController.java</file>
+            <file>file:/D:/Project/SWP391_SE1972_Group3/CRM/web/login.jsp</file>
             <file>file:/D:/Project/SWP391_SE1972_Group3/CRM/src/java/filter/AuthorizationFilter.java</file>
             <file>file:/D:/Project/SWP391_SE1972_Group3/CRM/src/java/model/Customer.java</file>
             <file>file:/D:/Project/SWP391_SE1972_Group3/CRM/src/java/model/Staff.java</file>
             <file>file:/D:/Project/SWP391_SE1972_Group3/CRM/src/java/util/PermissionChecker.java</file>
-            <file>file:/D:/Project/SWP391_SE1972_Group3/CRM/web/activities/activity-dashboard.jsp</file>
-            <file>file:/D:/Project/SWP391_SE1972_Group3/CRM/src/java/model/RolePermission.java</file>
-            <file>file:/D:/Project/SWP391_SE1972_Group3/CRM/src/java/dal/PermissionDAO.java</file>
-            <file>file:/D:/Project/SWP391_SE1972_Group3/CRM/src/java/controller/ActivityDashboardController.java</file>
-            <file>file:/D:/Project/SWP391_SE1972_Group3/CRM/src/java/model/UserSession.java</file>
-            <file>file:/D:/Project/SWP391_SE1972_Group3/CRM/src/java/model/activity/Activity.java</file>
-            <file>file:/D:/Project/SWP391_SE1972_Group3/CRM/src/java/model/Role.java</file>
-            <file>file:/D:/Project/SWP391_SE1972_Group3/CRM/web/activities/activity-timeline.jsp</file>
-            <file>file:/D:/Project/SWP391_SE1972_Group3/CRM/src/java/dal/StaffDAO.java</file>
-            <file>file:/D:/Project/SWP391_SE1972_Group3/CRM/web/login.jsp</file>
-            <file>file:/D:/Project/SWP391_SE1972_Group3/CRM/web/assets/js/activity-create.js</file>
+            <file>file:/D:/Project/SWP391_SE1972_Group3/CRM/web/META-INF/context.xml</file>
             <file>file:/D:/Project/SWP391_SE1972_Group3/CRM/src/java/dal/AuthDAO.java</file>
+            <file>file:/D:/Project/SWP391_SE1972_Group3/CRM/web/activities/activity-dashboard.jsp</file>
             <file>file:/D:/Project/SWP391_SE1972_Group3/CRM/nbproject/build-impl.xml</file>
             <file>file:/D:/Project/SWP391_SE1972_Group3/CRM/src/java/dal/ActivityDAO.java</file>
             <file>file:/D:/Project/SWP391_SE1972_Group3/CRM/web/activities/activity-create.jsp</file>
             <file>file:/D:/Project/SWP391_SE1972_Group3/CRM/web/WEB-INF/web.xml</file>
+            <file>file:/D:/Project/SWP391_SE1972_Group3/CRM/src/java/dal/PermissionDAO.java</file>
             <file>file:/D:/Project/SWP391_SE1972_Group3/CRM/src/java/model/activity/Opportunity.java</file>
             <file>file:/D:/Project/SWP391_SE1972_Group3/CRM/src/java/controller/LoginController.java</file>
         </group>
