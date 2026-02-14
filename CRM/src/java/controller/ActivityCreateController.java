@@ -2,6 +2,8 @@ package controller;
 
 import dal.ActivityDAO;
 import dal.CustomerDAO;
+import dal.OpportunityDAO;
+import dal.StaffDAO;
 // import dal.UserDAO;        <-- Bạn cần tạo class này
 // import dal.LeadDAO;        <-- Bạn cần tạo class này
 // import dal.OpportunityDAO; <-- Bạn cần tạo class này
@@ -30,21 +32,15 @@ public class ActivityCreateController extends HttpServlet {
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
-        
+
         // 1. Kiểm tra đăng nhập
         HttpSession session = request.getSession();
         UserSession userSession = (UserSession) session.getAttribute("userSession");
-        
+
         if (userSession == null) {
             response.sendRedirect(request.getContextPath() + "/login");
             return;
         }
-
-        // 2. Lấy danh sách STAFF (Để chọn Owner và Participants)
-        // Giả sử bạn đã có UserDAO.getAllActiveStaff()
-        // UserDAO userDAO = new UserDAO();
-        // List<User> staffList = userDAO.getAllActiveStaff();
-        // request.setAttribute("staffList", staffList);
 
         // 3. Lấy danh sách CUSTOMER (Logic phân quyền: Sale thấy khách mình, Sếp thấy hết)
         CustomerDAO customerDAO = new CustomerDAO();
@@ -64,10 +60,11 @@ public class ActivityCreateController extends HttpServlet {
         // 4. Lấy danh sách Related To (LEAD & OPPORTUNITY)
         // LeadDAO leadDAO = new LeadDAO();
         // request.setAttribute("leadList", leadDAO.getAllLeads());
-        
-        // OpportunityDAO oppDAO = new OpportunityDAO();
-        // request.setAttribute("oppList", oppDAO.getAllOpenOpportunities());
+        OpportunityDAO oppDAO = new OpportunityDAO();
+        request.setAttribute("oppList", oppDAO.getAllOpportunities());
 
+        StaffDAO staffDAO = new StaffDAO();
+        request.setAttribute("staffList", staffDAO.getAllActiveStaff());
         // 5. Forward sang JSP
         request.getRequestDispatcher("/activities/activity-create.jsp").forward(request, response);
     }
@@ -77,12 +74,12 @@ public class ActivityCreateController extends HttpServlet {
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
         request.setCharacterEncoding("UTF-8");
-        
+
         try {
             // 1. Kiểm tra Session
             HttpSession session = request.getSession();
             UserSession userSession = (UserSession) session.getAttribute("userSession");
-            
+
             if (userSession == null) {
                 response.sendRedirect(request.getContextPath() + "/login");
                 return;
@@ -94,31 +91,31 @@ public class ActivityCreateController extends HttpServlet {
             act.setDescription(request.getParameter("description"));
             act.setType(request.getParameter("type"));     // Call, Email, Meeting...
             act.setStatus(request.getParameter("status")); // Planned, In Progress...
-            
+
             // Priority: Kiểm tra null, mặc định Medium
             String priority = request.getParameter("priority");
             act.setPriority((priority != null && !priority.isEmpty()) ? priority : "Medium");
-            
+
             // Người tạo (Created_by) lấy từ Session Staff ID
-            act.setCreatedBy(userSession.getStaff().getId()); 
+            act.setCreatedBy(userSession.getStaff().getId());
 
             // 3. Xử lý Thời gian (Date + Time -> Timestamp)
             String dateStr = request.getParameter("date"); // yyyy-MM-dd
             String timeStr = request.getParameter("time"); // HH:mm
-            
+
             if (dateStr != null && !dateStr.isEmpty() && timeStr != null && !timeStr.isEmpty()) {
                 // Thêm giây :00 để đúng format Timestamp
-                String dateTimeStr = dateStr + " " + timeStr + ":00"; 
+                String dateTimeStr = dateStr + " " + timeStr + ":00";
                 act.setDueDate(Timestamp.valueOf(dateTimeStr));
             } else {
-                act.setDueDate(null); 
+                act.setDueDate(null);
             }
-            
+
             act.setReminderAt(null); // Xử lý Reminder sau nếu cần
 
             // 4. Xử lý "Related To" (Cơ hội hoặc Lead)
             String relatedTo = request.getParameter("related_to"); // VD: "opp-1" hoặc "lead-5"
-            
+
             if (relatedTo != null && !relatedTo.isEmpty()) {
                 String[] parts = relatedTo.split("-");
                 if (parts.length == 2) {
@@ -134,7 +131,7 @@ public class ActivityCreateController extends HttpServlet {
                     }
                 }
             }
-            
+
             // 5. Xử lý Customer (Assigned To)
             String customerVal = request.getParameter("customer");
             if (customerVal != null && !customerVal.isEmpty()) {
@@ -147,7 +144,7 @@ public class ActivityCreateController extends HttpServlet {
 
             // 6. Xử lý Participants (Owner + Others)
             List<Integer> participantIds = new ArrayList<>();
-            
+
             // A. OWNER (Quan trọng: Luôn add vào đầu danh sách)
             String ownerIdRaw = request.getParameter("owner");
             if (ownerIdRaw != null && !ownerIdRaw.isEmpty()) {
@@ -168,23 +165,25 @@ public class ActivityCreateController extends HttpServlet {
                         if (!participantIds.contains(id)) { // Tránh add trùng Owner
                             participantIds.add(id);
                         }
-                    } catch (NumberFormatException e) { continue; }
+                    } catch (NumberFormatException e) {
+                        continue;
+                    }
                 }
             }
 
             // 7. Gọi DAO thực thi
             ActivityDAO dao = new ActivityDAO();
             boolean isSuccess = dao.insertActivity(act, participantIds);
-            
+
             // 8. Điều hướng
             if (isSuccess) {
                 // Thành công -> Về Dashboard kèm thông báo
-                response.sendRedirect(request.getContextPath() + "/activities/dashboard?msg=success");
+                response.sendRedirect(request.getContextPath() + "/sale/dashboard?msg=success");
             } else {
                 // Thất bại -> Forward lại trang create kèm thông báo lỗi
                 request.setAttribute("error", "Lỗi: Không thể lưu vào Database. Vui lòng thử lại.");
                 // Cần load lại các list dữ liệu cho dropdown trước khi forward
-                doGet(request, response); 
+                doGet(request, response);
             }
 
         } catch (Exception e) {

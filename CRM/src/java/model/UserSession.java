@@ -79,36 +79,37 @@ public class UserSession {
     
     // Helper method to get user ID
     public int getUserId() {
-        if (isCustomer() && customer != null) {
+        if (isCustomerUser() && customer != null) {
             return customer.getId();
-        } else if (isStaff() && staff != null) {
+        } else if (isStaffUser() && staff != null) {
             return staff.getId();
         }
         return -1;
     }
     
     // Helper methods
-    public boolean isCustomer() {
-        return "CUSTOMER".equals(userType);
-    }
-    
-    public boolean isStaff() {
-        return "STAFF".equals(userType);
-    }
-    
+// Đổi tên từ isStaff thành checkIsStaff hoặc isStaffUser
+public boolean isStaffUser() { 
+    return "STAFF".equals(userType);
+}
+
+// Đổi tên từ isCustomer thành checkIsCustomer hoặc isCustomerUser
+public boolean isCustomerUser() {
+    return "CUSTOMER".equals(userType);
+}
     public String getDisplayName() {
-        if (isCustomer() && customer != null) {
+        if (isCustomerUser() && customer != null) {
             return customer.getFullName();
-        } else if (isStaff() && staff != null) {
+        } else if (isStaffUser() && staff != null) {
             return staff.getFullName();
         }
         return "Unknown User";
     }
     
     public String getEmail() {
-        if (isCustomer() && customer != null) {
+        if (isCustomerUser() && customer != null) {
             return customer.getEmail();
-        } else if (isStaff() && staff != null) {
+        } else if (isStaffUser() && staff != null) {
             return staff.getEmail();
         }
         return null;

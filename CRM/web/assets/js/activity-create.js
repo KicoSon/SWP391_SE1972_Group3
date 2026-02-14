@@ -24,7 +24,7 @@ participantInput.addEventListener('input', function () {
         // Lọc danh sách: Chưa được chọn AND (Trùng tên OR Trùng role)
         const filtered = participantsSource.filter(p =>
             !selectedParticipants.includes(p.id) &&
-            (p.name.toLowerCase().includes(searchTerm) || p.role.toLowerCase().includes(searchTerm))
+                    (p.name.toLowerCase().includes(searchTerm) || p.role.toLowerCase().includes(searchTerm))
         );
 
         if (filtered.length > 0) {
@@ -52,7 +52,7 @@ participantSuggestions.addEventListener('click', function (e) {
     if (suggestionItem) {
         const participantId = suggestionItem.dataset.id;
         addParticipant(participantId);
-        
+
         // Reset input
         participantInput.value = '';
         participantSuggestions.classList.remove('active');
@@ -64,11 +64,13 @@ participantSuggestions.addEventListener('click', function (e) {
 
 function addParticipant(id) {
     // Kiểm tra trùng
-    if (selectedParticipants.includes(id)) return;
+    if (selectedParticipants.includes(id))
+        return;
 
     // Tìm thông tin user
     const participant = participantsSource.find(p => p.id === id);
-    if (!participant) return;
+    if (!participant)
+        return;
 
     // Thêm vào mảng quản lý
     selectedParticipants.push(id);
@@ -90,11 +92,11 @@ function addParticipant(id) {
 tagsContainer.addEventListener('click', function (e) {
     if (e.target.classList.contains('tag-remove')) {
         const id = e.target.dataset.id;
-        
+
         // Xóa khỏi mảng
         selectedParticipants = selectedParticipants.filter(p => p !== id);
         updateHiddenInput(); // Cập nhật input hidden ngay
-        
+
         // Xóa khỏi giao diện
         e.target.parentElement.remove();
     } else if (e.target === tagsContainer) {
@@ -117,13 +119,13 @@ function updateHiddenInput() {
 }
 
 // --- LOGIC SUBMIT FORM ---
-form.addEventListener('submit', function(e) {
+form.addEventListener('submit', function (e) {
     // Đảm bảo lần cuối input hidden đã có dữ liệu
     updateHiddenInput();
-    
+
     // Nếu muốn validate gì thêm thì làm ở đây
     // Ví dụ: Bắt buộc phải có ít nhất 1 participant? (Tuỳ logic)
-    
+
     // Form sẽ tự động submit về Controller (do không có e.preventDefault())
 });
 
@@ -131,7 +133,45 @@ form.addEventListener('submit', function(e) {
 const now = new Date();
 const dateInput = document.querySelector('input[name="date"]');
 const timeInput = document.querySelector('input[name="time"]');
-if(!dateInput.value) {
+if (!dateInput.value) {
     dateInput.value = now.toISOString().split('T')[0];
     timeInput.value = now.toTimeString().slice(0, 5);
 }
+
+function filterRelatedTo() {
+    // 1. Lấy ID khách hàng đang được chọn (Ví dụ: "1")
+    var customerId = document.getElementById("customerSelect").value;
+
+    // 2. Lấy danh sách các options trong ô Related To
+    var relatedSelect = document.getElementById("relatedSelect");
+    var options = relatedSelect.querySelectorAll("option");
+
+    // 3. Reset giá trị về rỗng để tránh chọn nhầm cái đang bị ẩn
+    relatedSelect.value = "";
+
+    // 4. Duyệt qua từng option để ẩn/hiện
+    options.forEach(function (opt) {
+        // Luôn hiện option mặc định "-- Không liên kết --"
+        if (opt.value === "") {
+            opt.style.display = "block";
+            return;
+        }
+
+        // Lấy customer ID được gắn trên option đó
+        var dataCust = opt.getAttribute("data-customer");
+
+        // Logic lọc:
+        // - Nếu chưa chọn khách (customerId rỗng) -> Ẩn hết (hoặc hiện hết tùy bạn, nhưng nên ẩn cho gọn)
+        // - Nếu có chọn khách -> Chỉ hiện option nào khớp ID
+        if (customerId && dataCust === customerId) {
+            opt.style.display = "block"; // Hiện
+        } else {
+            opt.style.display = "none";  // Ẩn
+        }
+    });
+}
+
+// Gọi 1 lần lúc trang vừa load để ẩn hết đi (vì lúc đầu chưa chọn khách)
+document.addEventListener("DOMContentLoaded", function () {
+    filterRelatedTo();
+});

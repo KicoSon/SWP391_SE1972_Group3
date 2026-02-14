@@ -60,28 +60,28 @@ public class AuthorizationFilter implements Filter {
         boolean isAllowed = true; // Mặc định cho qua nếu không vi phạm các case dưới
 
         if (path.startsWith("/admin/")) {
-            if (!userSession.isStaff() || !userSession.isAdmin()) {
+            if (!userSession.isStaffUser()|| !userSession.isAdmin()) {
                 isAllowed = false;
             }
         } else if (path.startsWith("/support/")) {
-            if (!userSession.isStaff() || (!userSession.isSupportStaff() && !userSession.isAdmin())) {
+            if (!userSession.isStaffUser() || (!userSession.isSupportStaff() && !userSession.isAdmin())) {
                 isAllowed = false;
             }
         } else if (path.startsWith("/sale/")) {
             // Logic cho Sale Staff
-            if (!userSession.isStaff() || (!userSession.isSaleStaff() && !userSession.isAdmin())) {
+            if (!userSession.isStaffUser() || (!userSession.isSaleStaff() && !userSession.isAdmin())) {
                 isAllowed = false;
             }
         } else if (path.startsWith("/marketing/")) {
-            if (!userSession.isStaff() || (!userSession.isMarketingStaff() && !userSession.isAdmin())) {
+            if (!userSession.isStaffUser() || (!userSession.isMarketingStaff() && !userSession.isAdmin())) {
                 isAllowed = false;
             }
         } else if (path.startsWith("/customer/")) {
-            if (!userSession.isCustomer()) {
+            if (!userSession.isCustomerUser()) {
                 isAllowed = false;
             }
         } else if (path.startsWith("/staff/")) {
-            if (!userSession.isStaff()) {
+            if (!userSession.isStaffUser()) {
                 isAllowed = false;
             }
         }
