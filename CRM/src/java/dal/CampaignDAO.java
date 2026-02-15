@@ -72,6 +72,67 @@ public class CampaignDAO extends DBContext {
     return list;
 
 }
+    public boolean insertCampaign(Campaign c) {
+
+        String sql = "INSERT INTO campaigns "
+                + "(name, description, banner_url, start_date, end_date, status, created_by) "
+                + "VALUES (?, ?, ?, ?, ?, ?, ?)";
+
+        try {
+
+            PreparedStatement ps = connection.prepareStatement(sql);
+
+            ps.setString(1, c.getName());
+
+            ps.setString(2, c.getDescription());
+
+            ps.setString(3, c.getBannerUrl());
+
+            ps.setDate(4, new java.sql.Date(c.getStartDate().getTime()));
+
+            ps.setDate(5, new java.sql.Date(c.getEndDate().getTime()));
+
+            ps.setString(6, c.getStatus());
+
+            ps.setLong(7, c.getCreatedBy());
+
+            return ps.executeUpdate() > 0;
+
+        } catch (Exception e) {
+
+            e.printStackTrace();
+
+        }
+
+        return false;
+
+    }
+public boolean isCampaignNameExist(String name) {
+
+    String sql = "SELECT COUNT(*) FROM campaigns WHERE name = ?";
+
+    try {
+
+        PreparedStatement ps = connection.prepareStatement(sql);
+
+        ps.setString(1, name);
+
+        ResultSet rs = ps.executeQuery();
+
+        if (rs.next()) {
+
+            return rs.getInt(1) > 0;
+
+        }
+
+    } catch (Exception e) {
+
+        e.printStackTrace();
+
+    }
+
+    return false;
+}
 
 
 

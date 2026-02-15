@@ -6,7 +6,7 @@
 <html lang="vi">
     <head>
         <meta charset="UTF-8">
-        <title>Quản Lý Campaign | TechMart Admin</title>
+        <title>Quản Lý Campaign</title>
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
         <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
@@ -165,7 +165,7 @@
 
                 </h2>
 
-                <a href="addCampaign.jsp" class="btn btn-primary">
+                <a href="${pageContext.request.contextPath}/marketingg/addCampaign" class="btn btn-primary">
 
                     <i class="fas fa-plus"></i>
 
@@ -262,7 +262,8 @@
 
                                     <td>${c.id}</td>
                                     <td>
-                                      <img src="${pageContext.request.contextPath}${c.bannerUrl}" width="120">
+<img src="${pageContext.request.contextPath}/${c.bannerUrl}"
+     width="120">
 
                                     </td>
 
@@ -311,7 +312,7 @@
                                             </a>
 
 
-                                          
+
 
                                         </div>
 

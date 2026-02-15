@@ -164,17 +164,24 @@
 
             <div class="nav-section">Tổng quan</div>
             <div class="nav-item">
-                <a href="${pageContext.request.contextPath}/AdminDashboardServlet" class="nav-link active">
+                <a href="${pageContext.request.contextPath}/marketingg/dashboard" class="nav-link active">
                     <i class="fas fa-chart-line"></i> Thống kê tổng quan
                 </a>
             </div>
 
             <div class="nav-item">
-                <a href="${pageContext.request.contextPath}/marketing/campaignmanagement" class="nav-link">
-                    <i class="fas fa-box"></i> Quản lý chiến dịch
+
+                <a href="${pageContext.request.contextPath}/marketing/campaignmanagement"
+                   class="nav-link">
+
+                    <i class="fas fa-bullhorn"></i>
+
+                    Quản lý chiến dịch
+
                 </a>
 
             </div>
+
             <div class="nav-item">
                 <a href="${pageContext.request.contextPath}/admin/productManagement" class="nav-link">
                     <i class="fas fa-box"></i> Quản lý sản phẩm
@@ -213,7 +220,7 @@
                     <i class="fas fa-user-shield"></i> Thông tin cá nhân
                 </a>
             </div>
-            
+
         </nav>
     </div>
 
