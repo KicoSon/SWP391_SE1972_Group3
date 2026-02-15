@@ -239,9 +239,16 @@
 <div class="admin-header fade-in">
     <div class="admin-info">
         <div class="admin-welcome">
-            <i class="fas fa-user-shield"></i>
-            <span>Xin chào, 
-    <strong>${userSession.displayName}</strong>
+    <div>
+
+<i class="fas fa-user"></i>
+
+Xin chào,
+
+<b>${sessionScope.userSession.displayName}</b>
+
+</div>
+
 </span>
 
         </div>

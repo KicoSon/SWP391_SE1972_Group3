@@ -243,6 +243,10 @@ public class AddCampaignServlet extends HttpServlet {
             // SUCCESS
             // =========================
 
+
+            session.setAttribute("success",
+                    "Thêm Campaign thành công");
+
             response.sendRedirect(
                     request.getContextPath()
                     + "/marketing/campaignmanagement");

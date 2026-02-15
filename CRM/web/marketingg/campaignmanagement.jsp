@@ -144,16 +144,81 @@
             .badge.inactive {
                 background:#e74c3c;
             }
+.toast-success{
+
+position:fixed;
+
+top:20px;
+
+right:30px;
+
+background:linear-gradient(135deg,#00c851,#007e33);
+
+color:white;
+
+padding:16px 28px;
+
+border-radius:12px;
+
+box-shadow:0 8px 25px rgba(0,0,0,0.2);
+
+font-weight:600;
+
+z-index:9999;
+
+animation:slideIn 0.5s ease;
+
+}
+
+.toast-success i{
+
+margin-right:10px;
+
+}
+
+@keyframes slideIn{
+
+from{
+
+opacity:0;
+
+transform:translateX(100px);
+
+}
+
+to{
+
+opacity:1;
+
+transform:translateX(0);
+
+}
+
+}
 
         </style>
 
     </head>
+<c:if test="${not empty sessionScope.success}">
+
+<div id="toastSuccess" class="toast-success">
+
+    <i class="fas fa-check-circle"></i>
+
+    ${sessionScope.success}
+
+</div>
+
+<c:remove var="success" scope="session"/>
+
+</c:if>
 
     <body>
 
         <%@ include file="sidebar.jsp" %>
 
         <div class="main-content">
+
 
             <div class="header">
 
@@ -262,8 +327,8 @@
 
                                     <td>${c.id}</td>
                                     <td>
-<img src="${pageContext.request.contextPath}/${c.bannerUrl}"
-     width="120">
+                                        <img src="${pageContext.request.contextPath}/${c.bannerUrl}"
+                                             width="120">
 
                                     </td>
 
@@ -303,13 +368,11 @@
 
                                         <div class="action-btns">
 
-                                            <a href="updateCampaign?id=${c.id}"
-
-                                               class="edit-btn">
-
+                                            <a href="${pageContext.request.contextPath}/marketingg/editCampaign?id=${c.id}"
+                                               class="btn btn-primary">
                                                 <i class="fas fa-edit"></i> Sửa
-
                                             </a>
+
 
 
 
@@ -346,7 +409,28 @@
 
 
         </div>
+<script>
 
-    </body>
+setTimeout(()=>{
 
-</html>
+let toast=document.getElementById("toastSuccess");
+
+if(toast){
+
+toast.style.opacity="0";
+
+toast.style.transform="translateX(100px)";
+
+setTimeout(()=>toast.remove(),500);
+
+}
+
+},5000);
+
+</script>
+
+    </body
+    
+
+</html
+
