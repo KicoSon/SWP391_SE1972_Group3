@@ -183,10 +183,16 @@
             </div>
 
             <div class="nav-item">
-                <a href="${pageContext.request.contextPath}/admin/productManagement" class="nav-link">
-                    <i class="fas fa-box"></i> Quản lý sản phẩm
+                <a href="${pageContext.request.contextPath}/marketing/leadmanagement"
+                   class="nav-link">
+
+                    <i class="fas fa-user-tie"></i>
+
+                    Quản lý Lead
+
                 </a>
             </div>
+
             <div class="nav-item">
                 <a href="${pageContext.request.contextPath}/admin/brandManagement" class="nav-link">
                     <i class="fas fa-box"></i> Quản lý thương hiệu

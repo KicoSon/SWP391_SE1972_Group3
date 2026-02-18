@@ -27,17 +27,14 @@ public class Lead {
 
     private Date updatedAt;
 
-    // field phụ (JOIN campaigns)
     private String campaignName;
 
 
-    // ===== Constructor rỗng =====
 
     public Lead() {
     }
 
 
-    // ===== Constructor đầy đủ =====
 
     public Lead(long id, String fullName, String phone, String email,
             String address, String productInterest, String source,
@@ -60,7 +57,6 @@ public class Lead {
     }
 
 
-    // ===== Getter Setter =====
 
     public long getId() {
         return id;
