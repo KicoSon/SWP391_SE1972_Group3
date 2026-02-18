@@ -13,37 +13,45 @@
 
         <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
 
-
         <style>
-
-            /* GIỮ NGUYÊN STYLE */
 
             body{
                 margin:0;
                 font-family:"Segoe UI";
                 background:linear-gradient(135deg,#3a7bd5,#3a6073);
+                color:#333;
             }
 
             .main-content{
                 margin-left:270px;
                 padding:30px;
+                min-height:100vh;
             }
 
             .header{
-                background:white;
-                padding:25px;
+                background:rgba(255,255,255,0.95);
+                padding:25px 30px;
                 border-radius:20px;
-                box-shadow:0 10px 25px rgba(0,0,0,0.1);
+                box-shadow:0 10px 25px rgba(0,0,0,0.15);
                 margin-bottom:30px;
                 display:flex;
                 justify-content:space-between;
+                align-items:center;
+            }
+
+            .header h2{
+                font-weight:700;
+                font-size:26px;
             }
 
             .btn{
+                border:none;
                 padding:10px 16px;
                 border-radius:8px;
-                text-decoration:none;
+                font-size:14px;
                 font-weight:600;
+                cursor:pointer;
+                text-decoration:none;
             }
 
             .btn-primary{
@@ -63,10 +71,18 @@
                 margin-bottom:25px;
             }
 
+            .filter-bar input,
+            .filter-bar select{
+                padding:10px;
+                border-radius:8px;
+                border:1px solid #ccc;
+            }
+
             .card{
                 background:white;
                 border-radius:20px;
                 box-shadow:0 10px 30px rgba(0,0,0,0.1);
+                overflow:hidden;
             }
 
             table{
@@ -76,24 +92,90 @@
 
             th,td{
                 padding:12px;
-                border-bottom:1px solid #eee;
+                border-bottom:1px solid rgba(0,0,0,0.1);
+            }
+
+            th{
+                background:rgba(102,126,234,0.1);
             }
 
             .badge{
-                padding:5px 10px;
                 border-radius:15px;
-                color:white;
+                padding:5px 10px;
                 font-size:12px;
+                color:white;
             }
+
+            /* STATUS COLOR */
 
             .badge.new{
                 background:#17a2b8;
             }
+
+            .badge.nurturing{
+                background:#ffc107;
+                color:black;
+            }
+
             .badge.qualified{
                 background:#28a745;
             }
+
+            .badge.assigned{
+                background:#007bff;
+            }
+
             .badge.disqualified{
                 background:#dc3545;
+            }
+            .toast-success{
+
+                position:fixed;
+
+                top:20px;
+
+                right:20px;
+
+                background:linear-gradient(135deg,#28a745,#20c997);
+
+                color:white;
+
+                padding:15px 20px;
+
+                border-radius:10px;
+
+                box-shadow:0 5px 15px rgba(0,0,0,0.2);
+
+                font-weight:600;
+
+                display:flex;
+
+                align-items:center;
+
+                gap:10px;
+
+                z-index:9999;
+
+                animation:slideIn 0.5s ease;
+
+            }
+
+            @keyframes slideIn{
+
+                from{
+
+                    opacity:0;
+                    transform:translateX(100px);
+
+                }
+
+                to{
+
+                    opacity:1;
+                    transform:translateX(0);
+
+                }
+
             }
 
         </style>
@@ -101,9 +183,20 @@
     </head>
 
     <body>
+        <c:if test="${not empty sessionScope.success}">
 
+            <div id="toastSuccess" class="toast-success">
+
+                <i class="fas fa-check-circle"></i>
+
+                ${sessionScope.success}
+
+            </div>
+
+            <c:remove var="success" scope="session"/>
+
+        </c:if>
         <%@ include file="sidebar.jsp" %>
-
 
         <div class="main-content">
 
@@ -118,42 +211,69 @@
 
                 </h2>
 
+                <a href="${pageContext.request.contextPath}/marketingg/addLead"
+                   class="btn btn-primary">
+
+                    <i class="fas fa-plus"></i>
+
+                    Thêm Lead
+
+                </a>
 
             </div>
 
 
-            <!-- SEARCH -->
+            <!-- FILTER -->
 
             <form action="${pageContext.request.contextPath}/marketing/leadmanagement"
-
                   method="get"
-
                   class="filter-bar">
 
 
                 <input type="text"
-
                        name="search"
-
                        placeholder="Tìm tên, email, phone..."
-
                        value="${param.search}">
 
 
                 <select name="statusFilter">
 
-                    <option value="">-- Trạng thái --</option>
+                    <option value="">-- Lọc theo trạng thái --</option>
 
-                    <option value="new">New</option>
+                    <option value="new"
+                            ${param.statusFilter == 'new' ? 'selected' : ''}>
+                        New
+                    </option>
 
-                    <option value="qualified">Qualified</option>
 
-                    <option value="disqualified">Disqualified</option>
+                    <option value="nurturing"
+                            ${param.statusFilter == 'nurturing' ? 'selected' : ''}>
+                        Nurturing
+                    </option>
+
+
+                    <option value="qualified"
+                            ${param.statusFilter == 'qualified' ? 'selected' : ''}>
+                        Qualified
+                    </option>
+
+
+                    <option value="assigned"
+                            ${param.statusFilter == 'assigned' ? 'selected' : ''}>
+                        Assigned
+                    </option>
+
+
+                    <option value="disqualified"
+                            ${param.statusFilter == 'disqualified' ? 'selected' : ''}>
+                        Disqualified
+                    </option>
+
 
                 </select>
 
 
-                <button class="btn btn-outline">
+                <button type="submit" class="btn btn-outline">
 
                     <i class="fas fa-search"></i>
 
@@ -170,7 +290,6 @@
 
                 <div style="padding:20px">
 
-
                     <table>
 
                         <thead>
@@ -186,6 +305,7 @@
                                 <th>Email</th>
 
                                 <th>Campaign</th>
+                                <th>Product Interest</th>
 
                                 <th>Source</th>
 
@@ -196,7 +316,6 @@
                             </tr>
 
                         </thead>
-
 
 
                         <tbody>
@@ -214,6 +333,8 @@
                                     <td>${l.email}</td>
 
                                     <td>${l.campaignName}</td>
+                                    <td>${l.productInterest}</td>
+
 
                                     <td>${l.source}</td>
 
@@ -232,19 +353,15 @@
                                     <td>
 
                                         <fmt:formatDate value="${l.createdAt}"
-
                                                         pattern="dd/MM/yyyy HH:mm"/>
 
                                     </td>
-
 
                                 </tr>
 
                             </c:forEach>
 
-
                         </tbody>
-
 
                     </table>
 
@@ -252,9 +369,11 @@
 
                     <c:if test="${empty leadList}">
 
-                        <div style="padding:20px;text-align:center">
+                        <div style="text-align:center;padding:20px;color:#777;">
 
-                            Không có lead nào
+                            <i class="fas fa-info-circle"></i>
+
+                            Không tìm thấy Lead nào.
 
                         </div>
 
@@ -266,10 +385,27 @@
 
             </div>
 
-
         </div>
 
+        <script>
 
+            setTimeout(() => {
+
+                let toast = document.getElementById("toastSuccess");
+
+                if (toast) {
+
+                    toast.style.opacity = "0";
+
+                    toast.style.transform = "translateX(100px)";
+
+                    setTimeout(() => toast.remove(), 500);
+
+                }
+
+            }, 5000);
+
+        </script>
     </body>
 
 </html>

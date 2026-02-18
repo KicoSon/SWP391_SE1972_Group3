@@ -6,23 +6,19 @@ import java.util.*;
 
 public class LeadDAO extends DBContext {
 
-
-
     // =============================
     // FILTER LEADS
     // =============================
-
     public List<Lead> filterLeads(String search, String status) {
 
         List<Lead> list = new ArrayList<>();
 
         StringBuilder sql = new StringBuilder(
-                "SELECT l.*, c.name AS campaign_name " +
-                "FROM leads l " +
-                "LEFT JOIN campaigns c ON l.campaign_id = c.id " +
-                "WHERE 1=1"
+                "SELECT l.*, c.name AS campaign_name "
+                + "FROM leads l "
+                + "LEFT JOIN campaigns c ON l.campaign_id = c.id "
+                + "WHERE 1=1"
         );
-
 
         if (search != null && !search.trim().isEmpty()) {
 
@@ -30,25 +26,20 @@ public class LeadDAO extends DBContext {
 
         }
 
-
         if (status != null && !status.trim().isEmpty()) {
 
             sql.append(" AND l.status = ?");
 
         }
 
-
         sql.append(" ORDER BY l.created_at DESC");
-
 
         try {
 
-            PreparedStatement ps =
-                    connection.prepareStatement(sql.toString());
-
+            PreparedStatement ps
+                    = connection.prepareStatement(sql.toString());
 
             int index = 1;
-
 
             if (search != null && !search.trim().isEmpty()) {
 
@@ -56,21 +47,17 @@ public class LeadDAO extends DBContext {
 
             }
 
-
             if (status != null && !status.trim().isEmpty()) {
 
                 ps.setString(index++, status);
 
             }
 
-
             ResultSet rs = ps.executeQuery();
-
 
             while (rs.next()) {
 
                 Lead l = new Lead();
-
 
                 l.setId(rs.getLong("id"));
 
@@ -86,7 +73,6 @@ public class LeadDAO extends DBContext {
                         rs.getString("product_interest")
                 );
 
-
                 l.setSource(rs.getString("source"));
 
                 l.setStatus(rs.getString("status"));
@@ -95,36 +81,29 @@ public class LeadDAO extends DBContext {
                         (Long) rs.getObject("campaign_id")
                 );
 
-
                 l.setAssignedSalesId(
                         (Long) rs.getObject("assigned_sales_id")
                 );
-
 
                 l.setCreatedBy(
                         (Long) rs.getObject("created_by")
                 );
 
-
                 l.setCreatedAt(
                         rs.getTimestamp("created_at")
                 );
-
 
                 l.setUpdatedAt(
                         rs.getTimestamp("updated_at")
                 );
 
-
                 l.setCampaignName(
                         rs.getString("campaign_name")
                 );
 
-
                 list.add(l);
 
             }
-
 
         } catch (Exception e) {
 
@@ -132,31 +111,25 @@ public class LeadDAO extends DBContext {
 
         }
 
-
         return list;
 
     }
 
-
-
     // =============================
     // INSERT LEAD
     // =============================
-
     public boolean insertLead(Lead l) {
 
-        String sql =
-                "INSERT INTO leads " +
-                "(full_name, phone, email, address, " +
-                "product_interest, source, status, campaign_id, created_by) " +
-                "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)";
-
+        String sql
+                = "INSERT INTO leads "
+                + "(full_name, phone, email, address, "
+                + "product_interest, source, status, campaign_id, created_by) "
+                + "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)";
 
         try {
 
-            PreparedStatement ps =
-                    connection.prepareStatement(sql);
-
+            PreparedStatement ps
+                    = connection.prepareStatement(sql);
 
             ps.setString(1, l.getFullName());
 
@@ -172,21 +145,19 @@ public class LeadDAO extends DBContext {
 
             ps.setString(7, l.getStatus());
 
-
-            if (l.getCampaignId() != null)
+            if (l.getCampaignId() != null) {
                 ps.setLong(8, l.getCampaignId());
-            else
+            } else {
                 ps.setNull(8, Types.BIGINT);
+            }
 
-
-            if (l.getCreatedBy() != null)
+            if (l.getCreatedBy() != null) {
                 ps.setLong(9, l.getCreatedBy());
-            else
+            } else {
                 ps.setNull(9, Types.BIGINT);
-
+            }
 
             return ps.executeUpdate() > 0;
-
 
         } catch (Exception e) {
 
@@ -194,6 +165,34 @@ public class LeadDAO extends DBContext {
 
         }
 
+        return false;
+
+    }
+
+    public boolean isEmailExist(String email) {
+
+        String sql
+                = "SELECT COUNT(*) FROM leads WHERE email=?";
+
+        try {
+
+            PreparedStatement ps
+                    = connection.prepareStatement(sql);
+
+            ps.setString(1, email);
+
+            ResultSet rs
+                    = ps.executeQuery();
+
+            if (rs.next()) {
+                return rs.getInt(1) > 0;
+            }
+
+        } catch (Exception e) {
+
+            e.printStackTrace();
+
+        }
 
         return false;
 
