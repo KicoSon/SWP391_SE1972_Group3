@@ -3,20 +3,17 @@
     <editor-bookmarks xmlns="http://www.netbeans.org/ns/editor-bookmarks/2" lastBookmarkId="0"/>
     <open-files xmlns="http://www.netbeans.org/ns/projectui-open-files/2">
         <group>
-            <file>file:/C:/Users/Huynguyen/OneDrive/Desktop/projectSwp/SWP391_SE1972_Group3/CRM/src/java/controller/MarketingDashboardController.java</file>
+            <file>file:/C:/Users/Huynguyen/OneDrive/Desktop/projectSwp/SWP391_SE1972_Group3/CRM/web/marketingg/addCampaign.jsp</file>
+            <file>file:/C:/Users/Huynguyen/OneDrive/Desktop/projectSwp/SWP391_SE1972_Group3/CRM/src/java/controller/marketing/EditCampaignServlet.java</file>
+            <file>file:/C:/Users/Huynguyen/OneDrive/Desktop/projectSwp/SWP391_SE1972_Group3/CRM/web/marketingg/editCampaign.jsp</file>
+            <file>file:/C:/Users/Huynguyen/OneDrive/Desktop/projectSwp/SWP391_SE1972_Group3/CRM/src/java/dal/CampaignDAO.java</file>
+            <file>file:/C:/Users/Huynguyen/OneDrive/Desktop/projectSwp/SWP391_SE1972_Group3/CRM/web/marketingg/campaignmanagement.jsp</file>
+            <file>file:/C:/Users/Huynguyen/OneDrive/Desktop/projectSwp/SWP391_SE1972_Group3/CRM/src/java/controller/marketing/AddCampaignServlet.java</file>
+            <file>file:/C:/Users/Huynguyen/OneDrive/Desktop/projectSwp/SWP391_SE1972_Group3/CRM/src/java/controller/LoginController.java</file>
+            <file>file:/C:/Users/Huynguyen/OneDrive/Desktop/projectSwp/SWP391_SE1972_Group3/CRM/src/java/model/UserSession.java</file>
+            <file>file:/C:/Users/Huynguyen/OneDrive/Desktop/projectSwp/SWP391_SE1972_Group3/CRM/web/WEB-INF/web.xml</file>
             <file>file:/C:/Users/Huynguyen/OneDrive/Desktop/projectSwp/SWP391_SE1972_Group3/CRM/web/marketingg/dashboard.jsp</file>
             <file>file:/C:/Users/Huynguyen/OneDrive/Desktop/projectSwp/SWP391_SE1972_Group3/CRM/web/marketingg/sidebar.jsp</file>
-            <file>file:/C:/Users/Huynguyen/OneDrive/Desktop/projectSwp/SWP391_SE1972_Group3/CRM/web/login.jsp</file>
-            <file>file:/C:/Users/Huynguyen/OneDrive/Desktop/projectSwp/SWP391_SE1972_Group3/CRM/src/java/dal/DBContext.java</file>
-            <file>file:/C:/Users/Huynguyen/OneDrive/Desktop/projectSwp/SWP391_SE1972_Group3/CRM/src/java/dal/PermissionDAO.java</file>
-            <file>file:/C:/Users/Huynguyen/OneDrive/Desktop/projectSwp/SWP391_SE1972_Group3/CRM/src/java/dal/AuthDAO.java</file>
-            <file>file:/C:/Users/Huynguyen/OneDrive/Desktop/projectSwp/SWP391_SE1972_Group3/CRM/src/java/dal/ActivityDAO.java</file>
-            <file>file:/C:/Users/Huynguyen/OneDrive/Desktop/projectSwp/SWP391_SE1972_Group3/CRM/src/java/model/UserSession.java</file>
-            <file>file:/C:/Users/Huynguyen/OneDrive/Desktop/projectSwp/SWP391_SE1972_Group3/CRM/src/java/filter/AuthorizationFilter.java</file>
-            <file>file:/C:/Users/Huynguyen/OneDrive/Desktop/projectSwp/SWP391_SE1972_Group3/CRM/src/java/model/Campaign.java</file>
-            <file>file:/C:/Users/Huynguyen/OneDrive/Desktop/projectSwp/SWP391_SE1972_Group3/CRM/src/java/dal/CampaignDAO.java</file>
-            <file>file:/C:/Users/Huynguyen/OneDrive/Desktop/projectSwp/SWP391_SE1972_Group3/CRM/src/java/controller/marketing/CampaignManagementServlet.java</file>
-            <file>file:/C:/Users/Huynguyen/OneDrive/Desktop/projectSwp/SWP391_SE1972_Group3/CRM/web/marketingg/campaignmanagement.jsp</file>
         </group>
     </open-files>
 </project-private>

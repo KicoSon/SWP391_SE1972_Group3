@@ -144,74 +144,74 @@
             .badge.inactive {
                 background:#e74c3c;
             }
-.toast-success{
+            .toast-success{
 
-position:fixed;
+                position:fixed;
 
-top:20px;
+                top:20px;
 
-right:30px;
+                right:30px;
 
-background:linear-gradient(135deg,#00c851,#007e33);
+                background:linear-gradient(135deg,#00c851,#007e33);
 
-color:white;
+                color:white;
 
-padding:16px 28px;
+                padding:16px 28px;
 
-border-radius:12px;
+                border-radius:12px;
 
-box-shadow:0 8px 25px rgba(0,0,0,0.2);
+                box-shadow:0 8px 25px rgba(0,0,0,0.2);
 
-font-weight:600;
+                font-weight:600;
 
-z-index:9999;
+                z-index:9999;
 
-animation:slideIn 0.5s ease;
+                animation:slideIn 0.5s ease;
 
-}
+            }
 
-.toast-success i{
+            .toast-success i{
 
-margin-right:10px;
+                margin-right:10px;
 
-}
+            }
 
-@keyframes slideIn{
+            @keyframes slideIn{
 
-from{
+                from{
 
-opacity:0;
+                    opacity:0;
 
-transform:translateX(100px);
+                    transform:translateX(100px);
 
-}
+                }
 
-to{
+                to{
 
-opacity:1;
+                    opacity:1;
 
-transform:translateX(0);
+                    transform:translateX(0);
 
-}
+                }
 
-}
+            }
 
         </style>
 
     </head>
-<c:if test="${not empty sessionScope.success}">
+    <c:if test="${not empty sessionScope.success}">
 
-<div id="toastSuccess" class="toast-success">
+        <div id="toastSuccess" class="toast-success">
 
-    <i class="fas fa-check-circle"></i>
+            <i class="fas fa-check-circle"></i>
 
-    ${sessionScope.success}
+            ${sessionScope.success}
 
-</div>
+        </div>
 
-<c:remove var="success" scope="session"/>
+        <c:remove var="success" scope="session"/>
 
-</c:if>
+    </c:if>
 
     <body>
 
@@ -409,28 +409,28 @@ transform:translateX(0);
 
 
         </div>
-<script>
+        <script>
 
-setTimeout(()=>{
+            setTimeout(() => {
 
-let toast=document.getElementById("toastSuccess");
+                let toast = document.getElementById("toastSuccess");
 
-if(toast){
+                if (toast) {
 
-toast.style.opacity="0";
+                    toast.style.opacity = "0";
 
-toast.style.transform="translateX(100px)";
+                    toast.style.transform = "translateX(100px)";
 
-setTimeout(()=>toast.remove(),500);
+                    setTimeout(() => toast.remove(), 500);
 
-}
+                }
 
-},5000);
+            }, 5000);
 
-</script>
+        </script>
 
     </body
-    
+
 
 </html
 
