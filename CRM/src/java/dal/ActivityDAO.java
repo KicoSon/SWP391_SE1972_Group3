@@ -13,7 +13,7 @@ public class ActivityDAO extends DBContext {
         String sqlActivity = "INSERT INTO activities "
                 + "(title, type, description, lead_id, customer_id, opportunity_id, due_date, reminder_at, status, priority, created_by, created_at) "
                 + "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, GETDATE())";
-        
+
         // Role trong DB có ràng buộc CHECK ('Owner', 'Participant')
         String sqlParticipant = "INSERT INTO activity_participants (activity_id, user_id, role) VALUES (?, ?, ?)";
 
@@ -28,7 +28,7 @@ public class ActivityDAO extends DBContext {
 
             // --- BƯỚC 1: Insert bảng ACTIVITIES ---
             psAct = conn.prepareStatement(sqlActivity, Statement.RETURN_GENERATED_KEYS);
-            
+
             psAct.setString(1, activity.getTitle());
             psAct.setString(2, activity.getType()); // Phải khớp: 'Call', 'Email',...
             psAct.setString(3, activity.getDescription());
@@ -37,7 +37,7 @@ public class ActivityDAO extends DBContext {
             if (activity.getLeadId() != null) {
                 psAct.setLong(4, activity.getLeadId());
             } else {
-                psAct.setNull(4, Types.BIGINT); 
+                psAct.setNull(4, Types.BIGINT);
             }
 
             // Xử lý Null cho Customer (INT)
@@ -56,7 +56,7 @@ public class ActivityDAO extends DBContext {
 
             psAct.setTimestamp(7, activity.getDueDate());
             psAct.setTimestamp(8, activity.getReminderAt());
-            
+
             // Default DB là 'Planned' và 'Medium', nhưng nên set cứng từ code để chắc chắn
             psAct.setString(9, activity.getStatus() != null ? activity.getStatus() : "Planned");
             psAct.setString(10, activity.getPriority() != null ? activity.getPriority() : "Medium");
@@ -79,17 +79,17 @@ public class ActivityDAO extends DBContext {
             // --- BƯỚC 2: Insert bảng PARTICIPANTS ---
             if (participantIds != null && !participantIds.isEmpty()) {
                 psPart = conn.prepareStatement(sqlParticipant);
-                
+
                 // Quy ước: Người đầu tiên trong list là Owner, còn lại là Participant
                 for (int i = 0; i < participantIds.size(); i++) {
                     Integer userId = participantIds.get(i);
                     psPart.setInt(1, activityId);
                     psPart.setInt(2, userId);
-                    
+
                     // Logic Role: Check phần tử đầu tiên
                     String role = (i == 0) ? "Owner" : "Participant";
                     psPart.setString(3, role);
-                    
+
                     psPart.addBatch();
                 }
                 psPart.executeBatch();
@@ -100,39 +100,62 @@ public class ActivityDAO extends DBContext {
 
         } catch (SQLException e) {
             if (conn != null) {
-                try { conn.rollback(); } catch (SQLException ex) { ex.printStackTrace(); }
+                try {
+                    conn.rollback();
+                } catch (SQLException ex) {
+                    ex.printStackTrace();
+                }
             }
             e.printStackTrace();
             return false;
         } finally {
             // Đóng resources thủ công để tránh leak
-            try { if (rs != null) rs.close(); } catch (SQLException e) {}
-            try { if (psPart != null) psPart.close(); } catch (SQLException e) {}
-            try { if (psAct != null) psAct.close(); } catch (SQLException e) {}
-            try { if (conn != null) conn.close(); } catch (SQLException e) {}
+            try {
+                if (rs != null) {
+                    rs.close();
+                }
+            } catch (SQLException e) {
+            }
+            try {
+                if (psPart != null) {
+                    psPart.close();
+                }
+            } catch (SQLException e) {
+            }
+            try {
+                if (psAct != null) {
+                    psAct.close();
+                }
+            } catch (SQLException e) {
+            }
+            try {
+                if (conn != null) {
+                    conn.close();
+                }
+            } catch (SQLException e) {
+            }
         }
     }
-
 
     // 2. Lấy danh sách hoạt động của một nhân viên cụ thể
     public List<Activity> getActivitiesByUserId(int userId) {
         List<Activity> list = new ArrayList<>();
         String sql = "SELECT a.* FROM activities a "
-                   + "JOIN activity_participants ap ON a.id = ap.activity_id "
-                   + "WHERE ap.user_id = ?";
-        try {
-            PreparedStatement ps = getConnection().prepareStatement(sql);
+                + "JOIN activity_participants ap ON a.id = ap.activity_id "
+                + "WHERE ap.user_id = ?";
+        try (PreparedStatement ps = getConnection().prepareStatement(sql)) {
             ps.setInt(1, userId);
-            ResultSet rs = ps.executeQuery();
-            while (rs.next()) {
-                Activity act = new Activity();
-                act.setId(rs.getInt("id"));
-                act.setTitle(rs.getString("title"));
-                act.setType(rs.getString("type"));
-                act.setDueDate(rs.getTimestamp("due_date"));
-                act.setStatus(rs.getString("status"));
-                act.setPriority(rs.getString("priority"));
-                list.add(act);
+            try (ResultSet rs = ps.executeQuery()) {
+                while (rs.next()) {
+                    Activity act = new Activity();
+                    act.setId(rs.getInt("id"));
+                    act.setTitle(rs.getString("title"));
+                    act.setType(rs.getString("type"));
+                    act.setDueDate(rs.getTimestamp("due_date"));
+                    act.setStatus(rs.getString("status"));
+                    act.setPriority(rs.getString("priority"));
+                    list.add(act);
+                }
             }
         } catch (SQLException e) {
             e.printStackTrace();

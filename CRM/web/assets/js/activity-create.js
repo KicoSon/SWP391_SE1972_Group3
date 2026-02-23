@@ -139,38 +139,45 @@ if (!dateInput.value) {
 }
 
 function filterRelatedTo() {
-    // 1. Lấy ID khách hàng đang được chọn (Ví dụ: "1")
+    // 1. Lấy ID khách hàng đang được chọn
     var customerId = document.getElementById("customerSelect").value;
 
     // 2. Lấy danh sách các options trong ô Related To
     var relatedSelect = document.getElementById("relatedSelect");
     var options = relatedSelect.querySelectorAll("option");
 
-    // 3. Reset giá trị về rỗng để tránh chọn nhầm cái đang bị ẩn
+    // 3. Reset giá trị về rỗng
     relatedSelect.value = "";
 
-    // 4. Duyệt qua từng option để ẩn/hiện
+    // 4. Duyệt qua từng option để phân loại Ẩn/Hiện
     options.forEach(function (opt) {
-        // Luôn hiện option mặc định "-- Không liên kết --"
+        // Luôn hiện option mặc định
         if (opt.value === "") {
-            opt.style.display = "block";
+            opt.style.display = ""; // Dùng "" an toàn hơn "block" cho thẻ option
             return;
         }
 
-        // Lấy customer ID được gắn trên option đó
+        var val = opt.value; // Chứa "lead-x" hoặc "opp-x"
         var dataCust = opt.getAttribute("data-customer");
 
-        // Logic lọc:
-        // - Nếu chưa chọn khách (customerId rỗng) -> Ẩn hết (hoặc hiện hết tùy bạn, nhưng nên ẩn cho gọn)
-        // - Nếu có chọn khách -> Chỉ hiện option nào khớp ID
-        if (customerId && dataCust === customerId) {
-            opt.style.display = "block"; // Hiện
-        } else {
-            opt.style.display = "none";  // Ẩn
+        // TRƯỜNG HỢP A: CHƯA chọn Khách hàng
+        if (!customerId || customerId === "") {
+            if (val.startsWith("lead-")) {
+                opt.style.display = ""; // Hiện tất cả Lead
+            } else {
+                opt.style.display = "none"; // Ẩn tất cả Opportunity
+            }
+        } 
+        // TRƯỜNG HỢP B: ĐÃ chọn Khách hàng
+        else {
+            if (val.startsWith("opp-") && dataCust === customerId) {
+                opt.style.display = ""; // Chỉ hiện Opp của Khách đó
+            } else {
+                opt.style.display = "none"; // Ẩn Lead và Opp của khách khác
+            }
         }
     });
 }
-
 // Gọi 1 lần lúc trang vừa load để ẩn hết đi (vì lúc đầu chưa chọn khách)
 document.addEventListener("DOMContentLoaded", function () {
     filterRelatedTo();

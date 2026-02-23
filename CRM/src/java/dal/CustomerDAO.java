@@ -12,9 +12,8 @@ public class CustomerDAO extends DBContext {
         List<Customer> list = new ArrayList<>();
         String sql = "SELECT * FROM customers WHERE status = 'Active' ORDER BY full_name ASC";
         
-        try {
-            PreparedStatement ps = getConnection().prepareStatement(sql);
-            ResultSet rs = ps.executeQuery();
+        try (PreparedStatement ps = connection.prepareStatement(sql);
+             ResultSet rs = ps.executeQuery()) {
             while (rs.next()) {
                 list.add(mapResultSetToCustomer(rs));
             }
@@ -30,12 +29,12 @@ public class CustomerDAO extends DBContext {
         List<Customer> list = new ArrayList<>();
         String sql = "SELECT * FROM customers WHERE status = 'Active' AND owner_id = ? ORDER BY full_name ASC";
         
-        try {
-            PreparedStatement ps = getConnection().prepareStatement(sql);
-            ps.setInt(1, ownerId); // Truyền ID của Sale đang login vào đây
-            ResultSet rs = ps.executeQuery();
-            while (rs.next()) {
-                list.add(mapResultSetToCustomer(rs));
+        try (PreparedStatement ps = connection.prepareStatement(sql)) {
+            ps.setInt(1, ownerId);
+            try (ResultSet rs = ps.executeQuery()) {
+                while (rs.next()) {
+                    list.add(mapResultSetToCustomer(rs));
+                }
             }
         } catch (SQLException e) {
             e.printStackTrace();
@@ -69,12 +68,12 @@ public class CustomerDAO extends DBContext {
     // (Optional) Hàm lấy khách hàng theo ID cụ thể (Dùng khi xem chi tiết hoặc Edit)
     public Customer getCustomerById(int id) {
         String sql = "SELECT * FROM customers WHERE id = ?";
-        try {
-            PreparedStatement ps = getConnection().prepareStatement(sql);
+        try (PreparedStatement ps = connection.prepareStatement(sql)) {
             ps.setInt(1, id);
-            ResultSet rs = ps.executeQuery();
-            if (rs.next()) {
-                return mapResultSetToCustomer(rs);
+            try (ResultSet rs = ps.executeQuery()) {
+                if (rs.next()) {
+                    return mapResultSetToCustomer(rs);
+                }
             }
         } catch (SQLException e) {
             e.printStackTrace();

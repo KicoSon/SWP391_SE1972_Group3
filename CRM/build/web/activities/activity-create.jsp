@@ -101,11 +101,11 @@
                             <div class="section-divider"></div>
 
                             <div class="form-row">
-                                <label class="form-label">Assigned To: <span class="required">*</span></label>
+                                <label class="form-label">Customer: <span class="required">*</span></label>
                                 <div class="input-group">
                                     <div class="select-with-icon">
                                         <span class="select-icon">👤</span>
-                                        <select class="form-control" name="customer" id="customerSelect" onchange="filterRelatedTo()" required>
+                                        <select class="form-control" name="customer" id="customerSelect" onchange="filterRelatedTo()" >
                                             <option value="">-- Chọn Khách Hàng --</option>
                                             <c:forEach items="${customerList}" var="c">
                                                 <option value="${c.id}">${c.fullName}</option>
@@ -121,19 +121,30 @@
                                     <select class="form-control" name="related_to" id="relatedSelect">
                                         <option value="">-- Không liên kết --</option>
 
-                                        <optgroup label="Opportunities">
-                                            <c:forEach items="${oppList}" var="o">
-                                                <option value="opp-${o.id}" data-customer="${o.customerId}">
-                                                    💼 ${o.title}
-                                                </option>
-                                            </c:forEach>
-                                        </optgroup>
+                                        <c:if test="${not empty oppList}">
+                                            <optgroup label="Opportunities">
+                                                <c:forEach items="${oppList}" var="o">
+                                                    <option value="opp-${o.id}" data-customer="${o.customerId}">
+                                                        💼 ${o.title}
+                                                    </option>
+                                                </c:forEach>
+                                            </optgroup>
+                                        </c:if>
 
-                                        <optgroup label="Leads">
-                                            <c:forEach items="${leads}" var="l">
-                                                <option value="lead-${l.id}">🎯 ${l.name}</option>
-                                            </c:forEach>
-                                        </optgroup>
+                                        <c:if test="${not empty leads}">
+                                            <optgroup label="Leads">
+                                                <c:forEach items="${leads}" var="l">
+                                                    <option value="lead-${l.id}">🎯 ${l.fullName}</option>
+                                                </c:forEach>
+                                            </optgroup>
+                                        </c:if>
+
+                                        <c:if test="${empty leads}">
+                                            <!-- Debug: Thêm dòng này để kiểm tra nếu leads list rỗng -->
+                                            <optgroup label="Leads (Không có dữ liệu)">
+                                                <option value="" disabled>Chưa có lead nào</option>
+                                            </optgroup>
+                                        </c:if>
                                     </select>
                                 </div>
                             </div>

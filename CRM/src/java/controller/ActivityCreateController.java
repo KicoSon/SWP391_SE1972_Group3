@@ -4,15 +4,11 @@ import dal.ActivityDAO;
 import dal.CustomerDAO;
 import dal.OpportunityDAO;
 import dal.StaffDAO;
-// import dal.UserDAO;        <-- Bạn cần tạo class này
-// import dal.LeadDAO;        <-- Bạn cần tạo class này
-// import dal.OpportunityDAO; <-- Bạn cần tạo class này
+import dal.LeadDAO;
 import model.activity.Activity;
 import model.Customer;
 import model.UserSession;
-// import model.User;         <-- Model User/Staff
-// import model.Lead;         <-- Model Lead
-// import model.Opportunity;  <-- Model Opportunity
+import model.Lead;
 
 import java.io.IOException;
 import java.sql.Timestamp;
@@ -48,9 +44,12 @@ public class ActivityCreateController extends HttpServlet {
 
         if (userSession.isSaleStaff() && !userSession.isAdmin()) {
             // Nếu là Sale -> Chỉ lấy khách hàng do mình phụ trách
-            // Lưu ý: Đảm bảo class UserSession có hàm getStaff() trả về thông tin nhân viên
-            int currentStaffId = userSession.getStaff().getId();
-            customerList = customerDAO.getCustomersByOwnerId(currentStaffId);
+            if (userSession.getStaff() != null) {
+                int currentStaffId = userSession.getStaff().getId();
+                customerList = customerDAO.getCustomersByOwnerId(currentStaffId);
+            } else {
+                customerList = customerDAO.getAllActiveCustomers();
+            }
         } else {
             // Nếu là Admin, Manager, Marketing -> Lấy toàn bộ
             customerList = customerDAO.getAllActiveCustomers();
@@ -58,11 +57,25 @@ public class ActivityCreateController extends HttpServlet {
         request.setAttribute("customerList", customerList);
 
         // 4. Lấy danh sách Related To (LEAD & OPPORTUNITY)
-        // LeadDAO leadDAO = new LeadDAO();
-        // request.setAttribute("leadList", leadDAO.getAllLeads());
+        LeadDAO leadDAO = new LeadDAO();
+        List<Lead> leadList;
+
+// Logic phân quyền: 
+// Nếu là Sale (và không phải Admin) -> Chỉ lấy Lead của chính mình
+        if (userSession.isSaleStaff() && !userSession.isAdmin()) {
+            // Nếu là Sale -> Truyền ID của Sale vào để SQL chỉ lấy đúng Lead của người đó
+            long currentStaffId = (long) userSession.getStaffInfo().getId();
+            leadList = leadDAO.getLeadsBySaleId(currentStaffId);
+        } else {
+            // Nếu là Sếp/Admin -> Truyền null để SQL nhả ra toàn bộ Lead của cả công ty
+            leadList = leadDAO.getLeadsBySaleId(null);
+        }
+        request.setAttribute("leads", leadList); // Gửi sang JSP
+
+// Lấy danh sách Opportunity (Giữ nguyên)
         OpportunityDAO oppDAO = new OpportunityDAO();
         request.setAttribute("oppList", oppDAO.getAllOpportunities());
-
+        
         StaffDAO staffDAO = new StaffDAO();
         request.setAttribute("staffList", staffDAO.getAllActiveStaff());
         // 5. Forward sang JSP
@@ -97,6 +110,10 @@ public class ActivityCreateController extends HttpServlet {
             act.setPriority((priority != null && !priority.isEmpty()) ? priority : "Medium");
 
             // Người tạo (Created_by) lấy từ Session Staff ID
+            if (userSession.getStaff() == null) {
+                response.sendRedirect(request.getContextPath() + "/login");
+                return;
+            }
             act.setCreatedBy(userSession.getStaff().getId());
 
             // 3. Xử lý Thời gian (Date + Time -> Timestamp)
