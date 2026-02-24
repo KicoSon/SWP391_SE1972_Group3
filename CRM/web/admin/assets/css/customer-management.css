@@ -340,6 +340,48 @@ body {
     background: #fee2e2;
     color: #991b1b;
 }
+/* Rank colors */
+
+.badge-bronze {
+    min-width: 80px;      /* chỉnh theo ý */
+    text-align: center;
+    justify-content: center;
+    background-color: #cd7f32;
+    color: white;
+}
+
+.badge-silver {
+    min-width: 80px;      /* chỉnh theo ý */
+    text-align: center;
+    justify-content: center;
+    background-color: #c0c0c0;
+    color: #333;
+}
+
+.badge-gold {
+    min-width: 80px;      /* chỉnh theo ý */
+    text-align: center;
+    justify-content: center;
+    background-color: #ffd700;
+    color: #333;
+}
+
+.badge-platinum {
+    min-width: 80px;      /* chỉnh theo ý */
+    text-align: center;
+    justify-content: center;
+    background-color: #6fa8dc;
+    color: white;
+}
+
+/* Default */
+.badge-default {
+    min-width: 80px;      /* chỉnh theo ý */
+    text-align: center;
+    justify-content: center;
+    background-color: #999;
+    color: white;
+}
 
 /* Empty State */
 .empty-state {
@@ -462,6 +504,97 @@ body {
     color: white;
     border-color: transparent;
     box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
+}
+
+/* Filter Row */
+
+.filter-row {
+    background: white;
+    padding: 15px 20px;
+    margin-bottom: 20px;
+    border-radius: 12px;
+    box-shadow: 0 3px 10px rgba(0,0,0,0.08);
+}
+
+.filter-row form {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 20px;
+}
+
+.filter-group {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.filter-label {
+    font-weight: 600;
+    color: #4a5568;
+}
+
+.filter-group label {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    cursor: pointer;
+    font-size: 14px;
+    color: #2d3748;
+}
+
+.filter-group input[type="checkbox"] {
+    accent-color: #667eea;
+    cursor: pointer;
+}
+
+/* ===== Filter Layout ===== */
+
+.filter-main {
+    display: flex;
+    gap: 15px;
+    align-items: flex-start;
+    width: fit-content;
+}
+
+/* Mỗi cột */
+.filter-col {
+    display: flex;
+}
+
+/* Bên trong: title + options */
+.filter-inner {
+    display: grid;
+    grid-template-columns: 80px auto;
+    column-gap: 15px;
+}
+
+/* Tiêu đề */
+.filter-title {
+    font-weight: 600;
+    color: #2d3748;
+    padding-top: 3px;
+}
+
+/* Checkbox list */
+.filter-options {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+
+.filter-options label {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    cursor: pointer;
+    font-size: 14px;
+}
+
+/* Clear button */
+.filter-clear {
+    align-items: flex-start;
+    padding-top: 22px;
 }
 
 /* Responsive */

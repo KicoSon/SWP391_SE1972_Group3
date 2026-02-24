@@ -20,74 +20,154 @@ public class ManageCustomer extends HttpServlet {
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
 
-        CustomerDAO dao = new CustomerDAO();
+        try {
 
-        // Lấy param
-        String search = request.getParameter("search");
-        String pageParam = request.getParameter("page");
+            CustomerDAO dao = new CustomerDAO();
 
-        int currentPage = 1;
-
-        if (pageParam != null) {
-            try {
-                currentPage = Integer.parseInt(pageParam);
-            } catch (Exception e) {
-                currentPage = 1;
-            }
-        }
-
-        // Lấy toàn bộ customer
-        List<Customer> allCustomers = dao.getAllCustomers();
-
-        // Search (filter tại Java cho đơn giản)
-        List<Customer> filtered = new ArrayList<>();
-
-        if (search != null && !search.trim().isEmpty()) {
-
-            String keyword = search.toLowerCase();
+            List<Customer> allCustomers = dao.getAllCustomers();
+            
+            //get all cus num
+            int totalAll = allCustomers.size(); 
+            
+            // Count active + inactive acc
+            int activeCount = 0;
 
             for (Customer c : allCustomers) {
-
-                if ((c.getFullName() != null && c.getFullName().toLowerCase().contains(keyword))
-                        || (c.getEmail() != null && c.getEmail().toLowerCase().contains(keyword))
-                        || (c.getPhone() != null && c.getPhone().contains(keyword))
-                        || (c.getAddress() != null && c.getAddress().toLowerCase().contains(keyword))) {
-
-                    filtered.add(c);
+                if ("Active".equals(c.getStatus())) {
+                    activeCount++;
                 }
             }
 
-        } else {
-            filtered = allCustomers;
+            int inactiveCount = totalAll - activeCount;
+
+            // Fix NULL
+            if (allCustomers == null) {
+                allCustomers = new ArrayList<>();
+            }
+
+            /* ===== Params ===== */
+            String search = request.getParameter("search");
+            String pageParam = request.getParameter("page");
+            String[] ranks = request.getParameterValues("rank");
+            String[] statuses = request.getParameterValues("status");
+
+            int currentPage = 1;
+
+            if (pageParam != null) {
+                try {
+                    currentPage = Integer.parseInt(pageParam);
+                } catch (Exception e) {
+                    currentPage = 1;
+                }
+            }
+
+            /* ===== Filter ===== */
+            List<Customer> filtered = new ArrayList<>();
+
+            for (Customer c : allCustomers) {
+
+                boolean match = true;
+
+                // Search
+                if (search != null && !search.trim().isEmpty()) {
+                    String keyword = search.toLowerCase();
+
+                    if (!((c.getFullName() != null && c.getFullName().toLowerCase().contains(keyword))
+                            || (c.getEmail() != null && c.getEmail().toLowerCase().contains(keyword))
+                            || (c.getPhone() != null && c.getPhone().contains(keyword))
+                            || (c.getAddress() != null && c.getAddress().toLowerCase().contains(keyword)))) {
+                        match = false;
+                    }
+                }
+
+                // Rank Filter
+                if (ranks != null && ranks.length > 0) {
+
+                    boolean rankMatch = false;
+
+                    for (String r : ranks) {
+                        if (c.getTierName().equalsIgnoreCase(r)) {
+                            rankMatch = true;
+                            break;
+                        }
+                    }
+
+                    if (!rankMatch) {
+                        match = false;
+                    }
+                }
+
+                // Status Filter
+                if (statuses != null && statuses.length > 0) {
+
+                    boolean statusMatch = false;
+
+                    for (String s : statuses) {
+                        if (c.getStatus().equalsIgnoreCase(s)) {
+                            statusMatch = true;
+                            break;
+                        }
+                    }
+
+                    if (!statusMatch) {
+                        match = false;
+                    }
+                }
+
+                if (match) {
+                    filtered.add(c);
+                }
+            }
+//---
+
+            /* ===== Pagination ===== */
+            int totalCustomers = filtered.size();
+
+            int totalPages = (int) Math.ceil((double) totalCustomers / PAGE_SIZE);
+
+            // Fix page overflow
+            if (currentPage < 1) {
+                currentPage = 1;
+            }
+            if (currentPage > totalPages && totalPages > 0) {
+                currentPage = totalPages;
+            }
+
+            int start = (currentPage - 1) * PAGE_SIZE;
+            int end = Math.min(start + PAGE_SIZE, totalCustomers);
+
+            List<Customer> pageList = new ArrayList<>();
+
+            if (start >= 0 && start < end && end <= totalCustomers) {
+                pageList = filtered.subList(start, end);
+            }
+
+            /* ===== Set Attribute ===== */
+            request.setAttribute("customers", pageList);
+            request.setAttribute("totalCustomers", totalAll);
+            request.setAttribute("totalPages", totalPages);
+            request.setAttribute("currentPage", currentPage);
+
+            request.setAttribute("activeCount", activeCount);
+            request.setAttribute("inactiveCount", inactiveCount);
+
+            request.setAttribute("canCreate", true);
+            request.setAttribute("canEdit", true);
+            request.setAttribute("canDelete", true);
+
+            /* ===== Forward ===== */
+            request.getRequestDispatcher("/admin/customers.jsp")
+                    .forward(request, response);
+
+        } catch (Exception e) {
+
+            // In lỗi ra console
+            e.printStackTrace();
+
+            // In lỗi ra browser để debug
+            response.setContentType("text/plain");
+            response.getWriter().print("ERROR: " + e.getMessage());
         }
-
-        // Pagination
-        int totalCustomers = filtered.size();
-        int totalPages = (int) Math.ceil((double) totalCustomers / PAGE_SIZE);
-
-        int start = (currentPage - 1) * PAGE_SIZE;
-        int end = Math.min(start + PAGE_SIZE, totalCustomers);
-
-        List<Customer> pageList = new ArrayList<>();
-
-        if (start < totalCustomers) {
-            pageList = filtered.subList(start, end);
-        }
-
-        // Set attribute cho JSP
-        request.setAttribute("customers", pageList);
-        request.setAttribute("totalCustomers", totalCustomers);
-        request.setAttribute("totalPages", totalPages);
-        request.setAttribute("currentPage", currentPage);
-
-        // Quyền demo (sau gắn role)
-        request.setAttribute("canCreate", true);
-        request.setAttribute("canEdit", true);
-        request.setAttribute("canDelete", true);
-
-        // Forward
-        request.getRequestDispatcher("/admin/customers.jsp")
-                .forward(request, response);
     }
 
     @Override
@@ -126,6 +206,8 @@ public class ManageCustomer extends HttpServlet {
                     } else {
                         session.setAttribute("errorMessage", "Mở khóa thất bại!");
                     }
+                } else if("view".equals(action)){
+                    int customerID = Integer.bitCount(i)request.getParameter("id");
                 }
 
             } catch (Exception e) {

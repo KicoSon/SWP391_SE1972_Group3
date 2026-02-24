@@ -19,7 +19,7 @@ public class ManagerDashboardController extends HttpServlet {
         // Check session
         HttpSession session = request.getSession(false);
         if (session == null || session.getAttribute("userSession") == null) {
-            response.sendRedirect(request.getContextPath() + "/login.jsp");
+            response.sendRedirect(request.getContextPath() + "/login");
             return;
         }
         

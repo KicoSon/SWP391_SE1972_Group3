@@ -11,8 +11,12 @@ public class CustomerDAO extends DBContext {
 
         List<Customer> list = new ArrayList<>();
 
-        String sql = "SELECT * FROM customers";
-
+//        String sql = "SELECT * FROM customers";
+        String sql = """
+            SELECT c.*, t.tier_name
+            FROM customers c
+            LEFT JOIN tiers t ON c.tier_id = t.id
+        """;
         try {
 
             PreparedStatement ps = connection.prepareStatement(sql);
@@ -41,6 +45,7 @@ public class CustomerDAO extends DBContext {
                 if (rs.getTimestamp("updated_at") != null) {
                     c.setUpdatedAt(rs.getTimestamp("updated_at").toLocalDateTime());
                 }
+                c.setTierName(rs.getString("tier_name"));
 
                 list.add(c);
             }

@@ -17,6 +17,8 @@ public class Customer {
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
 
+    private String tierName;
+
     public Customer() {
     }
 
@@ -149,6 +151,14 @@ public class Customer {
 
     public void setUpdatedAt(LocalDateTime updatedAt) {
         this.updatedAt = updatedAt;
+    }
+
+    public String getTierName() {
+        return tierName;
+    }
+
+    public void setTierName(String tierName) {
+        this.tierName = tierName;
     }
 
     @Override
