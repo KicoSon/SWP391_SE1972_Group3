@@ -21,14 +21,34 @@ public class ManageCustomer extends HttpServlet {
             throws ServletException, IOException {
 
         try {
-
+            //Xu li View + EDIT
             CustomerDAO dao = new CustomerDAO();
+            String action = request.getParameter("action");
+            if ("view".equals(action)) {
+                int customerID = Integer.parseInt(request.getParameter("id"));
+                Customer customer = dao.getCustomerByID(customerID);
+                request.setAttribute("customer", customer);
+
+                /* ===== Forward ===== */
+                request.getRequestDispatcher("/admin/customer-details.jsp")
+                        .forward(request, response);
+                return;
+            } else if ("edit".equals(action)) {
+                int customerID = Integer.parseInt(request.getParameter("id"));
+                Customer customer = dao.getCustomerByID(customerID);
+                request.setAttribute("customer", customer);
+
+                /* ===== Forward ===== */
+                request.getRequestDispatcher("/admin/customer-form.jsp")
+                        .forward(request, response);
+                return;
+            }
 
             List<Customer> allCustomers = dao.getAllCustomers();
-            
+
             //get all cus num
-            int totalAll = allCustomers.size(); 
-            
+            int totalAll = allCustomers.size();
+
             // Count active + inactive acc
             int activeCount = 0;
 
@@ -65,9 +85,7 @@ public class ManageCustomer extends HttpServlet {
             List<Customer> filtered = new ArrayList<>();
 
             for (Customer c : allCustomers) {
-
                 boolean match = true;
-
                 // Search
                 if (search != null && !search.trim().isEmpty()) {
                     String keyword = search.toLowerCase();
@@ -79,10 +97,8 @@ public class ManageCustomer extends HttpServlet {
                         match = false;
                     }
                 }
-
                 // Rank Filter
                 if (ranks != null && ranks.length > 0) {
-
                     boolean rankMatch = false;
 
                     for (String r : ranks) {
@@ -91,12 +107,10 @@ public class ManageCustomer extends HttpServlet {
                             break;
                         }
                     }
-
                     if (!rankMatch) {
                         match = false;
                     }
                 }
-
                 // Status Filter
                 if (statuses != null && statuses.length > 0) {
 
@@ -108,12 +122,10 @@ public class ManageCustomer extends HttpServlet {
                             break;
                         }
                     }
-
                     if (!statusMatch) {
                         match = false;
                     }
                 }
-
                 if (match) {
                     filtered.add(c);
                 }
@@ -206,8 +218,6 @@ public class ManageCustomer extends HttpServlet {
                     } else {
                         session.setAttribute("errorMessage", "Mở khóa thất bại!");
                     }
-                } else if("view".equals(action)){
-                    int customerID = Integer.bitCount(i)request.getParameter("id");
                 }
 
             } catch (Exception e) {

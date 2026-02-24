@@ -2,6 +2,7 @@ package dal;
 
 import model.Customer;
 import java.sql.*;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -76,11 +77,71 @@ public class CustomerDAO extends DBContext {
 
         return false;
     }
-//    public static void main(String[] args) {
-//        CustomerDAO cd = new CustomerDAO();
-//        List<Customer> ls = cd.getAllCustomers();
+
+    public Customer getCustomerByID(int id) {
+
+        String sql = """
+        SELECT 
+            c.id,
+            c.full_name,
+            c.email,
+            c.phone,
+            c.address,
+            c.tier_id,
+            t.tier_name,
+            c.status,
+            c.owner_id,
+            u.full_name AS owner_name,
+            c.created_at
+        FROM customers c
+        LEFT JOIN tiers t ON c.tier_id = t.id
+        LEFT JOIN users u ON c.owner_id = u.id
+        WHERE c.id = ?
+    """;
+
+        try {
+
+            PreparedStatement ps = connection.prepareStatement(sql);
+            ps.setInt(1, id);
+
+            ResultSet rs = ps.executeQuery();
+
+            if (rs.next()) {
+
+                Customer c = new Customer();
+
+                c.setId(rs.getInt("id"));
+                c.setFullName(rs.getString("full_name"));
+                c.setEmail(rs.getString("email"));
+                c.setPhone(rs.getString("phone"));
+                c.setAddress(rs.getString("address"));
+
+                c.setTierId(rs.getInt("tier_id"));
+                c.setTierName(rs.getString("tier_name"));
+
+                c.setStatus(rs.getString("status"));
+
+                c.setOwnerId(rs.getInt("owner_id"));
+                c.setOwnerName(rs.getString("owner_name"));
+
+                c.setCreatedAt(rs.getTimestamp("created_at").toLocalDateTime());
+
+                return c;
+            }
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        return null;
+    }
+    public static void main(String[] args) {
+        CustomerDAO cd = new CustomerDAO();
+        List<Customer> ls = cd.getAllCustomers();
 //        for(Customer c: ls){
 //            System.out.println(c.toString());
-//        }     
-//    }
+//        }
+        Customer c = cd.getCustomerByID(4);
+        System.out.println(c.toString());
+    }
 }

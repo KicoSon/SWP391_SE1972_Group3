@@ -18,6 +18,7 @@ public class Customer {
     private LocalDateTime updatedAt;
 
     private String tierName;
+    private String ownerName;
 
     public Customer() {
     }
@@ -135,6 +136,14 @@ public class Customer {
 
     public void setOwnerId(int ownerId) {
         this.ownerId = ownerId;
+    }
+
+    public String getOwnerName() {
+        return ownerName;
+    }
+
+    public void setOwnerName(String ownerName) {
+        this.ownerName = ownerName;
     }
 
     public LocalDateTime getCreatedAt() {

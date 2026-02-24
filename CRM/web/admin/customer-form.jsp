@@ -150,7 +150,7 @@
                             </div>
 
                             <div class="form-group">
-                                <label for="city">
+                                <label for="rank">
                                     Thành phố <span class="required">*</span>
                                 </label>
                                 <div class="input-with-icon">
@@ -158,7 +158,7 @@
                                     <input type="text" 
                                            id="city" 
                                            name="city" 
-                                           value="${customer != null ? customer.city : ''}" 
+                                           value="${customer != null ? customer : ''}" 
                                            required
                                            placeholder="Nhập thành phố">
                                 </div>
@@ -173,7 +173,7 @@
                                     <input type="text" 
                                            id="province" 
                                            name="province" 
-                                           value="${customer != null ? customer.province : ''}" 
+                                           value="${customer != null ? customer : ''}" 
                                            required
                                            placeholder="Nhập tỉnh/thành phố">
                                 </div>
@@ -194,7 +194,7 @@
                                     <input type="checkbox" 
                                            name="isActive" 
                                            value="true" 
-                                           ${customer.active ? 'checked' : ''}>
+                                           ${customer.status == 'Active' ? 'checked' : ''}>
                                     <span>Tài khoản đang hoạt động</span>
                                 </label>
                             </div>

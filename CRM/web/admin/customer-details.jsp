@@ -38,9 +38,10 @@
                     <h1>
                         <i class="fas fa-user"></i>
                         ${customer.fullName}
+                        ${Loi}
                     </h1>
                     <c:choose>
-                        <c:when test="${customer.active}">
+                        <c:when test="${customer.status == 'Active'}">
                             <span class="status-badge status-active">
                                 <i class="fas fa-check-circle"></i> Đang hoạt động
                             </span>
@@ -57,7 +58,7 @@
                         <i class="fas fa-edit"></i> Chỉnh sửa
                     </a>
                     <c:choose>
-                        <c:when test="${customer.active}">
+                        <c:when test="${customer.status == 'Active'}">
                             <button onclick="confirmBan(${customer.id}, '${customer.fullName}')" class="btn btn-ban">
                                 <i class="fas fa-lock"></i> Khóa tài khoản
                             </button>
@@ -105,12 +106,12 @@
                             <span class="info-value">${customer.address}</span>
                         </div>
                         <div class="info-row">
-                            <span class="info-label"><i class="fas fa-city"></i> Thành phố:</span>
-                            <span class="info-value">${customer.city}</span>
+                            <span class="info-label"><i class="fas fa-city"></i> Mức hạng:</span>
+                            <span class="info-value">${customer.tierName}</span>
                         </div>
                         <div class="info-row">
-                            <span class="info-label"><i class="fas fa-map"></i> Tỉnh/TP:</span>
-                            <span class="info-value">${customer.province}</span>
+                            <span class="info-label"><i class="fas fa-map"></i> Owner:</span>
+                            <span class="info-value">${customer.ownerName}</span>
                         </div>
                     </div>
                 </div>
