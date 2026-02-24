@@ -125,7 +125,8 @@ public class UserSession {
     }
     
     public boolean isAdmin() {
-        return hasRole("ADMIN");
+//        return hasRole("ADMIN");
+        return hasRole("MANAGER");
     }
     
     public boolean isSupportStaff() {
