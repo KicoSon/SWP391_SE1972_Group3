@@ -291,6 +291,49 @@ body {
     box-shadow: 0 6px 20px rgba(102, 126, 234, 0.5);
 }
 
+/* Select giống input */
+.input-with-icon select {
+    width: 100%;
+    padding: 12px 15px 12px 45px; /* giống input */
+    border: 2px solid #e2e8f0;
+    border-radius: 8px;
+
+    font-size: 14px;
+    font-family: inherit;
+
+    background-color: #fff;
+    color: #2d3748;
+
+    transition: all 0.3s ease;
+
+    appearance: none;
+    -webkit-appearance: none;
+    -moz-appearance: none;
+
+    cursor: pointer;
+}
+
+/* Focus giống input */
+.input-with-icon select:focus {
+    outline: none;
+    border-color: #667eea;
+    box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+}
+
+/* Hover */
+.input-with-icon select:hover {
+    border-color: #a3bffa;
+}
+
+input-with-icon::after {
+    content: "▼";
+    position: absolute;
+    right: 15px;
+    font-size: 10px;
+    color: #a0aec0;
+    pointer-events: none;
+}
+
 /* Responsive */
 @media (max-width: 768px) {
     .main-content {

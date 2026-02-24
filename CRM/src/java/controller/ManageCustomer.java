@@ -1,7 +1,9 @@
 package controller;
 
 import dal.CustomerDAO;
+import dal.UserDAO;
 import model.Customer;
+import model.User;
 
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;
@@ -35,10 +37,13 @@ public class ManageCustomer extends HttpServlet {
                 return;
             } else if ("edit".equals(action)) {
                 int customerID = Integer.parseInt(request.getParameter("id"));
+                UserDAO userDao = new UserDAO();
                 Customer customer = dao.getCustomerByID(customerID);
-                request.setAttribute("customer", customer);
+                List<User> owners = userDao.getAllUsers();
 
-                /* ===== Forward ===== */
+                request.setAttribute("customer", customer);
+                request.setAttribute("owners", owners);
+
                 request.getRequestDispatcher("/admin/customer-form.jsp")
                         .forward(request, response);
                 return;
