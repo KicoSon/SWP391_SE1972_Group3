@@ -164,7 +164,7 @@
 
             <div class="nav-section">Tổng quan</div>
             <div class="nav-item">
-                <a href="${pageContext.request.contextPath}/marketingg/dashboard" class="nav-link active">
+                <a href="${pageContext.request.contextPath}/sale/dashboard" class="nav-link active">
                     <i class="fas fa-chart-line"></i> Thống kê tổng quan
                 </a>
             </div>

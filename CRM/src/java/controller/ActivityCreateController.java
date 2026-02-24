@@ -10,18 +10,28 @@ import model.Customer;
 import model.UserSession;
 import model.Lead;
 
+import java.io.File;
 import java.io.IOException;
+import java.nio.file.Paths;
 import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.List;
 import jakarta.servlet.ServletException;
+import jakarta.servlet.annotation.MultipartConfig;
 import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
+import jakarta.servlet.http.Part;
 
+// 1. THÊM MULTIPART ĐỂ NHẬN FILE TỪ FORM
 @WebServlet(name = "ActivityCreateController", urlPatterns = {"/activities/create"})
+@MultipartConfig(
+        fileSizeThreshold = 1024 * 1024 * 2, // 2MB đệm
+        maxFileSize = 1024 * 1024 * 10, // Tối đa 10MB / 1 file
+        maxRequestSize = 1024 * 1024 * 50 // Tối đa 50MB toàn form
+)
 public class ActivityCreateController extends HttpServlet {
 
     // --- PHẦN 1: DO_GET (Chuẩn bị dữ liệu để hiển thị Form) ---
@@ -38,12 +48,11 @@ public class ActivityCreateController extends HttpServlet {
             return;
         }
 
-        // 3. Lấy danh sách CUSTOMER (Logic phân quyền: Sale thấy khách mình, Sếp thấy hết)
+        // 2. Lấy danh sách CUSTOMER (Logic phân quyền)
         CustomerDAO customerDAO = new CustomerDAO();
         List<Customer> customerList;
 
         if (userSession.isSaleStaff() && !userSession.isAdmin()) {
-            // Nếu là Sale -> Chỉ lấy khách hàng do mình phụ trách
             if (userSession.getStaff() != null) {
                 int currentStaffId = userSession.getStaff().getId();
                 customerList = customerDAO.getCustomersByOwnerId(currentStaffId);
@@ -51,34 +60,29 @@ public class ActivityCreateController extends HttpServlet {
                 customerList = customerDAO.getAllActiveCustomers();
             }
         } else {
-            // Nếu là Admin, Manager, Marketing -> Lấy toàn bộ
             customerList = customerDAO.getAllActiveCustomers();
         }
         request.setAttribute("customerList", customerList);
 
-        // 4. Lấy danh sách Related To (LEAD & OPPORTUNITY)
+        // 3. Lấy danh sách Related To (LEAD & OPPORTUNITY)
         LeadDAO leadDAO = new LeadDAO();
         List<Lead> leadList;
 
-// Logic phân quyền: 
-// Nếu là Sale (và không phải Admin) -> Chỉ lấy Lead của chính mình
         if (userSession.isSaleStaff() && !userSession.isAdmin()) {
-            // Nếu là Sale -> Truyền ID của Sale vào để SQL chỉ lấy đúng Lead của người đó
             long currentStaffId = (long) userSession.getStaffInfo().getId();
             leadList = leadDAO.getLeadsBySaleId(currentStaffId);
         } else {
-            // Nếu là Sếp/Admin -> Truyền null để SQL nhả ra toàn bộ Lead của cả công ty
             leadList = leadDAO.getLeadsBySaleId(null);
         }
-        request.setAttribute("leads", leadList); // Gửi sang JSP
+        request.setAttribute("leads", leadList);
 
-// Lấy danh sách Opportunity (Giữ nguyên)
         OpportunityDAO oppDAO = new OpportunityDAO();
         request.setAttribute("oppList", oppDAO.getAllOpportunities());
-        
+
         StaffDAO staffDAO = new StaffDAO();
         request.setAttribute("staffList", staffDAO.getAllActiveStaff());
-        // 5. Forward sang JSP
+
+        // 4. Forward sang JSP
         request.getRequestDispatcher("/activities/activity-create.jsp").forward(request, response);
     }
 
@@ -89,7 +93,6 @@ public class ActivityCreateController extends HttpServlet {
         request.setCharacterEncoding("UTF-8");
 
         try {
-            // 1. Kiểm tra Session
             HttpSession session = request.getSession();
             UserSession userSession = (UserSession) session.getAttribute("userSession");
 
@@ -98,41 +101,55 @@ public class ActivityCreateController extends HttpServlet {
                 return;
             }
 
-            // 2. Map dữ liệu cơ bản
+            // 0. Kiểm tra xem có ID (edit mode) không
+            String idParam = request.getParameter("id");
+            int activityId = -1;
+            boolean isEditMode = false;
+            
+            if (idParam != null && !idParam.isEmpty()) {
+                try {
+                    activityId = Integer.parseInt(idParam);
+                    isEditMode = true;
+                } catch (NumberFormatException e) {
+                    // Nếu ID không hợp lệ, coi là tạo mới
+                }
+            }
+
+            // 1. Map dữ liệu Text cơ bản
             Activity act = new Activity();
+            
+            if (isEditMode) {
+                act.setId(activityId);
+            }
+            
             act.setTitle(request.getParameter("title"));
             act.setDescription(request.getParameter("description"));
-            act.setType(request.getParameter("type"));     // Call, Email, Meeting...
-            act.setStatus(request.getParameter("status")); // Planned, In Progress...
+            act.setType(request.getParameter("type"));
+            act.setStatus(request.getParameter("status"));
 
-            // Priority: Kiểm tra null, mặc định Medium
             String priority = request.getParameter("priority");
             act.setPriority((priority != null && !priority.isEmpty()) ? priority : "Medium");
 
-            // Người tạo (Created_by) lấy từ Session Staff ID
             if (userSession.getStaff() == null) {
                 response.sendRedirect(request.getContextPath() + "/login");
                 return;
             }
             act.setCreatedBy(userSession.getStaff().getId());
 
-            // 3. Xử lý Thời gian (Date + Time -> Timestamp)
-            String dateStr = request.getParameter("date"); // yyyy-MM-dd
-            String timeStr = request.getParameter("time"); // HH:mm
+            // 2. Xử lý Thời gian
+            String dateStr = request.getParameter("date");
+            String timeStr = request.getParameter("time");
 
             if (dateStr != null && !dateStr.isEmpty() && timeStr != null && !timeStr.isEmpty()) {
-                // Thêm giây :00 để đúng format Timestamp
                 String dateTimeStr = dateStr + " " + timeStr + ":00";
                 act.setDueDate(Timestamp.valueOf(dateTimeStr));
             } else {
                 act.setDueDate(null);
             }
+            act.setReminderAt(null);
 
-            act.setReminderAt(null); // Xử lý Reminder sau nếu cần
-
-            // 4. Xử lý "Related To" (Cơ hội hoặc Lead)
-            String relatedTo = request.getParameter("related_to"); // VD: "opp-1" hoặc "lead-5"
-
+            // 3. Xử lý Related To
+            String relatedTo = request.getParameter("related_to");
             if (relatedTo != null && !relatedTo.isEmpty()) {
                 String[] parts = relatedTo.split("-");
                 if (parts.length == 2) {
@@ -140,7 +157,6 @@ public class ActivityCreateController extends HttpServlet {
                         if ("opp".equals(parts[0])) {
                             act.setOpportunityId(Integer.parseInt(parts[1]));
                         } else if ("lead".equals(parts[0])) {
-                            // Lead ID trong DB là BIGINT -> Parse Long
                             act.setLeadId(Long.parseLong(parts[1]));
                         }
                     } catch (NumberFormatException e) {
@@ -149,7 +165,7 @@ public class ActivityCreateController extends HttpServlet {
                 }
             }
 
-            // 5. Xử lý Customer (Assigned To)
+            // 4. Xử lý Customer
             String customerVal = request.getParameter("customer");
             if (customerVal != null && !customerVal.isEmpty()) {
                 try {
@@ -159,10 +175,8 @@ public class ActivityCreateController extends HttpServlet {
                 }
             }
 
-            // 6. Xử lý Participants (Owner + Others)
+            // 5. Xử lý Participants
             List<Integer> participantIds = new ArrayList<>();
-
-            // A. OWNER (Quan trọng: Luôn add vào đầu danh sách)
             String ownerIdRaw = request.getParameter("owner");
             if (ownerIdRaw != null && !ownerIdRaw.isEmpty()) {
                 try {
@@ -172,14 +186,13 @@ public class ActivityCreateController extends HttpServlet {
                 }
             }
 
-            // B. Các Participants khác (Từ input hidden của JS)
-            String otherParticipants = request.getParameter("participantIds"); // VD: "2,5,9"
+            String otherParticipants = request.getParameter("participantIds");
             if (otherParticipants != null && !otherParticipants.isEmpty()) {
                 String[] pIds = otherParticipants.split(",");
                 for (String pId : pIds) {
                     try {
                         int id = Integer.parseInt(pId.trim());
-                        if (!participantIds.contains(id)) { // Tránh add trùng Owner
+                        if (!participantIds.contains(id)) {
                             participantIds.add(id);
                         }
                     } catch (NumberFormatException e) {
@@ -188,25 +201,84 @@ public class ActivityCreateController extends HttpServlet {
                 }
             }
 
-            // 7. Gọi DAO thực thi
             ActivityDAO dao = new ActivityDAO();
-            boolean isSuccess = dao.insertActivity(act, participantIds);
+            
+            // === EDIT MODE: CẬP NHẬT ===
+            if (isEditMode) {
+                boolean updateSuccess = dao.updateActivity(act);
+                
+                if (updateSuccess) {
+                    // Xử lý upload file mới nếu có
+                    String uploadPath = getServletContext().getInitParameter("uploadDirectory");
+                    if (uploadPath != null && !uploadPath.isEmpty()) {
+                        File uploadDir = new File(uploadPath);
+                        if (!uploadDir.exists()) {
+                            uploadDir.mkdirs();
+                        }
 
-            // 8. Điều hướng
-            if (isSuccess) {
-                // Thành công -> Về Dashboard kèm thông báo
-                response.sendRedirect(request.getContextPath() + "/sale/dashboard?msg=success");
-            } else {
-                // Thất bại -> Forward lại trang create kèm thông báo lỗi
-                request.setAttribute("error", "Lỗi: Không thể lưu vào Database. Vui lòng thử lại.");
-                // Cần load lại các list dữ liệu cho dropdown trước khi forward
-                doGet(request, response);
+                        ActivityDAO attachmentDao = new ActivityDAO();
+
+                        for (Part part : request.getParts()) {
+                            if ("attachments".equals(part.getName()) && part.getSize() > 0) {
+                                String fileName = Paths.get(part.getSubmittedFileName()).getFileName().toString();
+                                String uniqueFileName = System.currentTimeMillis() + "_" + fileName;
+                                String savePath = uploadPath + File.separator + uniqueFileName;
+
+                                part.write(savePath);
+
+                                String dbPath = "uploads/" + uniqueFileName;
+                                attachmentDao.insertAttachment(activityId, fileName, dbPath);
+                            }
+                        }
+                    }
+                    
+                    // Redirect về detail page
+                    response.sendRedirect(request.getContextPath() + "/activities/detail?id=" + activityId + "&msg=updated");
+                } else {
+                    request.setAttribute("error", "Lỗi: Không thể cập nhật hoạt động. Vui lòng thử lại.");
+                    doGet(request, response);
+                }
+            }
+            // === CREATE MODE: TẠO MỚI ===
+            else {
+                int newActivityId = dao.insertActivity(act, participantIds);
+
+                if (newActivityId > 0) {
+                    // Lưu file vào D:/uploads thay vì build folder
+                    String uploadPath = getServletContext().getInitParameter("uploadDirectory");
+                    if (uploadPath != null && !uploadPath.isEmpty()) {
+                        File uploadDir = new File(uploadPath);
+                        if (!uploadDir.exists()) {
+                            uploadDir.mkdirs();
+                        }
+
+                        ActivityDAO attachmentDao = new ActivityDAO();
+
+                        for (Part part : request.getParts()) {
+                            if ("attachments".equals(part.getName()) && part.getSize() > 0) {
+                                String fileName = Paths.get(part.getSubmittedFileName()).getFileName().toString();
+                                String uniqueFileName = System.currentTimeMillis() + "_" + fileName;
+                                String savePath = uploadPath + File.separator + uniqueFileName;
+
+                                part.write(savePath);
+
+                                String dbPath = "uploads/" + uniqueFileName;
+                                attachmentDao.insertAttachment(newActivityId, fileName, dbPath);
+                            }
+                        }
+                    }
+
+                    response.sendRedirect(request.getContextPath() + "/sale/dashboard?msg=success");
+                } else {
+                    request.setAttribute("error", "Lỗi: Không thể lưu vào Database. Vui lòng thử lại.");
+                    doGet(request, response);
+                }
             }
 
         } catch (Exception e) {
             e.printStackTrace();
             request.setAttribute("error", "Lỗi hệ thống: " + e.getMessage());
-            request.getRequestDispatcher("/activities/activity-create.jsp").forward(request, response);
+            doGet(request, response);
         }
     }
 }

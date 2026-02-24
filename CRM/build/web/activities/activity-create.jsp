@@ -1,11 +1,12 @@
 <%@page contentType="text/html" pageEncoding="UTF-8"%>
 <%@taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
+<%@taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt" %>
 <!DOCTYPE html>
 <html lang="vi">
     <head>
         <meta charset="UTF-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <title>Tạo Hoạt Động Mới</title>
+        <title><c:choose><c:when test="${not empty param.id}">Chỉnh Sửa Hoạt Động</c:when><c:otherwise>Tạo Hoạt Động Mới</c:otherwise></c:choose></title>
         <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&family=IBM+Plex+Sans:wght@400;500;600&display=swap" rel="stylesheet">
         <link rel="stylesheet" href="${pageContext.request.contextPath}/assets/css/activity-create.css">
     </head>
@@ -14,13 +15,32 @@
             <div class="browser-header"></div>
 
             <div class="form-wrapper">
-                <form id="activityForm" method="POST" action="${pageContext.request.contextPath}/activities/create">
+                <form id="activityForm" method="POST" action="${pageContext.request.contextPath}/activities/create" enctype="multipart/form-data">
+
+                    <!-- Hidden field để lưu ID khi edit -->
+                    <c:if test="${not empty param.id}">
+                        <input type="hidden" name="id" value="${param.id}">
+                    </c:if>
 
                     <div class="form-header">
-                        <h1 class="form-title">Create/Edit New Activity</h1>
+                        <h1 class="form-title">
+                            <c:choose>
+                                <c:when test="${not empty param.id}">
+                                    Chỉnh Sửa Hoạt Động
+                                </c:when>
+                                <c:otherwise>
+                                    Tạo Hoạt Động Mới
+                                </c:otherwise>
+                            </c:choose>
+                        </h1>
                         <div class="header-actions">
-                            <button type="submit" class="btn btn-primary">Save Activity</button>
-                            <button type="button" class="btn btn-secondary" onclick="window.history.back()">Cancel</button>
+                            <button type="submit" class="btn btn-primary">
+                                <c:choose>
+                                    <c:when test="${not empty param.id}">Cập Nhật Hoạt Động</c:when>
+                                    <c:otherwise>Tạo Hoạt Động</c:otherwise>
+                                </c:choose>
+                            </button>
+                            <button type="button" class="btn btn-secondary" onclick="window.history.back()">Hủy</button>
                         </div>
                     </div>
 
@@ -190,6 +210,18 @@
                                         </select>
                                     </div>
                                 </div>
+                                <div class="form-row full-width">
+                                    <label class="form-label">Attachments:</label>
+                                    <div>
+                                        <div class="file-upload-area" id="fileUploadArea">
+                                            <div class="upload-icon">📎</div>
+                                            <div class="upload-text">Kéo thả file vào đây hoặc click để chọn</div>
+                                            <div class="upload-subtext">Hỗ trợ: PDF, DOC, XLS, PPT, IMG, Audio (Max: 10MB)</div>
+                                        </div>
+                                        <input type="file" name="attachments" class="file-input" id="fileInput" multiple accept=".pdf,.doc,.docx,.xls,.xlsx,.ppt,.pptx,.jpg,.jpeg,.png,.mp3,.wav" style="display: none;">
+                                        <div class="uploaded-files" id="uploadedFiles"></div>
+                                    </div>
+                                </div>
 
                             </div>
                         </div>
@@ -208,8 +240,75 @@
                 }${!loop.last ? ',' : ''}
             </c:forEach>
                 ];
-        </script>
 
-        <script src="${pageContext.request.contextPath}/assets/js/activity-create.js"></script>
+                // Chờ DOM ready để đảm bảo activity-create.js đã load
+                document.addEventListener('DOMContentLoaded', function() {
+                    // Kiểm tra xem có ID không (edit mode)
+                    const urlParams = new URLSearchParams(window.location.search);
+                    const activityId = urlParams.get('id');
+
+                    // Nếu có ID, load dữ liệu từ backend
+                    if (activityId) {
+                        fetch('${pageContext.request.contextPath}/activities/api/detail?id=' + activityId)
+                            .then(response => response.json())
+                            .then(data => populateForm(data))
+                            .catch(err => console.error('Lỗi tải dữ liệu:', err));
+                    }
+                });
+
+                function populateForm(activity) {
+                    // Điền các trường cơ bản
+                    document.querySelector('input[name="title"]').value = activity.title || '';
+                    document.querySelector('textarea[name="description"]').value = activity.description || '';
+                    document.querySelector('select[name="type"]').value = activity.type || 'Call';
+                    document.querySelector('select[name="status"]').value = activity.status || 'Planned';
+                    
+                    // Điền priority
+                    const priorityValue = activity.priority || 'Medium';
+                    const priorityRadio = document.querySelector(`input[name="priority"][value="${priorityValue}"]`);
+                    if (priorityRadio) {
+                        priorityRadio.checked = true;
+                    }
+                    
+                    // Điền date/time
+                    if (activity.dueDate) {
+                        const date = new Date(activity.dueDate);
+                        const dateStr = date.toISOString().split('T')[0];
+                        const timeStr = String(date.getHours()).padStart(2, '0') + ':' + String(date.getMinutes()).padStart(2, '0');
+                        document.querySelector('input[name="date"]').value = dateStr;
+                        document.querySelector('input[name="time"]').value = timeStr;
+                    }
+                    
+                    // Điền customer
+                    if (activity.customerId) {
+                        document.querySelector('select[name="customer"]').value = activity.customerId;
+                    }
+                    
+                    // Điền related to (opportunity hoặc lead)
+                    if (activity.opportunityId) {
+                        document.querySelector('select[name="related_to"]').value = 'opp-' + activity.opportunityId;
+                    } else if (activity.leadId) {
+                        document.querySelector('select[name="related_to"]').value = 'lead-' + activity.leadId;
+                    }
+                    
+                    // Điền owner
+                    if (activity.createdBy) {
+                        document.querySelector('select[name="owner"]').value = activity.createdBy;
+                    }
+                    
+                    // Điền participants - gọi hàm addParticipant từ activity-create.js
+                    if (activity.participants && activity.participants.length > 0 && typeof allParticipantsData !== 'undefined') {
+                        activity.participants.forEach(participantName => {
+                            // Tìm ID từ tên trong allParticipantsData
+                            const participant = allParticipantsData.find(p => p.name === participantName);
+                            if (participant && typeof addParticipant === 'function') {
+                                addParticipant(participant.id);
+                            }
+                        });
+                    }
+                }
+            </script>
+
+            <script src="${pageContext.request.contextPath}/assets/js/activity-create.js"></script>
     </body>
 </html>
