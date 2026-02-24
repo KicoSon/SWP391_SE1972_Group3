@@ -17,7 +17,6 @@ public class Staff {
     private String department;
     private String createdAt;
     private boolean isActive;
-    
 
     public Staff() {
     }

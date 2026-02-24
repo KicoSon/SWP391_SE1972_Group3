@@ -87,7 +87,7 @@ public class LoginController extends HttpServlet {
             HttpSession session = request.getSession(true);
             session.setAttribute("userSession", userSession);
             session.setMaxInactiveInterval(30 * 60);
-
+            System.out.println("ROLE: " + userSession.getRoles());
             redirectToDashboard(request, userSession, response);
 
         } catch (Exception e) {
@@ -103,10 +103,10 @@ public class LoginController extends HttpServlet {
 
         String contextPath = request.getContextPath();
 
-        if (userSession.isCustomerUser()) {
+        if (userSession.isCustomer()) {
             response.sendRedirect(contextPath + "/customer/dashboard");
 
-        } else if (userSession.isStaffUser()) {
+        } else if (userSession.isStaff()) {
 
             if (userSession.isAdmin()) {
                 response.sendRedirect(contextPath + "/admin/dashboard");
@@ -115,7 +115,7 @@ public class LoginController extends HttpServlet {
             } else if (userSession.isSaleStaff()) {
                 response.sendRedirect(contextPath + "/sale/dashboard");
             } else if (userSession.isMarketingStaff()) {
-                response.sendRedirect(contextPath + "/marketing/dashboard");
+                response.sendRedirect(contextPath + "/marketingg/dashboard");
             }
         }
     }
