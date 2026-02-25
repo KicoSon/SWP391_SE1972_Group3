@@ -32,7 +32,7 @@ public class OpportunityDetailServlet extends HttpServlet {
         response.setCharacterEncoding("UTF-8");
 
         UserSession userSession = (UserSession) request.getSession().getAttribute("userSession");
-        if (userSession == null || !userSession.isStaff()) {
+        if (userSession == null || !userSession.isSaleStaff()) {
             response.sendRedirect(request.getContextPath() + "/login");
             return;
         }
@@ -49,7 +49,7 @@ public class OpportunityDetailServlet extends HttpServlet {
 
             request.setAttribute("opportunity", opp);
             request.setAttribute("quotations", quotationDAO.getByOpportunityId(id));
-            request.setAttribute("activities", activityDAO.getActivitiesByOpportunityId(id));
+//            request.setAttribute("activities", activityDAO.getActivitiesByOpportunityId(id));
             request.setAttribute("isManager",
                 userSession.isAdmin() || userSession.hasRole("SALES_MANAGER"));
             request.getRequestDispatcher("/sales/opportunity-detail.jsp").forward(request, response);
