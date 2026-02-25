@@ -11,7 +11,8 @@ public class DBContext {
     public DBContext() {
         try {
             // Kết nối tới named instance MSSQLSERVER01
-            String url = "jdbc:sqlserver://localhost:1433;databaseName =CRM";
+            String url = "jdbc:sqlserver://localhost:1433;databaseName=CRM;trustServerCertificate=true;";
+
             String username = "sa";
             String password = "123";
 

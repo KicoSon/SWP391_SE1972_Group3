@@ -46,7 +46,7 @@ public class AuthorizationFilter {
                     response.getClass().getMethod("sendError", int.class, String.class).invoke(response, 403, "Access Denied");
                     return;
                 }
-            } else if (path.startsWith("/sale/")) {
+            } else if (path.startsWith("/sale/") || path.startsWith("/sales/")) {
                 if (!userSession.isStaff() || (!userSession.isSaleStaff() && !userSession.isAdmin())) {
                     response.getClass().getMethod("sendError", int.class, String.class).invoke(response, 403, "Access Denied");
                     return;

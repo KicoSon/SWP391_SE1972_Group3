@@ -62,6 +62,38 @@ public class ActivityDAO extends DBContext {
         return false;
     }
 
+    // 1b. Thêm mới Activity (không có participants)
+    public boolean insertActivity(Activity activity) {
+        return insertActivity(activity, new ArrayList<>());
+    }
+
+    // 1c. Lấy activities theo opportunityId
+    public List<Activity> getActivitiesByOpportunityId(int opportunityId) {
+        List<Activity> list = new ArrayList<>();
+        String sql = "SELECT * FROM activities WHERE opportunity_id = ? ORDER BY created_at DESC";
+        try {
+            PreparedStatement ps = connection.prepareStatement(sql);
+            ps.setInt(1, opportunityId);
+            ResultSet rs = ps.executeQuery();
+            while (rs.next()) {
+                Activity act = new Activity();
+                act.setId(rs.getInt("id"));
+                act.setTitle(rs.getString("title"));
+                act.setType(rs.getString("type"));
+                act.setDescription(rs.getString("description"));
+                act.setDueDate(rs.getTimestamp("due_date"));
+                act.setStatus(rs.getString("status"));
+                act.setPriority(rs.getString("priority"));
+                act.setCreatedBy(rs.getInt("created_by"));
+                act.setCreatedAt(rs.getTimestamp("created_at"));
+                list.add(act);
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return list;
+    }
+
     // 2. Lấy danh sách hoạt động của một nhân viên cụ thể
     public List<Activity> getActivitiesByUserId(int userId) {
         List<Activity> list = new ArrayList<>();
