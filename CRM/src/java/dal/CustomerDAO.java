@@ -135,6 +135,71 @@ public class CustomerDAO extends DBContext {
 
         return null;
     }
+
+    public boolean updateWithoutPassword(Customer c) {
+
+        String sql = """
+        UPDATE customers
+        SET full_name = ?,
+            email = ?,
+            phone = ?,
+            address = ?,
+            owner_id = ?,
+            status = ?
+        WHERE id = ?
+    """;
+
+        try (PreparedStatement ps = connection.prepareStatement(sql)) {
+
+            ps.setString(1, c.getFullName());
+            ps.setString(2, c.getEmail());
+            ps.setString(3, c.getPhone());
+            ps.setString(4, c.getAddress());
+            ps.setInt(5, c.getOwnerId());
+            ps.setString(6, c.getStatus());
+            ps.setInt(7, c.getId());
+
+            ps.executeUpdate();
+            return ps.executeUpdate() > 0;
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return false;
+    }
+
+    public boolean updateWithPassword(Customer c) {
+
+        String sql = """
+        UPDATE customers
+        SET full_name = ?,
+            email = ?,
+            phone = ?,
+            password = ?,
+            address = ?,
+            owner_id = ?,
+            status = ?
+        WHERE id = ?
+    """;
+
+        try (PreparedStatement ps = connection.prepareStatement(sql)) {
+
+            ps.setString(1, c.getFullName());
+            ps.setString(2, c.getEmail());
+            ps.setString(3, c.getPhone());
+            ps.setString(4, c.getPassword());
+            ps.setString(5, c.getAddress());
+            ps.setInt(6, c.getOwnerId());
+            ps.setString(7, c.getStatus());
+            ps.setInt(8, c.getId());
+
+            ps.executeUpdate();
+            return ps.executeUpdate() > 0;
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return false;
+    }
+
     public static void main(String[] args) {
         CustomerDAO cd = new CustomerDAO();
         List<Customer> ls = cd.getAllCustomers();

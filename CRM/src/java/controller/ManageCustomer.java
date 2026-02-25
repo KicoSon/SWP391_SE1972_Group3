@@ -231,6 +231,52 @@ public class ManageCustomer extends HttpServlet {
             }
         }
 
+        if ("edit".equals(action)) {
+            try {
+                String cusId = request.getParameter("id");
+                boolean result = false;
+                int id = Integer.parseInt(cusId);
+
+                String fullName = request.getParameter("fullName");
+                String email = request.getParameter("email");
+                String phone = request.getParameter("phone");
+                String password = request.getParameter("password");
+                String address = request.getParameter("address");
+                int ownerId = Integer.parseInt(request.getParameter("ownerId"));
+
+                // Checkbox
+                String isActiveRaw = request.getParameter("isActive");
+                String status = (isActiveRaw != null) ? "Active" : "Inactive";
+
+                Customer c = new Customer();
+
+                c.setId(id);
+                c.setFullName(fullName);
+                c.setEmail(email);
+                c.setPhone(phone);
+                c.setAddress(address);
+                c.setOwnerId(ownerId);
+                c.setStatus(status);
+
+                // Nếu có nhập password → update
+                if (password != null && !password.isEmpty()) {
+                    c.setPassword(password);
+                    result = dao.updateWithPassword(c);
+                } else {
+                    result = dao.updateWithoutPassword(c);
+                }
+
+                if (result) {
+                    session.setAttribute("successMessage", "Cập nhật thành công!");
+                } else {
+                    session.setAttribute("errorMessage", "Cập nhật thất bại!");
+                }
+            } catch (Exception e) {
+                e.printStackTrace();
+                session.setAttribute("errorMessage", "Dữ liệu không hợp lệ!");
+            }
+        }
+
         // Quay lại trang list
         response.sendRedirect(request.getContextPath() + "/managecustomer");
     }
