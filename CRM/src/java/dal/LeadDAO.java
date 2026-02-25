@@ -169,47 +169,6 @@ public class LeadDAO extends DBContext {
 
     }
 
-    // =============================
-    // GET BY ID
-    // =============================
-    public Lead getById(long id) {
-        String sql = "SELECT l.*, c.name AS campaign_name FROM leads l "
-                   + "LEFT JOIN campaigns c ON l.campaign_id = c.id "
-                   + "WHERE l.id = ?";
-        try {
-            PreparedStatement ps = connection.prepareStatement(sql);
-            ps.setLong(1, id);
-            ResultSet rs = ps.executeQuery();
-            if (rs.next()) {
-                Lead l = new Lead();
-                l.setId(rs.getLong("id"));
-                l.setFullName(rs.getString("full_name"));
-                l.setPhone(rs.getString("phone"));
-                l.setEmail(rs.getString("email"));
-                l.setAddress(rs.getString("address"));
-                l.setProductInterest(rs.getString("product_interest"));
-                l.setSource(rs.getString("source"));
-                l.setStatus(rs.getString("status"));
-                try { l.setCampaignId(rs.getLong("campaign_id")); } catch (Exception ignored) {}
-                return l;
-            }
-        } catch (Exception e) { e.printStackTrace(); }
-        return null;
-    }
-
-    // =============================
-    // UPDATE STATUS
-    // =============================
-    public boolean updateStatus(long id, String status) {
-        String sql = "UPDATE leads SET status=? WHERE id=?";
-        try {
-            PreparedStatement ps = connection.prepareStatement(sql);
-            ps.setString(1, status);
-            ps.setLong(2, id);
-            return ps.executeUpdate() > 0;
-        } catch (Exception e) { e.printStackTrace(); return false; }
-    }
-
     public boolean isEmailExist(String email) {
 
         String sql
@@ -237,57 +196,6 @@ public class LeadDAO extends DBContext {
 
         return false;
 
-    }
-
-// Hàm lấy danh sách Lead có phân quyền theo Sale
-    public List<Lead> getLeadsBySaleId(Long saleId) {
-        List<Lead> list = new ArrayList<>();
-
-        // 1. SELECT thêm assigned_sales_id theo ý bạn
-        String sql = "SELECT id, full_name, assigned_sales_id FROM leads WHERE status != 'converted'";
-
-        // 2. Nếu truyền vào saleId (Tức là nhân viên thường) -> Cấp thêm điều kiện lọc
-        if (saleId != null) {
-            sql += " AND assigned_sales_id = ?";
-        }
-
-        try {
-            
-
-            
-            PreparedStatement ps = connection.prepareStatement(sql);
-
-            // Set tham số nếu có
-            if (saleId != null) {
-                ps.setLong(1, saleId);
-            }
-
-            ResultSet rs = ps.executeQuery();
-            int count = 0;
-            while (rs.next()) {
-                Lead l = new Lead();
-                l.setId(rs.getLong("id"));
-                l.setFullName(rs.getString("full_name"));
-
-                // 3. Lấy thêm assigned_sales_id gán vào model (Như bạn suy luận)
-                // Dùng getObject để tránh lỗi ClassCastException nếu nhỡ may bị NULL ở DB
-                Object assignedObj = rs.getObject("assigned_sales_id");
-                if (assignedObj != null) {
-                    l.setAssignedSalesId(((Number) assignedObj).longValue());
-                }
-
-                list.add(l);
-                count++;
-            }
-            System.out.println("[LeadDAO] Found " + count + " leads");
-
-            rs.close();
-            ps.close();
-        } catch (Exception e) {
-            System.err.println("[LeadDAO] Error fetching leads: " + e.getMessage());
-            e.printStackTrace();
-        }
-        return list;
     }
 
 }

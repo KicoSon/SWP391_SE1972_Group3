@@ -46,10 +46,62 @@ Click nbfs://nbhost/SystemFileSystem/Templates/JSP_Servlet/CascadeStyleSheet.css
                 margin: 0 auto;
             }
 
+            /* Browser Header */
+            .header {
+                background: #E8E8E8;
+                padding: 10px 16px;
+                border-radius: 12px 12px 0 0;
+                display: flex;
+                align-items: center;
+                gap: 12px;
+                box-shadow: var(--shadow-sm);
+            }
+
+            .browser-label {
+                font-size: 11px;
+                color: #666;
+                font-weight: 500;
+            }
+
+            .browser-buttons {
+                display: flex;
+                gap: 8px;
+            }
+
+            .browser-button {
+                width: 32px;
+                height: 32px;
+                background: white;
+                border: 1px solid #ccc;
+                border-radius: 6px;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                cursor: pointer;
+                font-size: 16px;
+                color: #555;
+                transition: all 0.2s;
+            }
+
+            .browser-button:hover {
+                background: #f5f5f5;
+                border-color: #999;
+            }
+
+            .url-bar {
+                flex: 1;
+                padding: 8px 16px;
+                border: 1px solid #ccc;
+                border-radius: 20px;
+                background: white;
+                font-size: 13px;
+                color: #666;
+            }
+
             /* Main Form Container */
             .form-wrapper {
                 background: white;
-                border-radius:12px;
+                border-radius: 0 0 12px 12px;
                 padding: 0;
                 box-shadow: var(--shadow-lg);
                 animation: slideIn 0.4s ease;
@@ -621,101 +673,4 @@ Click nbfs://nbhost/SystemFileSystem/Templates/JSP_Servlet/CascadeStyleSheet.css
 
             .select-with-icon select {
                 padding-left: 44px;
-            }
-
-            /* ─────────────────────────────────────────────────────────────
-               Layout Styles (Sidebar, Header, Main Content)
-               ───────────────────────────────────────────────────────────── */
-
-            /* Sidebar Styling */
-            .sidebar {
-                line-height: 1.6 !important;
-                width: 260px !important;
-            }
-
-            .sidebar * {
-                font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            }
-
-            /* Ensure vertical scrollbar always shows */
-            body {
-                overflow-y: scroll !important;
-                background: linear-gradient(135deg, #3a7bd5, #3a6073);
-                color: #333;
-            }
-
-            /* Admin Header */
-            .admin-header {
-                background: rgba(255,255,255,0.95);
-                backdrop-filter: blur(20px);
-                padding: 20px 30px;
-                margin-left: 270px;
-                border-radius: 0 0 20px 20px;
-                box-shadow: 0 5px 20px rgba(0,0,0,0.1);
-                display: flex;
-                justify-content: flex-end;
-                align-items: center;
-                position: sticky;
-                top: 0;
-                z-index: 1000;
-            }
-
-            .admin-info {
-                display: flex;
-                align-items: center;
-                gap: 20px;
-            }
-
-            .admin-welcome {
-                font-size: 16px;
-                font-weight: 500;
-                color: #333;
-                display: flex;
-                align-items: center;
-                gap: 10px;
-            }
-
-            .admin-welcome i {
-                color: #667eea;
-                font-size: 20px;
-            }
-
-            .btn-logout {
-                background: linear-gradient(135deg, #f093fb, #f5576c);
-                color: white;
-                padding: 8px 16px;
-                border-radius: 8px;
-                font-weight: 600;
-                text-decoration: none;
-                transition: 0.3s;
-            }
-
-            .btn-logout:hover {
-                opacity: 0.85;
-            }
-
-            .main-content {
-                margin-left: 270px;
-                padding: 30px;
-            }
-
-            /* Fade-in Animation */
-            .fade-in {
-                animation: fadeInPage 0.5s ease-in;
-            }
-
-            @keyframes fadeInPage {
-                from {
-                    opacity: 0;
-                    transform: translateY(15px);
-                }
-                to {
-                    opacity: 1;
-                    transform: translateY(0);
-                }
-            }
-
-            /* Adjust container for sidebar */
-            .container {
-                max-width: 950px !important;
             }
