@@ -169,6 +169,47 @@ public class LeadDAO extends DBContext {
 
     }
 
+    // =============================
+    // GET BY ID
+    // =============================
+    public Lead getById(long id) {
+        String sql = "SELECT l.*, c.name AS campaign_name FROM leads l "
+                   + "LEFT JOIN campaigns c ON l.campaign_id = c.id "
+                   + "WHERE l.id = ?";
+        try {
+            PreparedStatement ps = connection.prepareStatement(sql);
+            ps.setLong(1, id);
+            ResultSet rs = ps.executeQuery();
+            if (rs.next()) {
+                Lead l = new Lead();
+                l.setId(rs.getLong("id"));
+                l.setFullName(rs.getString("full_name"));
+                l.setPhone(rs.getString("phone"));
+                l.setEmail(rs.getString("email"));
+                l.setAddress(rs.getString("address"));
+                l.setProductInterest(rs.getString("product_interest"));
+                l.setSource(rs.getString("source"));
+                l.setStatus(rs.getString("status"));
+                try { l.setCampaignId(rs.getLong("campaign_id")); } catch (Exception ignored) {}
+                return l;
+            }
+        } catch (Exception e) { e.printStackTrace(); }
+        return null;
+    }
+
+    // =============================
+    // UPDATE STATUS
+    // =============================
+    public boolean updateStatus(long id, String status) {
+        String sql = "UPDATE leads SET status=? WHERE id=?";
+        try {
+            PreparedStatement ps = connection.prepareStatement(sql);
+            ps.setString(1, status);
+            ps.setLong(2, id);
+            return ps.executeUpdate() > 0;
+        } catch (Exception e) { e.printStackTrace(); return false; }
+    }
+
     public boolean isEmailExist(String email) {
 
         String sql

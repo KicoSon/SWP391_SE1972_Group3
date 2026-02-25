@@ -146,9 +146,9 @@ public class AuthDAO extends DBContext {
      */
     public List<Role> getStaffRoles(int staffId) {
         List<Role> roles = new ArrayList<>();
-        String sql = "SELECT r.* FROM roles r " +
-                    "JOIN users u ON r.id = u.role_id " +
-                    "WHERE u.id = ?";
+        String sql = "SELECT r.id, r.name FROM roles r " +
+                     "JOIN users u ON r.id = u.role_id " +
+                     "WHERE u.id = ?";
         try (PreparedStatement stmt = connection.prepareStatement(sql)) {
             stmt.setInt(1, staffId);
             ResultSet rs = stmt.executeQuery();
@@ -323,5 +323,49 @@ public class AuthDAO extends DBContext {
             e.printStackTrace();
         }
         return false;
+    }
+
+    /**
+     * Get all active customers for dropdowns
+     */
+    public List<Customer> getAllCustomers() {
+        List<Customer> list = new ArrayList<>();
+        String sql = "SELECT id, full_name, email, phone FROM customers WHERE status='Active' ORDER BY full_name";
+        try (PreparedStatement ps = connection.prepareStatement(sql)) {
+            ResultSet rs = ps.executeQuery();
+            while (rs.next()) {
+                Customer c = new Customer(
+                    rs.getInt("id"),
+                    rs.getString("full_name"),
+                    rs.getString("email"),
+                    null,
+                    rs.getString("phone"),
+                    null,
+                    "Active"
+                );
+                list.add(c);
+            }
+        } catch (SQLException e) { e.printStackTrace(); }
+        return list;
+    }
+
+    /**
+     * Get all active staffs for dropdowns
+     */
+    public List<Staff> getAllStaff() {
+        List<Staff> list = new ArrayList<>();
+        String sql = "SELECT id, full_name, email, department FROM users WHERE is_active=1 AND role_id IS NOT NULL ORDER BY full_name";
+        try (PreparedStatement ps = connection.prepareStatement(sql)) {
+            ResultSet rs = ps.executeQuery();
+            while (rs.next()) {
+                Staff s = new Staff();
+                s.setId(rs.getInt("id"));
+                s.setFullName(rs.getString("full_name"));
+                s.setEmail(rs.getString("email"));
+                s.setDepartment(rs.getString("department"));
+                list.add(s);
+            }
+        } catch (SQLException e) { e.printStackTrace(); }
+        return list;
     }
 }
