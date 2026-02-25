@@ -4,10 +4,21 @@
     <welcome-file-list>
         <welcome-file>login</welcome-file>
     </welcome-file-list>
+<<<<<<< HEAD
+
+=======
+>>>>>>> 4b51dd9a50776a4b81ba05bb7c5282ce94130783
     <servlet>
         <servlet-name>LoginController</servlet-name>
         <servlet-class>controller.LoginController</servlet-class>
     </servlet>
+<<<<<<< HEAD
+=======
+<<<<<<< HEAD
+=======
+
+>>>>>>> 4b51dd9a50776a4b81ba05bb7c5282ce94130783
+>>>>>>> develop
     <servlet-mapping>
         <servlet-name>LoginController</servlet-name>
         <url-pattern>/login</url-pattern>
