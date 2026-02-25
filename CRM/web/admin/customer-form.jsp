@@ -212,7 +212,7 @@
                                 <i class="fas fa-times"></i>
                                 Hủy bỏ
                             </a>
-                            <button type="submit" class="btn btn-submit">
+                            <button type="submit" class="btn btn-submit" id="submitBtn">
                                 <i class="fas fa-save"></i>
                                 ${customer != null ? 'Cập nhật' : 'Thêm mới'}
                             </button>
@@ -240,6 +240,13 @@
                     alert('Mật khẩu phải có ít nhất 6 ký tự');
                     return false;
                 }
+            });
+            document.getElementById("customerForm").addEventListener("submit", function () {
+
+                const btn = document.getElementById("submitBtn");
+
+                btn.disabled = true;
+                btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Đang xử lý...';
             });
         </script>
     </body>

@@ -200,6 +200,32 @@ public class CustomerDAO extends DBContext {
         return false;
     }
 
+    public boolean insert(Customer c) {
+
+        String sql = """
+        INSERT INTO customers
+        (full_name, email, phone, password, address, owner_id, status)
+        VALUES (?, ?, ?, ?, ?, ?, ?)
+    """;
+
+        try (PreparedStatement ps = connection.prepareStatement(sql)) {
+
+            ps.setString(1, c.getFullName());
+            ps.setString(2, c.getEmail());
+            ps.setString(3, c.getPhone());
+            ps.setString(4, c.getPassword());
+            ps.setString(5, c.getAddress());
+            ps.setInt(6, c.getOwnerId());
+            ps.setString(7, c.getStatus());
+
+            ps.executeUpdate();
+            return ps.executeUpdate() > 0;
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return false;
+    }
+
     public static void main(String[] args) {
         CustomerDAO cd = new CustomerDAO();
         List<Customer> ls = cd.getAllCustomers();

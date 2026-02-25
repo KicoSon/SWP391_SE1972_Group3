@@ -47,6 +47,16 @@ public class ManageCustomer extends HttpServlet {
                 request.getRequestDispatcher("/admin/customer-form.jsp")
                         .forward(request, response);
                 return;
+            } else if ("add".equals(action)) {
+                UserDAO userDao = new UserDAO();
+                List<User> owners = userDao.getAllUsers();
+//
+//                request.removeAttribute("customer");
+                request.setAttribute("owners", owners);
+
+                request.getRequestDispatcher("/admin/customer-form.jsp")
+                        .forward(request, response);
+                return;
             }
 
             List<Customer> allCustomers = dao.getAllCustomers();
@@ -197,86 +207,118 @@ public class ManageCustomer extends HttpServlet {
         String idParam = request.getParameter("customerId");
 
         HttpSession session = request.getSession();
+        if (action != null) {
+            if ("ban".equals(action) || "unban".equals(action)) {
 
-        if (action != null && idParam != null) {
+                try {
 
-            try {
+                    int id = Integer.parseInt(idParam);
 
-                int id = Integer.parseInt(idParam);
+                    boolean result = false;
 
-                boolean result = false;
+                    if ("ban".equals(action)) {
+                        result = dao.updateStatus(id, "Inactive");
 
-                if ("ban".equals(action)) {
-                    result = dao.updateStatus(id, "Inactive");
+                        if (result) {
+                            session.setAttribute("successMessage", "Đã khóa tài khoản thành công!");
+                        } else {
+                            session.setAttribute("errorMessage", "Khóa tài khoản thất bại!");
+                        }
 
-                    if (result) {
-                        session.setAttribute("successMessage", "Đã khóa tài khoản thành công!");
-                    } else {
-                        session.setAttribute("errorMessage", "Khóa tài khoản thất bại!");
+                    } else if ("unban".equals(action)) {
+                        result = dao.updateStatus(id, "Active");
+
+                        if (result) {
+                            session.setAttribute("successMessage", "Đã mở khóa tài khoản!");
+                        } else {
+                            session.setAttribute("errorMessage", "Mở khóa thất bại!");
+                        }
                     }
 
-                } else if ("unban".equals(action)) {
-                    result = dao.updateStatus(id, "Active");
-
-                    if (result) {
-                        session.setAttribute("successMessage", "Đã mở khóa tài khoản!");
-                    } else {
-                        session.setAttribute("errorMessage", "Mở khóa thất bại!");
-                    }
+                } catch (Exception e) {
+                    e.printStackTrace();
+                    session.setAttribute("errorMessage", "Dữ liệu không hợp lệ!");
                 }
+            } else if ("edit".equals(action)) {
+                try {
+                    String cusId = request.getParameter("id");
+                    boolean result = false;
+                    int id = Integer.parseInt(cusId);
 
-            } catch (Exception e) {
-                e.printStackTrace();
-                session.setAttribute("errorMessage", "Dữ liệu không hợp lệ!");
-            }
-        }
+                    String fullName = request.getParameter("fullName");
+                    String email = request.getParameter("email");
+                    String phone = request.getParameter("phone");
+                    String password = request.getParameter("password");
+                    String address = request.getParameter("address");
+                    int ownerId = Integer.parseInt(request.getParameter("ownerId"));
 
-        if ("edit".equals(action)) {
-            try {
-                String cusId = request.getParameter("id");
-                boolean result = false;
-                int id = Integer.parseInt(cusId);
+                    // Checkbox
+                    String isActiveRaw = request.getParameter("isActive");
+                    String status = (isActiveRaw != null) ? "Active" : "Inactive";
 
-                String fullName = request.getParameter("fullName");
-                String email = request.getParameter("email");
-                String phone = request.getParameter("phone");
-                String password = request.getParameter("password");
-                String address = request.getParameter("address");
-                int ownerId = Integer.parseInt(request.getParameter("ownerId"));
+                    Customer c = new Customer();
 
-                // Checkbox
-                String isActiveRaw = request.getParameter("isActive");
-                String status = (isActiveRaw != null) ? "Active" : "Inactive";
+                    c.setId(id);
+                    c.setFullName(fullName);
+                    c.setEmail(email);
+                    c.setPhone(phone);
+                    c.setAddress(address);
+                    c.setOwnerId(ownerId);
+                    c.setStatus(status);
 
-                Customer c = new Customer();
+                    // Nếu có nhập password → update
+                    if (password != null && !password.isEmpty()) {
+                        c.setPassword(password);
+                        result = dao.updateWithPassword(c);
+                    } else {
+                        result = dao.updateWithoutPassword(c);
+                    }
 
-                c.setId(id);
-                c.setFullName(fullName);
-                c.setEmail(email);
-                c.setPhone(phone);
-                c.setAddress(address);
-                c.setOwnerId(ownerId);
-                c.setStatus(status);
+                    if (result) {
+                        session.setAttribute("successMessage", "Cập nhật thành công!");
+                    } else {
+                        session.setAttribute("errorMessage", "Cập nhật thất bại!");
+                    }
+                } catch (Exception e) {
+                    e.printStackTrace();
+                    session.setAttribute("errorMessage", "Dữ liệu không hợp lệ!");
+                }
+            } else if ("add".equals(action)) {
+                try {
+                    boolean result = false;
 
-                // Nếu có nhập password → update
-                if (password != null && !password.isEmpty()) {
+                    String fullName = request.getParameter("fullName");
+                    String email = request.getParameter("email");
+                    String phone = request.getParameter("phone");
+                    String password = request.getParameter("password");
+                    String address = request.getParameter("address");
+                    int ownerId = Integer.parseInt(request.getParameter("ownerId"));
+
+                    String status = "Active";
+
+                    Customer c = new Customer();
+
+                    c.setFullName(fullName);
+                    c.setEmail(email);
+                    c.setPhone(phone);
+                    c.setAddress(address);
+                    c.setOwnerId(ownerId);
+                    c.setStatus(status);
                     c.setPassword(password);
-                    result = dao.updateWithPassword(c);
-                } else {
-                    result = dao.updateWithoutPassword(c);
-                }
 
-                if (result) {
-                    session.setAttribute("successMessage", "Cập nhật thành công!");
-                } else {
-                    session.setAttribute("errorMessage", "Cập nhật thất bại!");
+                    result = dao.insert(c);
+
+                    if (result) {
+                        session.setAttribute("successMessage", "Thêm khách hàng thành công!");
+                    } else {
+                        session.setAttribute("errorMessage", "Thêm khách hàng thất bại!");
+                    }
+                } catch (Exception e) {
+                    e.printStackTrace();
+                    session.setAttribute("errorMessage", "Dữ liệu không hợp lệ!");
                 }
-            } catch (Exception e) {
-                e.printStackTrace();
-                session.setAttribute("errorMessage", "Dữ liệu không hợp lệ!");
             }
         }
-
         // Quay lại trang list
         response.sendRedirect(request.getContextPath() + "/managecustomer");
     }
