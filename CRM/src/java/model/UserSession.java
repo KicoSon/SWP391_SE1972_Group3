@@ -138,7 +138,8 @@ public boolean isCustomerUser() {
     }    
     
     public boolean isMarketingStaff() {
-        return hasRole("MARKETING_STAFF");
-    }
+    return hasRole("Marketing");
+}
+
     
 }

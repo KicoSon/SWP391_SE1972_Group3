@@ -201,4 +201,56 @@ document.addEventListener("DOMContentLoaded", function () {
         dateInput.value = now.toISOString().split('T')[0];
         timeInput.value = now.toISOString().split('T')[1].slice(0, 5);
     }
+
+    // Load activity data for edit mode (if ID parameter exists)
+    const urlParams = new URLSearchParams(window.location.search);
+    const activityId = urlParams.get('id');
+
+    if (activityId) {
+        fetch(window.location.origin + '/CRM/activities/api/detail?id=' + activityId)
+            .then(response => response.json())
+            .then(data => populateForm(data))
+            .catch(err => console.error('Lỗi tải dữ liệu:', err));
+    }
 });
+
+// Populate form with activity data (Edit mode)
+function populateForm(activity) {
+    document.querySelector('input[name="title"]').value = activity.title || '';
+    document.querySelector('textarea[name="description"]').value = activity.description || '';
+    document.querySelector('select[name="type"]').value = activity.type || 'Call';
+    document.querySelector('select[name="status"]').value = activity.status || 'Planned';
+
+    const priorityValue = activity.priority || 'Medium';
+    const priorityRadio = document.querySelector(`input[name="priority"][value="${priorityValue}"]`);
+    if (priorityRadio)
+        priorityRadio.checked = true;
+
+    if (activity.dueDate) {
+        const date = new Date(activity.dueDate);
+        const dateStr = date.toISOString().split('T')[0];
+        const timeStr = String(date.getHours()).padStart(2, '0') + ':' + String(date.getMinutes()).padStart(2, '0');
+        document.querySelector('input[name="date"]').value = dateStr;
+        document.querySelector('input[name="time"]').value = timeStr;
+    }
+
+    if (activity.customerId)
+        document.querySelector('select[name="customer"]').value = activity.customerId;
+
+    if (activity.opportunityId) {
+        document.querySelector('select[name="related_to"]').value = 'opp-' + activity.opportunityId;
+    } else if (activity.leadId) {
+        document.querySelector('select[name="related_to"]').value = 'lead-' + activity.leadId;
+    }
+
+    if (activity.createdBy)
+        document.querySelector('select[name="owner"]').value = activity.createdBy;
+
+    if (activity.participants && activity.participants.length > 0 && typeof allParticipantsData !== 'undefined') {
+        activity.participants.forEach(participantName => {
+            const participant = allParticipantsData.find(p => p.name === participantName);
+            if (participant && typeof addParticipant === 'function')
+                addParticipant(participant.id);
+        });
+    }
+}
