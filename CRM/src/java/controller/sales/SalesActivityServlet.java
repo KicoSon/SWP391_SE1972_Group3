@@ -30,14 +30,14 @@ public class SalesActivityServlet extends HttpServlet {
         response.setCharacterEncoding("UTF-8");
 
         UserSession userSession = (UserSession) request.getSession().getAttribute("userSession");
-        if (userSession == null || !userSession.isStaff()) {
+        if (userSession == null || !userSession.isSaleStaff()) {
             response.sendRedirect(request.getContextPath() + "/login"); return;
         }
 
         try {
             int oppId = Integer.parseInt(request.getParameter("opportunityId"));
             request.setAttribute("opportunity", opportunityDAO.getById(oppId));
-            request.setAttribute("activities", activityDAO.getActivitiesByOpportunityId(oppId));
+//            request.setAttribute("activities", activityDAO.getActivitiesByOpportunityId(oppId));
             request.getRequestDispatcher("/sales/sales-activity-form.jsp").forward(request, response);
         } catch (Exception e) {
             e.printStackTrace();
@@ -53,7 +53,7 @@ public class SalesActivityServlet extends HttpServlet {
         response.setCharacterEncoding("UTF-8");
 
         UserSession userSession = (UserSession) request.getSession().getAttribute("userSession");
-        if (userSession == null || !userSession.isStaff()) {
+        if (userSession == null || !userSession.isSaleStaff()) {
             response.sendRedirect(request.getContextPath() + "/login"); return;
         }
 
@@ -75,7 +75,7 @@ public class SalesActivityServlet extends HttpServlet {
                 activity.setDueDate(new java.sql.Timestamp(parsed.getTime()));
             }
 
-            activityDAO.insertActivity(activity); // calls overloaded version with no participants
+//            activityDAO.insertActivity(activity); // calls overloaded version with no participants
             response.sendRedirect(request.getContextPath() + "/sales/opportunity-detail?id=" + oppId);
         } catch (Exception e) {
             e.printStackTrace();

@@ -28,7 +28,7 @@ public class ProductServlet extends HttpServlet {
         response.setCharacterEncoding("UTF-8");
 
         UserSession userSession = (UserSession) request.getSession().getAttribute("userSession");
-        if (userSession == null || !userSession.isStaff()) {
+        if (userSession == null || !userSession.isSaleStaff()) {
             response.sendError(401, "Unauthorized"); return;
         }
 

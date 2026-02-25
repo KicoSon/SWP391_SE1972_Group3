@@ -27,7 +27,7 @@ public class DashboardSalesServlet extends HttpServlet {
         response.setCharacterEncoding("UTF-8");
 
         UserSession userSession = (UserSession) request.getSession().getAttribute("userSession");
-        if (userSession == null || !userSession.isStaff()) {
+        if (userSession == null || !userSession.isSaleStaff()) {
             response.sendRedirect(request.getContextPath() + "/login"); return;
         }
 
