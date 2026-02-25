@@ -129,7 +129,7 @@ public class UserSession {
     }
     
     public boolean isSupportStaff() {
-        return hasRole("SUPPORT_STAFF");
+        return hasRole("Customer Service");
     }
     
     public boolean isSaleStaff() {

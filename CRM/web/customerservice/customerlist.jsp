@@ -6,7 +6,7 @@
 <html lang="vi">
     <head>
         <meta charset="UTF-8">
-        <title>Quản Lý Campaign</title>
+        <title>Quản Lý Khách Hàng</title>
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
         <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
@@ -221,192 +221,110 @@
 
 
             <div class="header">
-
                 <h2>
-
-                    <i class="fas fa-bullhorn"></i>
-
-                    Quản Lý Campaign
-
+                    <i class="fas fa-users"></i>
+                    Quản Lý Khách Hàng
                 </h2>
-
-                <a href="${pageContext.request.contextPath}/marketingg/addCampaign" class="btn btn-primary">
-
-                    <i class="fas fa-plus"></i>
-
-                    Thêm Campaign
-
-                </a>
-
             </div>
 
-
-            <form action="${pageContext.request.contextPath}/marketing/campaignmanagement"
-
+            <form action="${pageContext.request.contextPath}/customerservice/customerlist"
                   method="get"
-
                   class="filter-bar">
 
                 <input type="text"
-
                        name="search"
-
-                       placeholder="Tìm theo tên campaign..."
-
+                       placeholder="Tìm theo tên hoặc email..."
                        value="${param.search}">
 
-
                 <select name="statusFilter">
-
                     <option value="">-- Lọc theo trạng thái --</option>
-
-                    <option value="ACTIVE"
-
-                            ${param.statusFilter == 'ACTIVE' ? 'selected' : ''}>
-
-                        Đang hoạt động
-
+                    <option value="ACTIVE" ${param.statusFilter == 'ACTIVE' ? 'selected' : ''}>
+                        Hoạt động
                     </option>
-
-                    <option value="INACTIVE"
-
-                            ${param.statusFilter == 'INACTIVE' ? 'selected' : ''}>
-
-                        Ngừng hoạt động
-
+                    <option value="INACTIVE" ${param.statusFilter == 'INACTIVE' ? 'selected' : ''}>
+                        Bị khóa
                     </option>
-
                 </select>
 
-
                 <button type="submit" class="btn btn-outline">
-
-                    <i class="fas fa-search"></i>
-
-                    Tìm kiếm
-
+                    <i class="fas fa-search"></i> Tìm kiếm
                 </button>
 
             </form>
 
 
             <div class="card">
-
                 <div style="padding:20px">
 
                     <table>
-
                         <thead>
-
                             <tr>
-
                                 <th>ID</th>
-                                <th>Banner</th>
-                                <th>Tên Campaign</th>
-
-                                <th>Mô tả</th>
-
-                                <th>Ngày bắt đầu</th>
-
-                                <th>Ngày kết thúc</th>
-
+                                <th>Avatar</th>
+                                <th>Họ tên</th>
+                                <th>Email</th>
+                                <th>SĐT</th>
+                                <th>Tier</th>
+                                <th>Ngày tạo</th>
                                 <th>Trạng thái</th>
-
                                 <th>Hành động</th>
-
                             </tr>
-
                         </thead>
 
-
                         <tbody>
-
-                            <c:forEach var="c" items="${campaignList}">
-
+                            <c:forEach var="c" items="${customerList}">
                                 <tr>
-
                                     <td>${c.id}</td>
-                                    <td>
-                                        <img src="${pageContext.request.contextPath}/${c.bannerUrl}"
-                                             width="120">
 
+                                    <td>
+                                        <img src="${pageContext.request.contextPath}/${c.profileURL}"
+                                             width="45"
+                                             height="45"
+                                             style="border-radius:50%; object-fit:cover;">
                                     </td>
 
-                                    <td>${c.name}</td>
-
-                                    <td>${c.description}</td>
-
-                                    <td>
-
-                                        <fmt:formatDate value="${c.startDate}"
-
-                                                        pattern="dd/MM/yyyy"/>
-
-                                    </td>
+                                    <td>${c.fullName}</td>
+                                    <td>${c.email}</td>
+                                    <td>${c.phone}</td>
+                                    <td>${c.tier}</td>
+                                    <td>${c.createAt}</td>
 
                                     <td>
-
-                                        <fmt:formatDate value="${c.endDate}"
-
-                                                        pattern="dd/MM/yyyy"/>
-
-                                    </td>
-
-
-                                    <td>
-
                                         <span class="badge ${c.status == 'ACTIVE' ? 'active' : 'inactive'}">
-
-                                            ${c.status == 'ACTIVE' ? 'Đang hoạt động' : 'Ngừng hoạt động'}
-
+                                            ${c.status == 'ACTIVE' ? 'Hoạt động' : 'Bị khóa'}
                                         </span>
-
                                     </td>
 
-
                                     <td>
-
                                         <div class="action-btns">
 
-                                            <a href="${pageContext.request.contextPath}/marketingg/editCampaign?id=${c.id}"
-                                               class="btn btn-primary">
-                                                <i class="fas fa-edit"></i> Sửa
+                                            <a href="${pageContext.request.contextPath}/customerservice/viewCustomer?id=${c.id}"
+                                               class="edit-btn">
+                                                <i class="fas fa-eye"></i>
                                             </a>
 
-
-
-
+                                            <a href="${pageContext.request.contextPath}/customerservice/toggleStatus?id=${c.id}"
+                                               class="delete-btn"
+                                               onclick="return confirm('Bạn có chắc muốn thay đổi trạng thái?');">
+                                                <i class="fas fa-ban"></i>
+                                            </a>
 
                                         </div>
-
                                     </td>
-
                                 </tr>
-
                             </c:forEach>
-
                         </tbody>
-
                     </table>
 
-
-                    <c:if test="${empty campaignList}">
-
+                    <c:if test="${empty customerList}">
                         <div style="text-align:center;padding:20px;color:#777;">
-
                             <i class="fas fa-info-circle"></i>
-
-                            Không tìm thấy campaign nào.
-
+                            Không tìm thấy khách hàng nào.
                         </div>
-
                     </c:if>
 
-
                 </div>
-
             </div>
-
 
         </div>
         <script>
@@ -433,4 +351,3 @@
 
 
 </html>
-
