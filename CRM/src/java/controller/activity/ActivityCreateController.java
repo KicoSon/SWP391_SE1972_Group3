@@ -76,8 +76,16 @@ public class ActivityCreateController extends HttpServlet {
         }
         request.setAttribute("leads", leadList);
 
+        // 3.2. Lấy danh sách Opportunity (lọc theo sale nếu cần)
         OpportunityDAO oppDAO = new OpportunityDAO();
-//        request.setAttribute("oppList", oppDAO.getAllOpportunities());
+        List<model.sales.Opportunity> oppList;
+        if (userSession.isSaleStaff() && !userSession.isAdmin() && userSession.getStaff() != null) {
+            int currentStaffId = userSession.getStaff().getId();
+            oppList = oppDAO.filterOpportunities(null, null, null, currentStaffId);
+        } else {
+            oppList = oppDAO.filterOpportunities(null, null, null, null);
+        }
+        request.setAttribute("oppList", oppList);
 
         StaffDAO staffDAO = new StaffDAO();
         request.setAttribute("staffList", staffDAO.getAllActiveStaff());
