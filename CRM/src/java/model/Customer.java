@@ -16,9 +16,11 @@ public class Customer {
     private int ownerId;
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
+    private String profileURL;
 
     private String tierName;
     private String ownerName;
+    private int tier;
     
 
     public Customer() {
@@ -70,6 +72,22 @@ public class Customer {
 
     public int getId() {
         return id;
+    }
+
+    public String getProfileURL() {
+        return profileURL;
+    }
+
+    public void setProfileURL(String profileURL) {
+        this.profileURL = profileURL;
+    }
+
+    public int getTier() {
+        return tier;
+    }
+
+    public void setTier(int tier) {
+        this.tier = tier;
     }
 
     public void setId(int id) {
