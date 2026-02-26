@@ -159,6 +159,7 @@ public class CustomerDAO extends DBContext {
             ps.setString(6, c.getStatus());
             ps.setInt(7, c.getId());
 
+            ps.executeUpdate();
             return ps.executeUpdate() > 0;
         } catch (Exception e) {
             e.printStackTrace();
@@ -191,6 +192,7 @@ public class CustomerDAO extends DBContext {
             ps.setString(7, c.getStatus());
             ps.setInt(8, c.getId());
 
+            ps.executeUpdate();
             return ps.executeUpdate() > 0;
         } catch (Exception e) {
             e.printStackTrace();
