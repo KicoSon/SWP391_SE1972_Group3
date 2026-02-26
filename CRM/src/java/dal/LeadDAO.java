@@ -198,7 +198,6 @@ public class LeadDAO extends DBContext {
 
     }
 
-// Hàm lấy danh sách Lead có phân quyền theo Sale
     public List<Lead> getLeadsBySaleId(Long saleId) {
         List<Lead> list = new ArrayList<>();
 

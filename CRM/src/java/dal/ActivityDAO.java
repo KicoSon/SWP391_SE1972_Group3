@@ -9,8 +9,231 @@ import model.activity.ActivityParticipant;
 
 public class ActivityDAO extends DBContext {
 
-    // 1. Thêm mới Activity (Sử dụng Transaction chuẩn DB)
-    public int insertActivity(Activity activity, List<Integer> participantIds) {
+    // 1. Thêm mới Activity (Sử dụng Transaction)
+    public boolean insertActivity(Activity activity, List<Integer> participantIds) {
+        String sqlActivity = "INSERT INTO activities (title, type, description, lead_id, customer_id, opportunity_id, due_date, reminder_at, status, priority, created_by) "
+                + "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
+        String sqlParticipant = "INSERT INTO activity_participants (activity_id, user_id, role) VALUES (?, ?, ?)";
+
+        Connection conn = null;
+        try {
+            conn = getConnection();
+            conn.setAutoCommit(false); // Bắt đầu Transaction
+
+            // Chèn vào bảng activities
+            PreparedStatement psAct = conn.prepareStatement(sqlActivity, Statement.RETURN_GENERATED_KEYS);
+            psAct.setString(1, activity.getTitle());
+            psAct.setString(2, activity.getType());
+            psAct.setString(3, activity.getDescription());
+            if (activity.getLeadId() != null) {
+                psAct.setLong(4, activity.getLeadId());
+            } else {
+                psAct.setNull(4, Types.BIGINT);
+            }
+            if (activity.getCustomerId() != null) {
+                psAct.setInt(5, activity.getCustomerId());
+            } else {
+                psAct.setNull(5, Types.INTEGER);
+            }
+            if (activity.getOpportunityId() != null) {
+                psAct.setInt(6, activity.getOpportunityId());
+            } else {
+                psAct.setNull(6, Types.INTEGER);
+            }
+            psAct.setTimestamp(7, activity.getDueDate());
+            psAct.setTimestamp(8, activity.getReminderAt());
+            psAct.setString(9, activity.getStatus());
+            psAct.setString(10, activity.getPriority());
+            psAct.setInt(11, activity.getCreatedBy());
+
+            psAct.executeUpdate();
+
+            // Lấy ID vừa tạo để chèn vào bảng Participants
+            ResultSet rs = psAct.getGeneratedKeys();
+            int activityId = 0;
+            if (rs.next()) {
+                activityId = rs.getInt(1);
+            }
+
+            // Chèn danh sách người tham gia
+            PreparedStatement psPart = conn.prepareStatement(sqlParticipant);
+            for (Integer userId : participantIds) {
+                psPart.setInt(1, activityId);
+                psPart.setInt(2, userId);
+                // Giả định người đầu tiên trong list là Owner, còn lại là Participant
+                psPart.setString(3, (userId.equals(participantIds.get(0))) ? "Owner" : "Participant");
+                psPart.addBatch();
+            }
+            psPart.executeBatch();
+
+            conn.commit(); // Hoàn tất Transaction
+            return true;
+        } catch (SQLException e) {
+            if (conn != null) try {
+                conn.rollback();
+            } catch (SQLException ex) {
+                ex.printStackTrace();
+            }
+            e.printStackTrace();
+        }
+        return false;
+    }
+
+    public List<Activity> getActivitiesByOpportunityId(int opportunityId) {
+        List<Activity> list = new ArrayList<>();
+        String sql = "SELECT * FROM activities WHERE opportunity_id = ? ORDER BY created_at DESC";
+        try {
+            PreparedStatement ps = connection.prepareStatement(sql);
+            ps.setInt(1, opportunityId);
+            ResultSet rs = ps.executeQuery();
+            while (rs.next()) {
+                Activity act = new Activity();
+                act.setId(rs.getInt("id"));
+                act.setTitle(rs.getString("title"));
+                act.setType(rs.getString("type"));
+                act.setDescription(rs.getString("description"));
+                act.setDueDate(rs.getTimestamp("due_date"));
+                act.setStatus(rs.getString("status"));
+                act.setPriority(rs.getString("priority"));
+                act.setCreatedBy(rs.getInt("created_by"));
+                act.setCreatedAt(rs.getTimestamp("created_at"));
+                list.add(act);
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return list;
+    }
+
+    public boolean insertActivity(Activity activity) {
+        return insertActivity2(activity, new ArrayList<>());
+    }
+
+    public boolean insertActivity2(Activity activity, List<Integer> participantIds) {
+        String sqlActivity = "INSERT INTO activities (title, type, description, lead_id, customer_id, opportunity_id, due_date, reminder_at, status, priority, created_by) "
+                + "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
+        String sqlParticipant = "INSERT INTO activity_participants (activity_id, user_id, role) VALUES (?, ?, ?)";
+
+        Connection conn = null;
+        try {
+            conn = getConnection();
+            conn.setAutoCommit(false); // Bắt đầu Transaction
+
+            // Chèn vào bảng activities
+            PreparedStatement psAct = conn.prepareStatement(sqlActivity, Statement.RETURN_GENERATED_KEYS);
+            psAct.setString(1, activity.getTitle());
+            psAct.setString(2, activity.getType());
+            psAct.setString(3, activity.getDescription());
+            if (activity.getLeadId() != null) {
+                psAct.setLong(4, activity.getLeadId());
+            } else {
+                psAct.setNull(4, Types.BIGINT);
+            }
+            if (activity.getCustomerId() != null) {
+                psAct.setInt(5, activity.getCustomerId());
+            } else {
+                psAct.setNull(5, Types.INTEGER);
+            }
+            if (activity.getOpportunityId() != null) {
+                psAct.setInt(6, activity.getOpportunityId());
+            } else {
+                psAct.setNull(6, Types.INTEGER);
+            }
+            psAct.setTimestamp(7, activity.getDueDate());
+            psAct.setTimestamp(8, activity.getReminderAt());
+            psAct.setString(9, activity.getStatus());
+            psAct.setString(10, activity.getPriority());
+            psAct.setInt(11, activity.getCreatedBy());
+
+            psAct.executeUpdate();
+
+            // Lấy ID vừa tạo để chèn vào bảng Participants
+            ResultSet rs = psAct.getGeneratedKeys();
+            int activityId = 0;
+            if (rs.next()) {
+                activityId = rs.getInt(1);
+            }
+
+            // Chèn danh sách người tham gia
+            PreparedStatement psPart = conn.prepareStatement(sqlParticipant);
+            for (Integer userId : participantIds) {
+                psPart.setInt(1, activityId);
+                psPart.setInt(2, userId);
+                // Giả định người đầu tiên trong list là Owner, còn lại là Participant
+                psPart.setString(3, (userId.equals(participantIds.get(0))) ? "Owner" : "Participant");
+                psPart.addBatch();
+            }
+            psPart.executeBatch();
+
+            conn.commit(); // Hoàn tất Transaction
+            return true;
+        } catch (SQLException e) {
+            if (conn != null) try {
+                conn.rollback();
+            } catch (SQLException ex) {
+                ex.printStackTrace();
+            }
+            e.printStackTrace();
+        }
+        return false;
+    }
+
+    public boolean updateActivity(Activity activity) {
+        String sql = "UPDATE activities SET "
+                + "title = ?, type = ?, description = ?, lead_id = ?, customer_id = ?, "
+                + "opportunity_id = ?, due_date = ?, reminder_at = ?, status = ?, priority = ? "
+                + "WHERE id = ?";
+
+        try (PreparedStatement ps = getConnection().prepareStatement(sql)) {
+            ps.setString(1, activity.getTitle());
+            ps.setString(2, activity.getType());
+            ps.setString(3, activity.getDescription());
+
+            if (activity.getLeadId() != null) {
+                ps.setLong(4, activity.getLeadId());
+            } else {
+                ps.setNull(4, Types.BIGINT);
+            }
+
+            if (activity.getCustomerId() != null) {
+                ps.setInt(5, activity.getCustomerId());
+            } else {
+                ps.setNull(5, Types.INTEGER);
+            }
+
+            if (activity.getOpportunityId() != null) {
+                ps.setInt(6, activity.getOpportunityId());
+            } else {
+                ps.setNull(6, Types.INTEGER);
+            }
+
+            ps.setTimestamp(7, activity.getDueDate());
+            ps.setTimestamp(8, activity.getReminderAt());
+            ps.setString(9, activity.getStatus());
+            ps.setString(10, activity.getPriority());
+            ps.setInt(11, activity.getId());
+
+            int affectedRows = ps.executeUpdate();
+            return affectedRows > 0;
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return false;
+    }
+
+    public void insertAttachment(int activityId, String fileName, String filePath) {
+        String sql = "INSERT INTO activity_attachments (activity_id, file_name, file_path) VALUES (?, ?, ?)";
+        try (PreparedStatement ps = getConnection().prepareStatement(sql)) {
+            ps.setInt(1, activityId);
+            ps.setString(2, fileName);
+            ps.setString(3, filePath);
+            ps.executeUpdate();
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public int insertActivity3(Activity activity, List<Integer> participantIds) {
         String sqlActivity = "INSERT INTO activities "
                 + "(title, type, description, lead_id, customer_id, opportunity_id, due_date, reminder_at, status, priority, created_by, created_at) "
                 + "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, GETDATE())";
@@ -137,22 +360,6 @@ public class ActivityDAO extends DBContext {
             }
         }
     }
-
-    public void insertAttachment(int activityId, String fileName, String filePath) {
-        String sql = "INSERT INTO activity_attachments (activity_id, file_name, file_path) VALUES (?, ?, ?)";
-        try (PreparedStatement ps = getConnection().prepareStatement(sql)) {
-            ps.setInt(1, activityId);
-            ps.setString(2, fileName);
-            ps.setString(3, filePath);
-            ps.executeUpdate();
-        } catch (SQLException e) {
-            e.printStackTrace();
-        }
-    }
-    
-    // 2. Lấy danh sách hoạt động của một nhân viên cụ thể
-    // Lấy danh sách Activity cho Dashboard (CÓ PHÂN QUYỀN)
-    // Lấy danh sách Activity cho Dashboard (CÓ PHÂN QUYỀN VÀ JOIN TÊN NHÂN VIÊN)
     public List<Activity> getActivitiesForDashboard(Integer userId) {
         List<Activity> list = new ArrayList<>();
         
@@ -296,8 +503,6 @@ public class ActivityDAO extends DBContext {
         }
         return list;
     }
-
-    // 3. Lấy danh sách File Đính kèm
     public List<ActivityAttachment> getAttachmentsByActivityId(int activityId) {
         List<ActivityAttachment> list = new ArrayList<>();
         String sql = "SELECT * FROM activity_attachments WHERE activity_id = ? ORDER BY uploaded_at DESC";
@@ -319,48 +524,5 @@ public class ActivityDAO extends DBContext {
         }
         return list;
     }
-
-    // 2. Cập nhật Activity (Update)
-    public boolean updateActivity(Activity activity) {
-        String sql = "UPDATE activities SET "
-                + "title = ?, type = ?, description = ?, lead_id = ?, customer_id = ?, "
-                + "opportunity_id = ?, due_date = ?, reminder_at = ?, status = ?, priority = ? "
-                + "WHERE id = ?";
-
-        try (PreparedStatement ps = getConnection().prepareStatement(sql)) {
-            ps.setString(1, activity.getTitle());
-            ps.setString(2, activity.getType());
-            ps.setString(3, activity.getDescription());
-            
-            if (activity.getLeadId() != null) {
-                ps.setLong(4, activity.getLeadId());
-            } else {
-                ps.setNull(4, Types.BIGINT);
-            }
-            
-            if (activity.getCustomerId() != null) {
-                ps.setInt(5, activity.getCustomerId());
-            } else {
-                ps.setNull(5, Types.INTEGER);
-            }
-            
-            if (activity.getOpportunityId() != null) {
-                ps.setInt(6, activity.getOpportunityId());
-            } else {
-                ps.setNull(6, Types.INTEGER);
-            }
-            
-            ps.setTimestamp(7, activity.getDueDate());
-            ps.setTimestamp(8, activity.getReminderAt());
-            ps.setString(9, activity.getStatus());
-            ps.setString(10, activity.getPriority());
-            ps.setInt(11, activity.getId());
-
-            int affectedRows = ps.executeUpdate();
-            return affectedRows > 0;
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-        return false;
-    }
+    
 }
