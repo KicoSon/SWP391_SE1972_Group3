@@ -169,47 +169,6 @@ public class LeadDAO extends DBContext {
 
     }
 
-    // =============================
-    // GET BY ID
-    // =============================
-    public Lead getById(long id) {
-        String sql = "SELECT l.*, c.name AS campaign_name FROM leads l "
-                   + "LEFT JOIN campaigns c ON l.campaign_id = c.id "
-                   + "WHERE l.id = ?";
-        try {
-            PreparedStatement ps = connection.prepareStatement(sql);
-            ps.setLong(1, id);
-            ResultSet rs = ps.executeQuery();
-            if (rs.next()) {
-                Lead l = new Lead();
-                l.setId(rs.getLong("id"));
-                l.setFullName(rs.getString("full_name"));
-                l.setPhone(rs.getString("phone"));
-                l.setEmail(rs.getString("email"));
-                l.setAddress(rs.getString("address"));
-                l.setProductInterest(rs.getString("product_interest"));
-                l.setSource(rs.getString("source"));
-                l.setStatus(rs.getString("status"));
-                try { l.setCampaignId(rs.getLong("campaign_id")); } catch (Exception ignored) {}
-                return l;
-            }
-        } catch (Exception e) { e.printStackTrace(); }
-        return null;
-    }
-
-    // =============================
-    // UPDATE STATUS
-    // =============================
-    public boolean updateStatus(long id, String status) {
-        String sql = "UPDATE leads SET status=? WHERE id=?";
-        try {
-            PreparedStatement ps = connection.prepareStatement(sql);
-            ps.setString(1, status);
-            ps.setLong(2, id);
-            return ps.executeUpdate() > 0;
-        } catch (Exception e) { e.printStackTrace(); return false; }
-    }
-
     public boolean isEmailExist(String email) {
 
         String sql
@@ -252,9 +211,7 @@ public class LeadDAO extends DBContext {
         }
 
         try {
-            
 
-            
             PreparedStatement ps = connection.prepareStatement(sql);
 
             // Set tham số nếu có
@@ -290,4 +247,134 @@ public class LeadDAO extends DBContext {
         return list;
     }
 
+    public void updateStatus(long leadId, String status) {
+
+        String sql
+                = "UPDATE leads SET status=? WHERE id=?";
+
+        try {
+
+            PreparedStatement ps
+                    = connection.prepareStatement(sql);
+
+            ps.setString(1, status);
+
+            ps.setLong(2, leadId);
+
+            ps.executeUpdate();
+
+        } catch (Exception e) {
+
+            e.printStackTrace();
+
+        }
+
+    }
+public void updateLead(Lead lead) {
+
+    String sql =
+            "UPDATE leads SET "
+            + "full_name = ?, "
+            + "phone = ?, "
+            + "email = ?, "
+            + "address = ?, "
+            + "product_interest = ?, "
+            + "source = ?, "
+            + "campaign_id = ?, "
+            + "updated_at = GETDATE() "
+            + "WHERE id = ?";
+
+    try {
+
+        PreparedStatement ps =
+                connection.prepareStatement(sql);
+
+        ps.setString(1, lead.getFullName());
+
+        ps.setString(2, lead.getPhone());
+
+        ps.setString(3, lead.getEmail());
+
+        ps.setString(4, lead.getAddress());
+
+        ps.setString(5, lead.getProductInterest());
+
+        ps.setString(6, lead.getSource());
+
+        if (lead.getCampaignId() != null) {
+
+            ps.setLong(7, lead.getCampaignId());
+
+        } else {
+
+            ps.setNull(7, java.sql.Types.BIGINT);
+
+        }
+
+        ps.setLong(8, lead.getId());
+
+        ps.executeUpdate();
+
+    } catch (Exception e) {
+
+        e.printStackTrace();
+
+    }
+
+}
+
+    public Lead getLeadById(long id) {
+
+        Lead lead = null;
+
+        String sql = "SELECT * FROM leads WHERE id = ?";
+
+        try {
+
+            PreparedStatement ps = connection.prepareStatement(sql);
+
+            ps.setLong(1, id);
+
+            ResultSet rs = ps.executeQuery();
+
+            if (rs.next()) {
+
+                lead = new Lead();
+
+                lead.setId(rs.getLong("id"));
+
+                lead.setFullName(rs.getString("full_name"));
+
+                lead.setPhone(rs.getString("phone"));
+
+                lead.setEmail(rs.getString("email"));
+
+                lead.setAddress(rs.getString("address"));
+
+                lead.setProductInterest(rs.getString("product_interest"));
+
+                lead.setSource(rs.getString("source"));
+
+                lead.setStatus(rs.getString("status"));
+
+                lead.setCampaignId(rs.getObject("campaign_id") != null
+                        ? rs.getLong("campaign_id")
+                        : null);
+
+                lead.setCreatedBy(rs.getLong("created_by"));
+
+                lead.setCreatedAt(rs.getTimestamp("created_at"));
+
+                lead.setUpdatedAt(rs.getTimestamp("updated_at"));
+
+            }
+
+        } catch (Exception e) {
+
+            e.printStackTrace();
+
+        }
+
+        return lead;
+    }
 }
