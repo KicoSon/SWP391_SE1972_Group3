@@ -218,7 +218,6 @@ public class CustomerDAO extends DBContext {
             ps.setInt(6, c.getOwnerId());
             ps.setString(7, c.getStatus());
 
-            ps.executeUpdate();
             return ps.executeUpdate() > 0;
         } catch (Exception e) {
             e.printStackTrace();
@@ -226,13 +225,13 @@ public class CustomerDAO extends DBContext {
         return false;
     }
 
-    public static void main(String[] args) {
-        CustomerDAO cd = new CustomerDAO();
-        List<Customer> ls = cd.getAllCustomers();
-//        for(Customer c: ls){
-//            System.out.println(c.toString());
-//        }
-        Customer c = cd.getCustomerByID(4);
-        System.out.println(c.toString());
-    }
+//    public static void main(String[] args) {
+//        CustomerDAO cd = new CustomerDAO();
+//        List<Customer> ls = cd.getAllCustomers();
+////        for(Customer c: ls){
+////            System.out.println(c.toString());
+////        }
+//        Customer c = cd.getCustomerByID(4);
+//        System.out.println(c.toString());
+//    }
 }

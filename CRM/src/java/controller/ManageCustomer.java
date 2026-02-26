@@ -51,7 +51,7 @@ public class ManageCustomer extends HttpServlet {
                 UserDAO userDao = new UserDAO();
                 List<User> owners = userDao.getAllUsers();
 //
-//                request.removeAttribute("customer");
+                request.removeAttribute("customer");
                 request.setAttribute("owners", owners);
 
                 request.getRequestDispatcher("/admin/customer-form.jsp")
@@ -241,9 +241,10 @@ public class ManageCustomer extends HttpServlet {
                 }
             } else if ("edit".equals(action)) {
                 try {
-                    String cusId = request.getParameter("id");
+//                    String cusId = request.getParameter("id");
                     boolean result = false;
-                    int id = Integer.parseInt(cusId);
+//                    int id = Integer.parseInt(cusId);
+                    int id = Integer.parseInt(idParam);
 
                     String fullName = request.getParameter("fullName");
                     String email = request.getParameter("email");
@@ -283,41 +284,44 @@ public class ManageCustomer extends HttpServlet {
                     e.printStackTrace();
                     session.setAttribute("errorMessage", "Dữ liệu không hợp lệ!");
                 }
-            } else if ("add".equals(action)) {
-                try {
-                    boolean result = false;
-
-                    String fullName = request.getParameter("fullName");
-                    String email = request.getParameter("email");
-                    String phone = request.getParameter("phone");
-                    String password = request.getParameter("password");
-                    String address = request.getParameter("address");
-                    int ownerId = Integer.parseInt(request.getParameter("ownerId"));
-
-                    String status = "Active";
-
-                    Customer c = new Customer();
-
-                    c.setFullName(fullName);
-                    c.setEmail(email);
-                    c.setPhone(phone);
-                    c.setAddress(address);
-                    c.setOwnerId(ownerId);
-                    c.setStatus(status);
-                    c.setPassword(password);
-
-                    result = dao.insert(c);
-
-                    if (result) {
-                        session.setAttribute("successMessage", "Thêm khách hàng thành công!");
-                    } else {
-                        session.setAttribute("errorMessage", "Thêm khách hàng thất bại!");
-                    }
-                } catch (Exception e) {
-                    e.printStackTrace();
-                    session.setAttribute("errorMessage", "Dữ liệu không hợp lệ!");
-                }
             }
+        }
+        if ("add".equals(action) && idParam == null) {
+            try {
+                boolean result = false;
+
+                String fullName = request.getParameter("fullName");
+                String email = request.getParameter("email");
+                String phone = request.getParameter("phone");
+                String password = request.getParameter("password");
+                String address = request.getParameter("address");
+                int ownerId = Integer.parseInt(request.getParameter("ownerId"));
+
+                String status = "Active";
+
+                Customer c = new Customer();
+
+                c.setFullName(fullName);
+                c.setEmail(email);
+                c.setPhone(phone);
+                c.setAddress(address);
+                c.setOwnerId(ownerId);
+                c.setStatus(status);
+                c.setPassword(password);
+
+                result = dao.insert(c);
+
+                if (result) {
+                    session.setAttribute("successMessage", "Thêm khách hàng thành công!");
+                } else {
+                    session.setAttribute("errorMessage", "Thêm khách hàng thất bại!");
+                }
+            } catch (Exception e) {
+                e.printStackTrace();
+                session.setAttribute("errorMessage", "Dữ liệu không hợp lệ!");
+            }
+            response.sendRedirect(request.getContextPath() + "/managecustomer?success=add");
+            return;
         }
         // Quay lại trang list
         response.sendRedirect(request.getContextPath() + "/managecustomer");

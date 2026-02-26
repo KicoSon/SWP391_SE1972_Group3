@@ -52,7 +52,7 @@
                     <form action="${pageContext.request.contextPath}/managecustomer" method="POST" id="customerForm">
                         <input type="hidden" name="action" value="${customer != null ? 'edit' : 'add'}">
                         <c:if test="${customer != null}">
-                            <input type="hidden" name="id" value="${customer.id}">
+                            <input type="hidden" name="customerId" value="${customer.id}">
                         </c:if>
 
                         <!-- Personal Information Section -->
