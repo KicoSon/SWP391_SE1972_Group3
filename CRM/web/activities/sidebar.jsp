@@ -157,14 +157,14 @@
 <div class="sidebar" id="sidebar">
     <div>
         <div class="sidebar-header">
-            <h3><i class="fas fa-laptop-code"></i>Marketing Staff</h3>
+            <h3><i class="fas fa-laptop-code"></i>Sale Staff</h3>
         </div>
 
         <nav class="sidebar-nav">
 
             <div class="nav-section">Tổng quan</div>
             <div class="nav-item">
-                <a href="${pageContext.request.contextPath}/marketingg/dashboard" class="nav-link active">
+                <a href="${pageContext.request.contextPath}/sale/dashboard" class="nav-link active">
                     <i class="fas fa-chart-line"></i> Thống kê tổng quan
                 </a>
             </div>
@@ -193,7 +193,34 @@
                 </a>
             </div>
 
-           
+            <div class="nav-item">
+                <a href="${pageContext.request.contextPath}/admin/brandManagement" class="nav-link">
+                    <i class="fas fa-box"></i> Quản lý thương hiệu
+                </a>
+
+            </div>
+
+            <div class="nav-section">Hệ thống</div>
+            <div class="nav-item">
+                <a href="${pageContext.request.contextPath}/admin/shipperManagement" class="nav-link">
+                    <i class="fas fa-user-shield"></i> Quản lý shipper
+                </a>
+            </div>
+            <div class="nav-item">
+                <a href="${pageContext.request.contextPath}/admin/staffManagement" class="nav-link">
+                    <i class="fas fa-user-shield"></i> Quản lý nhân viên
+                </a>
+            </div>
+            <div class="nav-item">
+                <a href="${pageContext.request.contextPath}/admin/userManagement" class="nav-link">
+                    <i class="fas fa-users"></i> Quản lý khách hàng
+                </a>
+            </div>
+            <div class="nav-item">
+                <a href="${pageContext.request.contextPath}/admin/reviewManagement" class="nav-link">
+                    <i class="far fa-star"></i> Quản lý review
+                </a>
+            </div>
             <div class="nav-item">
                 <a href="${pageContext.request.contextPath}/admin/adminProfile" class="nav-link">
                     <i class="fas fa-user-shield"></i> Thông tin cá nhân
@@ -246,4 +273,3 @@
         }
     });
 </script>
-
