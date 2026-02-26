@@ -1,32 +1,41 @@
 package model;
 
-import java.sql.Timestamp;
+import java.time.LocalDateTime;
 
 public class Customer {
-    private int id;
-    private String fullName;      // Map với full_name
-    private String email;
-    private String password;      // Có lệnh ALTER TABLE ADD password trong SQL
-    private String phone;
-    private String address;
-    private int tierId;           // Map với tier_id (Default 1)
-    private String status;        // Active/Inactive
-    private String profilePicUrl; // Map với profile_pic_url
-    private int ownerId;          // Map với owner_id (Liên kết với bảng users)
-    private Timestamp createdAt;
-    private Timestamp updatedAt;
 
-    // 1. Constructor rỗng (Bắt buộc cho JavaBean)
+    private int id;
+    private String fullName;
+    private String email;
+    private String phone;
+    private String password;
+    private String address;
+    private int tierId;
+    private String status;
+    private String profilePicUrl;
+    private int ownerId;
+    private LocalDateTime createdAt;
+    private LocalDateTime updatedAt;
+    private String profileURL;
+
+    private String tierName;
+    private String ownerName;
+    private int tier;
+    
+
     public Customer() {
     }
 
-    // 2. Constructor đầy đủ (Dùng khi lấy dữ liệu full từ DB)
-    public Customer(int id, String fullName, String email, String password, String phone, String address, int tierId, String status, String profilePicUrl, int ownerId, Timestamp createdAt, Timestamp updatedAt) {
+    // Constructor đầy đủ
+    public Customer(int id, String fullName, String email, String phone, String password,
+            String address, int tierId, String status, String profilePicUrl,
+            int ownerId, LocalDateTime createdAt, LocalDateTime updatedAt) {
+
         this.id = id;
         this.fullName = fullName;
         this.email = email;
-        this.password = password;
         this.phone = phone;
+        this.password = password;
         this.address = address;
         this.tierId = tierId;
         this.status = status;
@@ -35,8 +44,6 @@ public class Customer {
         this.createdAt = createdAt;
         this.updatedAt = updatedAt;
     }
-
-    // 3. Constructor rút gọn (Tương thích với AuthDAO cũ nếu cần)
     public Customer(int id, String fullName, String email, String password, String phone, String address, String status) {
         this.id = id;
         this.fullName = fullName;
@@ -47,10 +54,40 @@ public class Customer {
         this.status = status;
     }
 
-    // --- GETTERS AND SETTERS ---
+    // Constructor khi insert (chưa có id, time)
+    public Customer(String fullName, String email, String phone, String password,
+            String address, int tierId, String status,
+            String profilePicUrl, int ownerId) {
+
+        this.fullName = fullName;
+        this.email = email;
+        this.phone = phone;
+        this.password = password;
+        this.address = address;
+        this.tierId = tierId;
+        this.status = status;
+        this.profilePicUrl = profilePicUrl;
+        this.ownerId = ownerId;
+    }
 
     public int getId() {
         return id;
+    }
+
+    public String getProfileURL() {
+        return profileURL;
+    }
+
+    public void setProfileURL(String profileURL) {
+        this.profileURL = profileURL;
+    }
+
+    public int getTier() {
+        return tier;
+    }
+
+    public void setTier(int tier) {
+        this.tier = tier;
     }
 
     public void setId(int id) {
@@ -73,20 +110,20 @@ public class Customer {
         this.email = email;
     }
 
-    public String getPassword() {
-        return password;
-    }
-
-    public void setPassword(String password) {
-        this.password = password;
-    }
-
     public String getPhone() {
         return phone;
     }
 
     public void setPhone(String phone) {
         this.phone = phone;
+    }
+
+    public String getPassword() {
+        return password;
+    }
+
+    public void setPassword(String password) {
+        this.password = password;
     }
 
     public String getAddress() {
@@ -129,19 +166,41 @@ public class Customer {
         this.ownerId = ownerId;
     }
 
-    public Timestamp getCreatedAt() {
+    public String getOwnerName() {
+        return ownerName;
+    }
+
+    public void setOwnerName(String ownerName) {
+        this.ownerName = ownerName;
+    }
+
+    public LocalDateTime getCreatedAt() {
         return createdAt;
     }
 
-    public void setCreatedAt(Timestamp createdAt) {
+    public void setCreatedAt(LocalDateTime createdAt) {
         this.createdAt = createdAt;
     }
 
-    public Timestamp getUpdatedAt() {
+    public LocalDateTime getUpdatedAt() {
         return updatedAt;
     }
 
-    public void setUpdatedAt(Timestamp updatedAt) {
+    public void setUpdatedAt(LocalDateTime updatedAt) {
         this.updatedAt = updatedAt;
     }
+
+    public String getTierName() {
+        return tierName;
+    }
+
+    public void setTierName(String tierName) {
+        this.tierName = tierName;
+    }
+
+    @Override
+    public String toString() {
+        return "Customer{" + "id=" + id + ", fullName=" + fullName + ", email=" + email + ", phone=" + phone + ", password=" + password + ", address=" + address + ", tierId=" + tierId + ", status=" + status + ", profilePicUrl=" + profilePicUrl + ", ownerId=" + ownerId + ", createdAt=" + createdAt + ", updatedAt=" + updatedAt + '}';
+    }
+
 }

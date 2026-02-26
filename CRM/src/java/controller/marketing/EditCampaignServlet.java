@@ -124,7 +124,21 @@ public class EditCampaignServlet extends HttpServlet {
 
             }
 
-            
+            /* VALIDATE START */
+            if (startDate.before(today)) {
+
+                request.setAttribute("error",
+                        "Start phải >= hôm nay");
+
+                request.setAttribute("campaign", old);
+
+                request.getRequestDispatcher(
+                        "/marketingg/editCampaign.jsp")
+                        .forward(request, response);
+
+                return;
+
+            }
 
             /* VALIDATE END */
             if (end != null && !end.isEmpty()) {
