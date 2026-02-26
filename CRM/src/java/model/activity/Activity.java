@@ -22,6 +22,12 @@ public class Activity {
     private Integer customerId;
     private Integer opportunityId;
 
+    private String customerName; // Hứng tên Khách hàng từ phép JOIN
+    private String leadName;
+    private String opportunityTitle;
+
+    private String creatorName;
+    private String assigneeName;
     // Thời gian & Trạng thái
     private Timestamp dueDate;
     private Timestamp reminderAt;
@@ -35,6 +41,46 @@ public class Activity {
     private Timestamp updatedAt;
 
     public Activity() {
+    }
+
+    public String getOpportunityTitle() {
+        return opportunityTitle;
+    }
+
+    public void setOpportunityTitle(String opportunityTitle) {
+        this.opportunityTitle = opportunityTitle;
+    }
+
+    public String getCreatorName() {
+        return creatorName;
+    }
+
+    public void setCreatorName(String creatorName) {
+        this.creatorName = creatorName;
+    }
+
+    public String getAssigneeName() {
+        return assigneeName;
+    }
+
+    public void setAssigneeName(String assigneeName) {
+        this.assigneeName = assigneeName;
+    }
+
+    public String getCustomerName() {
+        return customerName;
+    }
+
+    public void setCustomerName(String customerName) {
+        this.customerName = customerName;
+    }
+
+    public String getLeadName() {
+        return leadName;
+    }
+
+    public void setLeadName(String leadName) {
+        this.leadName = leadName;
     }
 
     // Getters and Setters
