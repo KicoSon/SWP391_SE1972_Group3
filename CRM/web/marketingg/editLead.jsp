@@ -200,7 +200,21 @@
 
                     </div>
 
+                    <!-- SOURCE -->
 
+                    <div class="mb-3">
+
+                        <label>Nguồn Lead</label>
+
+                        <input type="text"
+
+                               name="source"
+
+                               class="form-control"
+
+                               value="${lead.source}"readonly>
+
+                    </div>
 
 
 
