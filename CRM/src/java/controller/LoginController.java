@@ -111,7 +111,7 @@ public class LoginController extends HttpServlet {
             if (userSession.isAdmin()) {
                 response.sendRedirect(contextPath + "/admin/dashboard");
             } else if (userSession.isSupportStaff()) {
-                response.sendRedirect(contextPath + "/support/dashboard");
+                response.sendRedirect(contextPath + "/customerservice/dashboard");
             } else if (userSession.isSaleStaff()) {
                 response.sendRedirect(contextPath + "/sale/dashboard");
             } else if (userSession.isMarketingStaff()) {
