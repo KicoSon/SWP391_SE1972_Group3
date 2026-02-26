@@ -9,5 +9,10 @@ CRM/nbproject/private/
 .DS_Store
 Thumbs.db
 
-# Bỏ qua file cấu hình Database cá nhân
+# Ignore DBContext
 CRM/src/java/dal/DBContext.java
+/CRM/CRM/build/
+/CRM/CRM/dist/
+/CRM/CRM/nbproject/private/
+CRM/nbproject/private/private.properties
+CRM/nbproject/private/private.properties

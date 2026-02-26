@@ -35,10 +35,11 @@ Click nbfs://nbhost/SystemFileSystem/Templates/JSP_Servlet/CascadeStyleSheet.css
             }
 
             body {
+                margin: 0;
                 font-family: 'IBM Plex Sans', -apple-system, BlinkMacSystemFont, sans-serif;
                 background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
                 min-height: 100vh;
-                padding: 20px;
+                padding: 0;
             }
 
             .container {
@@ -627,20 +628,9 @@ Click nbfs://nbhost/SystemFileSystem/Templates/JSP_Servlet/CascadeStyleSheet.css
                Layout Styles (Sidebar, Header, Main Content)
                ───────────────────────────────────────────────────────────── */
 
-            /* Sidebar Styling */
-            .sidebar {
-                line-height: 1.6 !important;
-                width: 260px !important;
-            }
-
-            .sidebar * {
-                font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            }
-
             /* Ensure vertical scrollbar always shows */
             body {
                 overflow-y: scroll !important;
-                background: linear-gradient(135deg, #3a7bd5, #3a6073);
                 color: #333;
             }
 

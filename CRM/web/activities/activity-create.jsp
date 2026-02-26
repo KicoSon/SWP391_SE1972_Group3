@@ -15,7 +15,7 @@
     </head>
     <body>
 
-        <%@ include file="sidebar.jsp" %>
+        <jsp:include page="/sales/sidebar.jsp"/>
 
         <div class="main-content fade-in">
             <div class="container">
