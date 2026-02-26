@@ -3,16 +3,27 @@
     <editor-bookmarks xmlns="http://www.netbeans.org/ns/editor-bookmarks/2" lastBookmarkId="0"/>
     <open-files xmlns="http://www.netbeans.org/ns/projectui-open-files/2">
         <group>
-            <file>file:/C:/Users/PC/OneDrive/Documents/GitHub/SWP391_SE1972_Group3/CRM/src/java/model/Customer.java</file>
-            <file>file:/C:/Users/PC/OneDrive/Documents/GitHub/SWP391_SE1972_Group3/CRM/src/java/controller/sales/OpportunityDetailServlet.java</file>
-            <file>file:/C:/Users/PC/OneDrive/Documents/GitHub/SWP391_SE1972_Group3/CRM/src/java/dal/LeadDAO.java</file>
-            <file>file:/C:/Users/PC/OneDrive/Documents/GitHub/SWP391_SE1972_Group3/CRM/src/java/dal/StaffDAO.java</file>
-            <file>file:/C:/Users/PC/OneDrive/Documents/GitHub/SWP391_SE1972_Group3/CRM/web/WEB-INF/web.xml</file>
-            <file>file:/C:/Users/PC/OneDrive/Documents/GitHub/SWP391_SE1972_Group3/CRM/src/java/dal/QuotationDAO.java</file>
-            <file>file:/C:/Users/PC/OneDrive/Documents/GitHub/SWP391_SE1972_Group3/CRM/src/java/dal/CustomerDAO.java</file>
-            <file>file:/C:/Users/PC/OneDrive/Documents/GitHub/SWP391_SE1972_Group3/CRM/src/java/dal/ActivityDAO.java</file>
-            <file>file:/C:/Users/PC/OneDrive/Documents/GitHub/SWP391_SE1972_Group3/CRM/src/java/controller/LoginController.java</file>
-            <file>file:/C:/Users/PC/OneDrive/Documents/GitHub/SWP391_SE1972_Group3/CRM/src/java/controller/activity/ActivityDashboardController.java</file>
+            <file>file:/C:/Users/Huynguyen/OneDrive/Desktop/projectSwp/SWP391_SE1972_Group3/CRM/web/marketingg/sidebar.jsp</file>
+            <file>file:/C:/Users/Huynguyen/OneDrive/Desktop/projectSwp/SWP391_SE1972_Group3/CRM/src/java/model/UserSession.java</file>
+            <file>file:/C:/Users/Huynguyen/OneDrive/Desktop/projectSwp/SWP391_SE1972_Group3/CRM/src/java/controller/LoginController.java</file>
+            <file>file:/C:/Users/Huynguyen/OneDrive/Desktop/projectSwp/SWP391_SE1972_Group3/CRM/src/java/dal/AuthDAO.java</file>
+            <file>file:/C:/Users/Huynguyen/OneDrive/Desktop/projectSwp/SWP391_SE1972_Group3/CRM/web/marketingg/leadmanagement.jsp</file>
+            <file>file:/C:/Users/Huynguyen/OneDrive/Desktop/projectSwp/SWP391_SE1972_Group3/CRM/src/java/dal/LeadDAO.java</file>
+            <file>file:/C:/Users/Huynguyen/OneDrive/Desktop/projectSwp/SWP391_SE1972_Group3/CRM/web/marketingg/campaignmanagement.jsp</file>
+            <file>file:/C:/Users/Huynguyen/OneDrive/Desktop/projectSwp/SWP391_SE1972_Group3/CRM/web/marketingg/editCampaign.jsp</file>
+            <file>file:/C:/Users/Huynguyen/OneDrive/Desktop/projectSwp/SWP391_SE1972_Group3/CRM/src/java/controller/marketing/EditCampaignServlet.java</file>
+            <file>file:/C:/Users/Huynguyen/OneDrive/Desktop/projectSwp/SWP391_SE1972_Group3/CRM/src/java/controller/marketing/UpdateLeadStatusServlet.java</file>
+            <file>file:/C:/Users/Huynguyen/OneDrive/Desktop/projectSwp/SWP391_SE1972_Group3/CRM/src/java/controller/marketing/EditLeadServlet.java</file>
+            <file>file:/C:/Users/Huynguyen/OneDrive/Desktop/projectSwp/SWP391_SE1972_Group3/CRM/web/marketingg/editLead.jsp</file>
+            <file>file:/C:/Users/Huynguyen/OneDrive/Desktop/projectSwp/SWP391_SE1972_Group3/CRM/src/java/controller/marketing/LeadManagementServlet.java</file>
+            <file>file:/C:/Users/Huynguyen/OneDrive/Desktop/projectSwp/SWP391_SE1972_Group3/CRM/src/java/dal/CampaignDAO.java</file>
+            <file>file:/C:/Users/Huynguyen/OneDrive/Desktop/projectSwp/SWP391_SE1972_Group3/CRM/src/java/model/Lead.java</file>
+            <file>file:/C:/Users/Huynguyen/OneDrive/Desktop/projectSwp/SWP391_SE1972_Group3/CRM/web/marketingg/dashboard.jsp</file>
+            <file>file:/C:/Users/Huynguyen/OneDrive/Desktop/projectSwp/SWP391_SE1972_Group3/CRM/src/java/dal/UserDao.java</file>
+            <file>file:/C:/Users/Huynguyen/OneDrive/Desktop/projectSwp/SWP391_SE1972_Group3/CRM/src/java/controller/marketing/CampaignManagementServlet.java</file>
+            <file>file:/C:/Users/Huynguyen/OneDrive/Desktop/projectSwp/SWP391_SE1972_Group3/CRM/src/java/controller/marketing/AssignLeadToSalesServlet.java</file>
+            <file>file:/C:/Users/Huynguyen/OneDrive/Desktop/projectSwp/SWP391_SE1972_Group3/CRM/src/java/controller/marketing/AddLeadServlet.java</file>
+            <file>file:/C:/Users/Huynguyen/OneDrive/Desktop/projectSwp/SWP391_SE1972_Group3/CRM/web/marketingg/assignLead.jsp</file>
         </group>
     </open-files>
 </project-private>

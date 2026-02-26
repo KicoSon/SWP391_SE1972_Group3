@@ -192,35 +192,18 @@
 
                 </a>
             </div>
+            <div class="nav-item">
+                <a href="${pageContext.request.contextPath}/marketing/assignLead"
+                   class="nav-link">
 
-            <div class="nav-item">
-                <a href="${pageContext.request.contextPath}/admin/brandManagement" class="nav-link">
-                    <i class="fas fa-box"></i> Quản lý thương hiệu
-                </a>
+                    <i class="fas fa-user-check"></i>
 
-            </div>
+                    Assign Lead to Sales
 
-            <div class="nav-section">Hệ thống</div>
-            <div class="nav-item">
-                <a href="${pageContext.request.contextPath}/admin/shipperManagement" class="nav-link">
-                    <i class="fas fa-user-shield"></i> Quản lý shipper
                 </a>
-            </div>
-            <div class="nav-item">
-                <a href="${pageContext.request.contextPath}/admin/staffManagement" class="nav-link">
-                    <i class="fas fa-user-shield"></i> Quản lý nhân viên
-                </a>
-            </div>
-            <div class="nav-item">
-                <a href="${pageContext.request.contextPath}/admin/userManagement" class="nav-link">
-                    <i class="fas fa-users"></i> Quản lý khách hàng
-                </a>
-            </div>
-            <div class="nav-item">
-                <a href="${pageContext.request.contextPath}/admin/reviewManagement" class="nav-link">
-                    <i class="far fa-star"></i> Quản lý review
-                </a>
-            </div>
+            </div> 
+
+
             <div class="nav-item">
                 <a href="${pageContext.request.contextPath}/admin/adminProfile" class="nav-link">
                     <i class="fas fa-user-shield"></i> Thông tin cá nhân
