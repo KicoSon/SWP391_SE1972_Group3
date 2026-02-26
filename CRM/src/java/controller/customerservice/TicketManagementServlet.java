@@ -40,8 +40,8 @@ public class TicketManagementServlet extends HttpServlet {
 
         try {
 
-            UserSession userSession =
-                    (UserSession) request.getSession()
+            UserSession userSession
+                    = (UserSession) request.getSession()
                             .getAttribute("userSession");
 
             if (userSession == null) {
@@ -54,21 +54,25 @@ public class TicketManagementServlet extends HttpServlet {
             // CUSTOMER chỉ xem ticket của mình
             if (userSession.isCustomer()) {
 
-                int customerId =
-                        userSession.getCustomer().getId();
+                int customerId
+                        = userSession.getCustomer().getId();
 
-                ticketList =
-                        ticketDAO.getTicketsByCustomerId(customerId);
+                ticketList
+                        = ticketDAO.getTicketsByCustomerId(customerId);
 
-            }
-            // STAFF xem tất cả + filter
+            } // STAFF xem tất cả + filter
             else {
 
-                ticketList =
-                        ticketDAO.filterTickets(search, statusFilter);
+                ticketList
+                        = ticketDAO.filterTickets(search, statusFilter);
             }
 
             request.setAttribute("ticketList", ticketList);
+            int staffId = userSession.getUserId();
+            List<SupportTicket> myTickets
+                    = ticketDAO.getTicketsByStaffId(staffId);
+
+            request.setAttribute("myTickets", myTickets);
 
             request.getRequestDispatcher(
                     "/customerservice/ticketlist.jsp")

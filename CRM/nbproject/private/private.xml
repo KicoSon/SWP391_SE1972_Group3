@@ -3,9 +3,11 @@
     <editor-bookmarks xmlns="http://www.netbeans.org/ns/editor-bookmarks/2" lastBookmarkId="0"/>
     <open-files xmlns="http://www.netbeans.org/ns/projectui-open-files/2">
         <group>
-            <file>file:/C:/Users/Admin/Documents/SP26/SWP391/CRM/web/META-INF/context.xml</file>
-            <file>file:/C:/Users/Admin/Documents/SP26/SWP391/CRM/src/java/controller/customerservice/CustomerManagementServlet.java</file>
-            <file>file:/C:/Users/Admin/Documents/SP26/SWP391/CRM/src/java/filter/AuthorizationFilter.java</file>
+            <file>file:/C:/Users/Admin/Documents/SP26/SWP391/CRM/web/customerservice/addticket.jsp</file>
+            <file>file:/C:/Users/Admin/Documents/SP26/SWP391/CRM/src/java/controller/customerservice/AddTicketServlet.java</file>
+            <file>file:/C:/Users/Admin/Documents/SP26/SWP391/CRM/src/java/controller/customerservice/TicketManagementServlet.java</file>
+            <file>file:/C:/Users/Admin/Documents/SP26/SWP391/CRM/web/customerservice/ticketlist.jsp</file>
+            <file>file:/C:/Users/Admin/Documents/SP26/SWP391/CRM/src/java/dal/TicketDAO.java</file>
         </group>
     </open-files>
 </project-private>
