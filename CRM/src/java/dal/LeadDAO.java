@@ -470,7 +470,7 @@ public void updateLead(Lead lead) {
     }
 
 }
-   public Lead getById(long id) {
+public Lead getById(long id) {
         String sql = "SELECT l.*, c.name AS campaign_name FROM leads l "
                    + "LEFT JOIN campaigns c ON l.campaign_id = c.id "
                    + "WHERE l.id = ?";

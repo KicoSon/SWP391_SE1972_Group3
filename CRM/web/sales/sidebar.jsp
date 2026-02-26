@@ -73,7 +73,6 @@
     <nav class="sidebar-nav">
         <div class="nav-section">Dashboard</div>
         <a href="${pageContext.request.contextPath}/sales/dashboard"><i class="fas fa-tachometer-alt"></i> Tổng quan</a>
-        <a href="${pageContext.request.contextPath}/sale/dashboard"><i class="fas fa-calendar-check"></i> Activity Dashboard</a>
 
         <div class="nav-section">Pipeline</div>
         <a href="${pageContext.request.contextPath}/sales/pipeline-board"><i class="fas fa-columns"></i> Kanban Board</a>

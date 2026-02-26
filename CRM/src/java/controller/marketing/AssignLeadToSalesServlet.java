@@ -5,7 +5,7 @@ import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.*;
 
 import dal.LeadDAO;
-import dal.UserDao;
+import dal.UserDAO;
 import model.Lead;
 
 import java.io.IOException;
@@ -16,14 +16,14 @@ import model.Staff;
 public class AssignLeadToSalesServlet extends HttpServlet {
 
     private LeadDAO leadDAO;
-    private UserDao UserDao;
+    private UserDAO UserDao;
 
     @Override
     public void init() throws ServletException {
 
         leadDAO = new LeadDAO();
 
-        UserDao = new UserDao();
+        UserDao = new UserDAO();
     }
 
 
