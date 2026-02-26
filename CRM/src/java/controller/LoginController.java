@@ -103,19 +103,30 @@ public class LoginController extends HttpServlet {
 
         String contextPath = request.getContextPath();
 
-        if (userSession.isCustomer()) {
+        if (userSession.isCustomerUser()) {
             response.sendRedirect(contextPath + "/customer/dashboard");
 
-        } else if (userSession.isStaff()) {
+        } else if (userSession.isStaffUser()) {
+
+            // DEBUG: in ra roles để kiểm tra trong Tomcat log
+            System.out.println("[LoginController] Staff roles: " + userSession.getRoles());
+            System.out.println("[LoginController] isAdmin=" + userSession.isAdmin()
+                + " isSale=" + userSession.isSaleStaff()
+                + " isSupport=" + userSession.isSupportStaff()
+                + " isMarketing=" + userSession.isMarketingStaff());
 
             if (userSession.isAdmin()) {
                 response.sendRedirect(contextPath + "/admin/dashboard");
+            } else if (userSession.isSaleStaff()) {
+                response.sendRedirect(contextPath + "/sales/dashboard");
             } else if (userSession.isSupportStaff()) {
                 response.sendRedirect(contextPath + "/support/dashboard");
-            } else if (userSession.isSaleStaff()) {
-                response.sendRedirect(contextPath + "/sale/dashboard");
             } else if (userSession.isMarketingStaff()) {
                 response.sendRedirect(contextPath + "/marketingg/dashboard");
+            } else {
+                // Fallback: không xác định được role → redirect về sales/dashboard
+                System.out.println("[LoginController] WARNING: No matching role found, redirecting to sales/dashboard as fallback");
+                response.sendRedirect(contextPath + "/sales/dashboard");
             }
         }
     }
