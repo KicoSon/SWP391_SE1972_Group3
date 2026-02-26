@@ -77,7 +77,7 @@ public class ActivityCreateController extends HttpServlet {
         request.setAttribute("leads", leadList);
 
         OpportunityDAO oppDAO = new OpportunityDAO();
-//        request.setAttribute("oppList", oppDAO.getAllOpportunities());
+        request.setAttribute("oppList", oppDAO.getAllOpportunities());
 
         StaffDAO staffDAO = new StaffDAO();
         request.setAttribute("staffList", staffDAO.getAllActiveStaff());
