@@ -28,6 +28,8 @@ public class Lead {
     private Date updatedAt;
 
     private String campaignName;
+    private String saleName;
+
 
 
 
@@ -182,5 +184,12 @@ public class Lead {
     public void setCampaignName(String campaignName) {
         this.campaignName = campaignName;
     }
+    public String getSaleName() {
+    return saleName;
+}
+
+public void setSaleName(String saleName) {
+    this.saleName = saleName;
+}
 
 }

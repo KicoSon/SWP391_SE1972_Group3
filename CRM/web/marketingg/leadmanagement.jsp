@@ -1,4 +1,3 @@
-
 <%@ page contentType="text/html;charset=UTF-8" %>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/fmt" prefix="fmt" %>
@@ -304,7 +303,7 @@
                                 <th>Phone</th>
 
                                 <th>Email</th>
-                                <th>Address</th>
+
                                 <th>Campaign</th>
                                 <th>Product Interest</th>
 
@@ -313,7 +312,7 @@
                                 <th>Status</th>
 
                                 <th>Ngày tạo</th>
-                                <th>Hành động</th>
+
                             </tr>
 
                         </thead>
@@ -332,54 +331,21 @@
                                     <td>${l.phone}</td>
 
                                     <td>${l.email}</td>
-                                    <td>${l.address}</td>
+
                                     <td>${l.campaignName}</td>
                                     <td>${l.productInterest}</td>
 
 
                                     <td>${l.source}</td>
 
+
                                     <td>
 
-                                        <form action="${pageContext.request.contextPath}/marketing/updateLeadStatus"
-                                              method="post">
+                                        <span class="badge ${l.status}">
 
-                                            <input type="hidden"
-                                                   name="leadId"
-                                                   value="${l.id}"/>
+                                            ${l.status}
 
-                                            <select name="status"
-                                                    class="badge ${l.status}"
-                                                    onchange="this.form.submit()">
-
-                                                <option value="new"
-                                                        ${l.status=='new'?'selected':''}>
-                                                    New
-                                                </option>
-
-                                                <option value="nurturing"
-                                                        ${l.status=='nurturing'?'selected':''}>
-                                                    Nurturing
-                                                </option>
-
-                                                <option value="qualified"
-                                                        ${l.status=='qualified'?'selected':''}>
-                                                    Qualified
-                                                </option>
-
-                                                <option value="assigned"
-                                                        ${l.status=='assigned'?'selected':''}>
-                                                    Assigned
-                                                </option>
-
-                                                <option value="disqualified"
-                                                        ${l.status=='disqualified'?'selected':''}>
-                                                    Disqualified
-                                                </option>
-
-                                            </select>
-
-                                        </form>
+                                        </span>
 
                                     </td>
 
@@ -390,19 +356,10 @@
                                                         pattern="dd/MM/yyyy HH:mm"/>
 
                                     </td>
-                                    <td>
-                                        <div class="action-btns">
 
-                                            <a href="${pageContext.request.contextPath}/marketingg/editLead?id=${l.id}"
-                                               class="btn btn-primary">
+                                </tr>
 
-                                                <i class="fas fa-edit"></i>
-
-                                            </a>
-
-                                        </div>
-                                    </td>
-                                </c:forEach>
+                            </c:forEach>
 
                         </tbody>
 

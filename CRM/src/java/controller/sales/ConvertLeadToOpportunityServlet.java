@@ -45,7 +45,7 @@ public class ConvertLeadToOpportunityServlet extends HttpServlet {
 
         try {
             long leadId = Long.parseLong(request.getParameter("leadId"));
-            Lead lead = leadDAO.getLeadById(leadId);
+            Lead lead = leadDAO.getById(leadId);
             if (lead == null) { response.sendError(404, "Lead not found"); return; }
 
             request.setAttribute("lead", lead);
