@@ -121,7 +121,12 @@ public class UserSession {
     
     public boolean hasRole(String roleName) {
         if (roles == null) return false;
-        return roles.stream().anyMatch(r -> r.getName().equals(roleName));
+        if (roleName == null) return false;
+        final String target = roleName.trim();
+        return roles.stream()
+                .map(r -> r != null ? r.getName() : null)
+                .filter(n -> n != null)
+                .anyMatch(n -> n.trim().equalsIgnoreCase(target));
     }
     
     public boolean isAdmin() {
@@ -138,7 +143,8 @@ public class UserSession {
     }    
     
     public boolean isMarketingStaff() {
-    return hasRole("Marketing");
+        // Backward-compatible: some old data may store "Marketing"
+        return hasRole("MARKETING_STAFF") || hasRole("Marketing");
 }
 
     
