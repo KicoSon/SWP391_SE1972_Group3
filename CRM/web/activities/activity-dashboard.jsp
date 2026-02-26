@@ -26,7 +26,7 @@
             <c:remove var="success" scope="session" />
         </c:if>
 
-        <%@ include file="sidebar.jsp" %>
+        <jsp:include page="/sales/sidebar.jsp"/>
         <!-- Header riêng cho Admin -->
         <div class="admin-header fade-in">
             <div class="admin-info">
