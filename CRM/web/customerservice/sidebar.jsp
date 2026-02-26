@@ -1,5 +1,7 @@
 <%@ page contentType="text/html;charset=UTF-8" language="java" %>
-
+<!-- Favicon -->
+<link rel="icon" type="image/png"
+      href="${pageContext.request.contextPath}/assets/images/favicon.png">
 <!-- FontAwesome Icons -->
 <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
 
@@ -171,7 +173,7 @@
             </div>
 
             <div class="nav-item">
-                <a href="${pageContext.request.contextPath}/customerservice/ticketmanagement"
+                <a href="${pageContext.request.contextPath}/customerservice/ticketlist"
                    class="nav-link">
                     <i class="fas fa-ticket"></i> Quản lý Ticket
                 </a>
