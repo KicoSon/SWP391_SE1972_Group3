@@ -19,6 +19,7 @@ public class Customer {
 
     private String tierName;
     private String ownerName;
+    
 
     public Customer() {
     }

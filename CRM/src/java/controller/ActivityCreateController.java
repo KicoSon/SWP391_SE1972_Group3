@@ -241,7 +241,7 @@ public class ActivityCreateController extends HttpServlet {
             }
             // === CREATE MODE: TẠO MỚI ===
             else {
-                int newActivityId = dao.insertActivity(act, participantIds);
+                int newActivityId = dao.insertActivity3(act, participantIds);
 
                 if (newActivityId > 0) {
                     // Lưu file vào D:/uploads thay vì build folder
