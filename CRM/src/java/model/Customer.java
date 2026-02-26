@@ -42,6 +42,15 @@ public class Customer {
         this.createdAt = createdAt;
         this.updatedAt = updatedAt;
     }
+    public Customer(int id, String fullName, String email, String password, String phone, String address, String status) {
+        this.id = id;
+        this.fullName = fullName;
+        this.email = email;
+        this.password = password;
+        this.phone = phone;
+        this.address = address;
+        this.status = status;
+    }
 
     // Constructor khi insert (chưa có id, time)
     public Customer(String fullName, String email, String phone, String password,
