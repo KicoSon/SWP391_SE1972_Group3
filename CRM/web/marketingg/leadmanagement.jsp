@@ -350,7 +350,8 @@
 
                                             <select name="status"
                                                     class="badge ${l.status}"
-                                                    onchange="this.form.submit()">
+                                                    onchange="this.form.submit()"
+                                                    ${l.assignedSalesId != null ? 'disabled' : ''}>
 
                                                 <option value="new"
                                                         ${l.status=='new'?'selected':''}>
@@ -368,7 +369,8 @@
                                                 </option>
 
                                                 <option value="assigned"
-                                                        ${l.status=='assigned'?'selected':''}>
+                                                        ${l.status=='assigned'?'selected':''}
+                                                        disabled>
                                                     Assigned
                                                 </option>
 
@@ -378,6 +380,9 @@
                                                 </option>
 
                                             </select>
+
+
+
 
                                         </form>
 

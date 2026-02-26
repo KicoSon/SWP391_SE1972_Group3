@@ -192,8 +192,18 @@
 
                 </a>
             </div>
+            <div class="nav-item">
+                <a href="${pageContext.request.contextPath}/marketing/assignLead"
+                   class="nav-link">
 
-           
+                    <i class="fas fa-user-check"></i>
+
+                    Assign Lead to Sales
+
+                </a>
+            </div> 
+
+
             <div class="nav-item">
                 <a href="${pageContext.request.contextPath}/admin/adminProfile" class="nav-link">
                     <i class="fas fa-user-shield"></i> Thông tin cá nhân
