@@ -393,7 +393,7 @@
                                     <td>
                                         <div class="action-btns">
 
-                                            <a href="${pageContext.request.contextPath}/marketing/editLead?id=${l.id}"
+                                            <a href="${pageContext.request.contextPath}/marketingg/editLead?id=${l.id}"
                                                class="btn btn-primary">
 
                                                 <i class="fas fa-edit"></i>

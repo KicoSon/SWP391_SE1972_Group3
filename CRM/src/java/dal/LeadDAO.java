@@ -270,37 +270,111 @@ public class LeadDAO extends DBContext {
         }
 
     }
+public void updateLead(Lead lead) {
 
-    public void updateLead(Lead lead) {
+    String sql =
+            "UPDATE leads SET "
+            + "full_name = ?, "
+            + "phone = ?, "
+            + "email = ?, "
+            + "address = ?, "
+            + "product_interest = ?, "
+            + "source = ?, "
+            + "campaign_id = ?, "
+            + "updated_at = GETDATE() "
+            + "WHERE id = ?";
 
-        String sql
-                = "UPDATE Lead SET full_name=?, phone=?, email=?, address=?, product_interest=?, source=? WHERE id=?";
+    try {
+
+        PreparedStatement ps =
+                connection.prepareStatement(sql);
+
+        ps.setString(1, lead.getFullName());
+
+        ps.setString(2, lead.getPhone());
+
+        ps.setString(3, lead.getEmail());
+
+        ps.setString(4, lead.getAddress());
+
+        ps.setString(5, lead.getProductInterest());
+
+        ps.setString(6, lead.getSource());
+
+        if (lead.getCampaignId() != null) {
+
+            ps.setLong(7, lead.getCampaignId());
+
+        } else {
+
+            ps.setNull(7, java.sql.Types.BIGINT);
+
+        }
+
+        ps.setLong(8, lead.getId());
+
+        ps.executeUpdate();
+
+    } catch (Exception e) {
+
+        e.printStackTrace();
+
+    }
+
+}
+
+    public Lead getLeadById(long id) {
+
+        Lead lead = null;
+
+        String sql = "SELECT * FROM leads WHERE id = ?";
 
         try {
 
-            PreparedStatement ps
-                    = connection.prepareStatement(sql);
+            PreparedStatement ps = connection.prepareStatement(sql);
 
-            ps.setString(1, lead.getFullName());
+            ps.setLong(1, id);
 
-            ps.setString(2, lead.getPhone());
+            ResultSet rs = ps.executeQuery();
 
-            ps.setString(3, lead.getEmail());
+            if (rs.next()) {
 
-            ps.setString(4, lead.getAddress());
+                lead = new Lead();
 
-            ps.setString(5, lead.getProductInterest());
+                lead.setId(rs.getLong("id"));
 
-            ps.setString(6, lead.getSource());
+                lead.setFullName(rs.getString("full_name"));
 
-            ps.setLong(7, lead.getId());
+                lead.setPhone(rs.getString("phone"));
 
-            ps.executeUpdate();
+                lead.setEmail(rs.getString("email"));
+
+                lead.setAddress(rs.getString("address"));
+
+                lead.setProductInterest(rs.getString("product_interest"));
+
+                lead.setSource(rs.getString("source"));
+
+                lead.setStatus(rs.getString("status"));
+
+                lead.setCampaignId(rs.getObject("campaign_id") != null
+                        ? rs.getLong("campaign_id")
+                        : null);
+
+                lead.setCreatedBy(rs.getLong("created_by"));
+
+                lead.setCreatedAt(rs.getTimestamp("created_at"));
+
+                lead.setUpdatedAt(rs.getTimestamp("updated_at"));
+
+            }
 
         } catch (Exception e) {
 
             e.printStackTrace();
 
         }
+
+        return lead;
     }
 }
