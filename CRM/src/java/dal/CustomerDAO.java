@@ -9,60 +9,104 @@ public class CustomerDAO extends DBContext {
 
     public List<Customer> filterCustomers(String search, String statusFilter) {
 
-    List<Customer> list = new ArrayList<>();
+        List<Customer> list = new ArrayList<>();
 
-    StringBuilder sql = new StringBuilder(
-        "SELECT id, full_name, email, phone, profile_pic_url, created_at, status, tier_id " +
-        "FROM customers WHERE 1=1 "
-    );
-
-    if (search != null && !search.trim().isEmpty()) {
-        sql.append(" AND (full_name LIKE ? OR email LIKE ?) ");
-    }
-
-    if (statusFilter != null && !statusFilter.trim().isEmpty()) {
-        sql.append(" AND status = ? ");
-    }
-
-    sql.append(" ORDER BY id DESC ");
-
-    try (PreparedStatement ps = connection.prepareStatement(sql.toString())) {
-
-        int index = 1;
+        StringBuilder sql = new StringBuilder(
+                "SELECT id, full_name, email, phone, profile_pic_url, created_at, status, tier_id "
+                + "FROM customers WHERE 1=1 "
+        );
 
         if (search != null && !search.trim().isEmpty()) {
-            ps.setString(index++, "%" + search + "%");
-            ps.setString(index++, "%" + search + "%");
+            sql.append(" AND (full_name LIKE ? OR email LIKE ?) ");
         }
 
         if (statusFilter != null && !statusFilter.trim().isEmpty()) {
-            ps.setString(index++, statusFilter);
+            sql.append(" AND status = ? ");
         }
 
-        ResultSet rs = ps.executeQuery();
+        sql.append(" ORDER BY id DESC ");
 
-        while (rs.next()) {
+        try (PreparedStatement ps = connection.prepareStatement(sql.toString())) {
 
-            Customer c = new Customer();
+            int index = 1;
 
-            c.setId(rs.getInt("id"));
-            c.setFullName(rs.getString("full_name"));
-            c.setEmail(rs.getString("email"));
-            c.setPhone(rs.getString("phone"));
-            c.setProfileURL(rs.getString("profile_pic_url"));
-            c.setCreateAt(rs.getString("created_at"));
-            c.setStatus(rs.getString("status"));
-            c.setTier(rs.getInt("tier_id"));
+            if (search != null && !search.trim().isEmpty()) {
+                ps.setString(index++, "%" + search + "%");
+                ps.setString(index++, "%" + search + "%");
+            }
 
-            list.add(c);
+            if (statusFilter != null && !statusFilter.trim().isEmpty()) {
+                ps.setString(index++, statusFilter);
+            }
+
+            ResultSet rs = ps.executeQuery();
+
+            while (rs.next()) {
+
+                Customer c = new Customer();
+
+                c.setId(rs.getInt("id"));
+                c.setFullName(rs.getString("full_name"));
+                c.setEmail(rs.getString("email"));
+                c.setPhone(rs.getString("phone"));
+                c.setProfileURL(rs.getString("profile_pic_url"));
+                c.setCreateAt(rs.getString("created_at"));
+                c.setStatus(rs.getString("status"));
+                c.setTier(rs.getInt("tier_id"));
+
+                list.add(c);
+            }
+
+            System.out.println("Loaded customers: " + list.size());
+
+        } catch (Exception e) {
+            e.printStackTrace();
         }
 
-        System.out.println("Loaded customers: " + list.size());
-
-    } catch (Exception e) {
-        e.printStackTrace();
+        return list;
     }
 
-    return list;
-}
+    public Customer getCustomerById(int id) {
+
+        String sql = """
+        SELECT id,
+               full_name,
+               email,
+               phone,
+               profile_pic_url,
+               created_at,
+               status,
+               tier_id
+        FROM customers
+        WHERE id = ?
+    """;
+
+        try (PreparedStatement ps = connection.prepareStatement(sql)) {
+
+            ps.setInt(1, id);
+
+            ResultSet rs = ps.executeQuery();
+
+            if (rs.next()) {
+
+                Customer c = new Customer();
+
+                c.setId(rs.getInt("id"));
+                c.setFullName(rs.getString("full_name"));
+                c.setEmail(rs.getString("email"));
+                c.setPhone(rs.getString("phone"));
+                c.setProfileURL(rs.getString("profile_pic_url"));
+                c.setCreateAt(rs.getString("created_at"));
+                c.setStatus(rs.getString("status"));
+                c.setTier(rs.getInt("tier_id"));
+
+                return c;
+            }
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        return null;
+    }
 }
