@@ -377,4 +377,121 @@ public void updateLead(Lead lead) {
 
         return lead;
     }
+     public List<Lead> getQualifiedLeadsFull() {
+
+    List<Lead> list = new ArrayList<>();
+
+    String sql =
+    "SELECT l.*, u.full_name AS sale_name "
+  + "FROM leads l "
+  + "LEFT JOIN users u ON l.assigned_sales_id = u.id "
+  + "WHERE l.status IN ('qualified','assigned') "
+  + "ORDER BY l.created_at DESC";
+
+    try {
+
+        PreparedStatement ps = connection.prepareStatement(sql);
+
+        ResultSet rs = ps.executeQuery();
+
+        while (rs.next()) {
+
+            Lead lead = new Lead();
+
+            lead.setId(rs.getLong("id"));
+
+            lead.setFullName(rs.getString("full_name"));
+
+            lead.setPhone(rs.getString("phone"));
+
+            lead.setEmail(rs.getString("email"));
+
+            lead.setAddress(rs.getString("address"));
+
+            lead.setProductInterest(
+                    rs.getString("product_interest"));
+
+            lead.setSource(rs.getString("source"));
+
+            lead.setStatus(rs.getString("status"));
+
+            lead.setCampaignId(
+                    (Long) rs.getObject("campaign_id"));
+
+            lead.setAssignedSalesId(
+                    (Long) rs.getObject("assigned_sales_id"));
+
+            lead.setCreatedBy(
+                    (Long) rs.getObject("created_by"));
+
+            lead.setCreatedAt(
+                    rs.getTimestamp("created_at"));
+
+            lead.setUpdatedAt(
+                    rs.getTimestamp("updated_at"));
+
+            // quan trọng
+            lead.setSaleName(
+                    rs.getString("sale_name"));
+
+            list.add(lead);
+        }
+
+    } catch (Exception e) {
+
+        e.printStackTrace();
+    }
+
+    return list;
+}
+ public void assignLeadToSale(long leadId, long saleId) {
+
+    String sql =
+            "UPDATE leads SET "
+            + "assigned_sales_id = ?, "
+            + "status = 'assigned' "
+            + "WHERE id = ?";
+
+    try {
+
+        PreparedStatement ps =
+                connection.prepareStatement(sql);
+
+        ps.setLong(1, saleId);
+
+        ps.setLong(2, leadId);
+
+        ps.executeUpdate();
+
+    } catch (Exception e) {
+
+        e.printStackTrace();
+
+    }
+
+}
+public Lead getById(long id) {
+        String sql = "SELECT l.*, c.name AS campaign_name FROM leads l "
+                   + "LEFT JOIN campaigns c ON l.campaign_id = c.id "
+                   + "WHERE l.id = ?";
+        try {
+            PreparedStatement ps = connection.prepareStatement(sql);
+            ps.setLong(1, id);
+            ResultSet rs = ps.executeQuery();
+            if (rs.next()) {
+                Lead l = new Lead();
+                l.setId(rs.getLong("id"));
+                l.setFullName(rs.getString("full_name"));
+                l.setPhone(rs.getString("phone"));
+                l.setEmail(rs.getString("email"));
+                l.setAddress(rs.getString("address"));
+                l.setProductInterest(rs.getString("product_interest"));
+                l.setSource(rs.getString("source"));
+                l.setStatus(rs.getString("status"));
+                try { l.setCampaignId(rs.getLong("campaign_id")); } catch (Exception ignored) {}
+                return l;
+            }
+        } catch (Exception e) { e.printStackTrace(); }
+        return null;
+    }
 }

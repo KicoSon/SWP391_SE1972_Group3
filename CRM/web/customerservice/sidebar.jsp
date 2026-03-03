@@ -1,5 +1,7 @@
 <%@ page contentType="text/html;charset=UTF-8" language="java" %>
-
+<!-- Favicon -->
+<link rel="icon" type="image/png"
+      href="${pageContext.request.contextPath}/assets/images/favicon.png">
 <!-- FontAwesome Icons -->
 <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
 
@@ -157,56 +159,37 @@
 <div class="sidebar" id="sidebar">
     <div>
         <div class="sidebar-header">
-            <h3><i class="fas fa-laptop-code"></i>Marketing Staff</h3>
+            <h3><i class="fas fa-laptop-code"></i>Customer Service Staff</h3>
         </div>
 
         <nav class="sidebar-nav">
 
             <div class="nav-section">Tổng quan</div>
             <div class="nav-item">
-                <a href="${pageContext.request.contextPath}/marketingg/dashboard" class="nav-link active">
+                <a href="${pageContext.request.contextPath}/customerservice/dashboard"
+                   class="nav-link">
                     <i class="fas fa-chart-line"></i> Thống kê tổng quan
                 </a>
             </div>
 
             <div class="nav-item">
-
-                <a href="${pageContext.request.contextPath}/marketing/campaignmanagement"
+                <a href="${pageContext.request.contextPath}/customerservice/ticketlist"
                    class="nav-link">
-
-                    <i class="fas fa-bullhorn"></i>
-
-                    Quản lý chiến dịch
-
+                    <i class="fas fa-ticket"></i> Quản lý Ticket
                 </a>
+            </div>
 
+            <div class="nav-item">
+                <a href="${pageContext.request.contextPath}/customerservice/customerlist"
+                   class="nav-link">
+                    <i class="fas fa-users"></i> Quản lý khách hàng
+                </a>
             </div>
 
             <div class="nav-item">
-                <a href="${pageContext.request.contextPath}/marketing/leadmanagement"
+                <a href="${pageContext.request.contextPath}/customerservice/profile"
                    class="nav-link">
-
-                    <i class="fas fa-user-tie"></i>
-
-                    Quản lý Lead
-
-                </a>
-            </div>
-            <div class="nav-item">
-                <a href="${pageContext.request.contextPath}/marketing/assignLead"
-                   class="nav-link">
-
-                    <i class="fas fa-user-check"></i>
-
-                    Assign Lead to Sales
-
-                </a>
-            </div> 
-
-
-            <div class="nav-item">
-                <a href="${pageContext.request.contextPath}/admin/adminProfile" class="nav-link">
-                    <i class="fas fa-user-shield"></i> Thông tin cá nhân
+                    <i class="fas fa-user"></i> Thông tin cá nhân
                 </a>
             </div>
 
