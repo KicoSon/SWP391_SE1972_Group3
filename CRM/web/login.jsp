@@ -9,9 +9,9 @@
 
         <!-- CSS -->
         <link rel="stylesheet" href="assets/css/login.css">
-
-        <!-- Favicon -->
-        <link rel="icon" type="image/x-icon" href="assets/images/favicon.ico">
+        
+       <link rel="icon" type="image/png"
+              href="${pageContext.request.contextPath}/assets/images/favicon.png">
 
         <!-- Font Awesome -->
         <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
@@ -25,22 +25,20 @@
                         <div class="logo-icon">
                             <i class="fas fa-headset"></i>
                         </div>
-                        <span>SWP Support</span>
+                        <span>CRM Support</span>
                     </div>
-
-                    <h1 class="intro-title">Hệ thống hỗ trợ khách hàng chuyên nghiệp</h1>
+                    <h1 class="intro-title">Hệ thống quản lý quan hệ khách hàng chuyên nghiệp</h1>
 
                     <p class="intro-subtitle">
-                        Nền tảng quản lý hỗ trợ khách hàng toàn diện với công nghệ hiện đại, 
-                        giúp doanh nghiệp nâng cao chất lượng dịch vụ và tăng sự hài lòng của khách hàng.
+                        Nền tảng quản lý và phân tích nhu cầu khách hàng toàn diện với công nghệ hiện đại, 
+                        giúp nâng cao chất lượng dịch vụ và mối quan hệ giữa doanh nghiệp và khách hàng.
                     </p>
 
                     <ul class="features">
-                        <li>Quản lý phiếu hỗ trợ thông minh</li>
-                        <li>Theo dõi đơn hàng và bảo hành</li>
-                        <li>Hệ thống phân quyền linh hoạt</li>
+                        <li>Quản lý dữ liệu khách hàng</li>
+                        <li>Quy trình tự động hoá</li>
+                        <li>Chuẩn hoá quy trình giữa Sale và Marketing</li>
                         <li>Báo cáo và thống kê chi tiết</li>
-                        <li>Giao diện thân thiện và dễ sử dụng</li>
                     </ul>
                 </div>
             </div>

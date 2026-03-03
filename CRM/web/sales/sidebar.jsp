@@ -76,7 +76,7 @@
         <a href="${pageContext.request.contextPath}/sale/dashboard"><i class="fas fa-calendar-check"></i> Activity Dashboard</a>
 
         <div class="nav-section">Pipeline</div>
-        <a href="${pageContext.request.contextPath}/sales/pipeline-board"><i class="fas fa-columns"></i> Kanban Board</a>
+<a href="${pageContext.request.contextPath}/sales/pipeline-board"><i class="fas fa-columns"></i> Kanban Board</a>
         <a href="${pageContext.request.contextPath}/sales/opportunities"><i class="fas fa-handshake"></i> Opportunities</a>
         <a href="${pageContext.request.contextPath}/sales/pipeline-config"><i class="fas fa-sliders-h"></i> Cấu hình Pipeline</a>
 

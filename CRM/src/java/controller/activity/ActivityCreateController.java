@@ -78,7 +78,7 @@ public class ActivityCreateController extends HttpServlet {
 
         // 3.2. Lấy danh sách Opportunity (lọc theo sale nếu cần)
         OpportunityDAO oppDAO = new OpportunityDAO();
-        List<model.sales.Opportunity> oppList;
+List<model.sales.Opportunity> oppList;
         if (userSession.isSaleStaff() && !userSession.isAdmin() && userSession.getStaff() != null) {
             int currentStaffId = userSession.getStaff().getId();
             oppList = oppDAO.filterOpportunities(null, null, null, currentStaffId);
@@ -150,7 +150,7 @@ public class ActivityCreateController extends HttpServlet {
 
             if (dateStr != null && !dateStr.isEmpty() && timeStr != null && !timeStr.isEmpty()) {
                 String dateTimeStr = dateStr + " " + timeStr + ":00";
-                act.setDueDate(Timestamp.valueOf(dateTimeStr));
+act.setDueDate(Timestamp.valueOf(dateTimeStr));
             } else {
                 act.setDueDate(null);
             }
@@ -219,7 +219,7 @@ public class ActivityCreateController extends HttpServlet {
                     // Xử lý upload file mới nếu có
                     String uploadPath = getServletContext().getInitParameter("uploadDirectory");
                     if (uploadPath != null && !uploadPath.isEmpty()) {
-                        File uploadDir = new File(uploadPath);
+File uploadDir = new File(uploadPath);
                         if (!uploadDir.exists()) {
                             uploadDir.mkdirs();
                         }
@@ -241,7 +241,7 @@ public class ActivityCreateController extends HttpServlet {
                     }
                     
                     // Redirect về detail page
-                    response.sendRedirect(request.getContextPath() + "/activities/detail?id=" + activityId + "&msg=updated");
+                    response.sendRedirect(request.getContextPath() + "/sale/dashboard?msg=updated");
                 } else {
                     request.setAttribute("error", "Lỗi: Không thể cập nhật hoạt động. Vui lòng thử lại.");
                     doGet(request, response);
@@ -275,7 +275,6 @@ public class ActivityCreateController extends HttpServlet {
                             }
                         }
                     }
-
                     response.sendRedirect(request.getContextPath() + "/sale/dashboard?msg=success");
                 } else {
                     request.setAttribute("error", "Lỗi: Không thể lưu vào Database. Vui lòng thử lại.");

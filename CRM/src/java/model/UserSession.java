@@ -79,37 +79,36 @@ public class UserSession {
     
     // Helper method to get user ID
     public int getUserId() {
-        if (isCustomerUser() && customer != null) {
+        if (isCustomer() && customer != null) {
             return customer.getId();
-        } else if (isStaffUser() && staff != null) {
+        } else if (isStaff() && staff != null) {
             return staff.getId();
         }
         return -1;
     }
     
     // Helper methods
-// Đổi tên từ isStaff thành checkIsStaff hoặc isStaffUser
-public boolean isStaffUser() { 
-    return "STAFF".equals(userType);
-}
-
-// Đổi tên từ isCustomer thành checkIsCustomer hoặc isCustomerUser
-public boolean isCustomerUser() {
-    return "CUSTOMER".equals(userType);
-}
+    public boolean isCustomer() {
+        return "CUSTOMER".equals(userType);
+    }
+    
+    public boolean isStaff() {
+        return "STAFF".equals(userType);
+    }
+    
     public String getDisplayName() {
-        if (isCustomerUser() && customer != null) {
+        if (isCustomer() && customer != null) {
             return customer.getFullName();
-        } else if (isStaffUser() && staff != null) {
+        } else if (isStaff() && staff != null) {
             return staff.getFullName();
         }
         return "Unknown User";
     }
     
     public String getEmail() {
-        if (isCustomerUser() && customer != null) {
+        if (isCustomer() && customer != null) {
             return customer.getEmail();
-        } else if (isStaffUser() && staff != null) {
+        } else if (isStaff() && staff != null) {
             return staff.getEmail();
         }
         return null;
@@ -122,15 +121,11 @@ public boolean isCustomerUser() {
     
     public boolean hasRole(String roleName) {
         if (roles == null) return false;
-        if (roleName == null) return false;
-        final String target = roleName.trim();
-        return roles.stream()
-                .map(r -> r != null ? r.getName() : null)
-                .filter(n -> n != null)
-                .anyMatch(n -> n.trim().equalsIgnoreCase(target));
+        return roles.stream().anyMatch(r -> r.getName().equals(roleName));
     }
     
     public boolean isAdmin() {
+//        return hasRole("ADMIN");
         return hasRole("ADMIN");
     }
     
@@ -143,8 +138,7 @@ public boolean isCustomerUser() {
     }    
     
     public boolean isMarketingStaff() {
-        // Backward-compatible: some old data may store "Marketing"
-        return hasRole("MARKETING_STAFF") || hasRole("Marketing");
+    return hasRole("MARKETING_STAFF");
 }
 
     
