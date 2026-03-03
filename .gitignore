@@ -1,13 +1,15 @@
-# NetBeans build & dist
+# --- NetBeans Build Output (Rác khi chạy code) ---
 CRM/build/
 CRM/dist/
 
-# IDE private settings
+# --- NetBeans Auto-generated Files (QUAN TRỌNG: Tránh lỗi conflict như ảnh trước) ---
 CRM/nbproject/private/
+CRM/nbproject/build-impl.xml
+CRM/nbproject/genfiles.properties
 
-# OS files
+# --- OS Files (File rác của Windows/Mac) ---
 .DS_Store
 Thumbs.db
 
-# Bỏ qua file cấu hình Database cá nhân
+# --- Cấu hình Database cá nhân ---
 CRM/src/java/dal/DBContext.java
