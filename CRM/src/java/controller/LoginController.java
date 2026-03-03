@@ -113,7 +113,7 @@ public class LoginController extends HttpServlet {
             } else if (userSession.isSupportStaff()) {
                 response.sendRedirect(contextPath + "/customerservice/dashboard");
             } else if (userSession.isSaleStaff()) {
-                response.sendRedirect(contextPath + "/sale/dashboard");
+                response.sendRedirect(contextPath + "/sales/dashboard");
             } else if (userSession.isMarketingStaff()) {
                 response.sendRedirect(contextPath + "/marketingg/dashboard");
             }

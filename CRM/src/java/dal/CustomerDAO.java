@@ -117,13 +117,10 @@ public class CustomerDAO extends DBContext {
                 c.setAddress(rs.getString("address"));
 
                 c.setTierId(rs.getInt("tier_id"));
-                c.setTierName(rs.getString("tier_name"));
 
                 c.setStatus(rs.getString("status"));
 
-                c.setOwnerId(rs.getInt("owner_id"));
-                c.setOwnerName(rs.getString("owner_name"));
-
+               
                 c.setCreatedAt(rs.getTimestamp("created_at").toLocalDateTime());
 
                 return c;
@@ -255,28 +252,30 @@ public class CustomerDAO extends DBContext {
         }
         return list;
     }
-     private Customer mapResultSetToCustomer(ResultSet rs) throws SQLException {
+
+    private Customer mapResultSetToCustomer(ResultSet rs) throws SQLException {
         Customer c = new Customer();
         c.setId(rs.getInt("id"));
         c.setFullName(rs.getString("full_name"));
         c.setEmail(rs.getString("email"));
         c.setPhone(rs.getString("phone"));
         c.setAddress(rs.getString("address"));
-        
+
         // Các trường số nguyên có thể null trong DB, nhưng int trong Java không null
         // getInt trả về 0 nếu null, logic này ổn với DB của bạn
-        c.setTierId(rs.getInt("tier_id")); 
-        
+        c.setTierId(rs.getInt("tier_id"));
+
         c.setStatus(rs.getString("status"));
         c.setProfilePicUrl(rs.getString("profile_pic_url"));
         c.setOwnerId(rs.getInt("owner_id"));
-        
+
         c.setCreatedAt(rs.getTimestamp("created_at").toLocalDateTime());
         c.setUpdatedAt(rs.getTimestamp("updated_at").toLocalDateTime());
-        
+
         return c;
     }
-     public List<Customer> filterCustomers(String search, String statusFilter) {
+
+    public List<Customer> filterCustomers(String search, String statusFilter) {
 
         List<Customer> list = new ArrayList<>();
 
@@ -320,7 +319,6 @@ public class CustomerDAO extends DBContext {
                 c.setPhone(rs.getString("phone"));
                 c.setProfileURL(rs.getString("profile_pic_url"));
                 c.setCreatedAt(rs.getTimestamp("created_at").toLocalDateTime());
-                c.setUpdatedAt(rs.getTimestamp("updated_at").toLocalDateTime());       
                 c.setStatus(rs.getString("status"));
                 c.setTier(rs.getInt("tier_id"));
 
@@ -367,7 +365,6 @@ public class CustomerDAO extends DBContext {
                 c.setPhone(rs.getString("phone"));
                 c.setProfileURL(rs.getString("profile_pic_url"));
                 c.setCreatedAt(rs.getTimestamp("created_at").toLocalDateTime());
-                c.setUpdatedAt(rs.getTimestamp("updated_at").toLocalDateTime());       
                 c.setStatus(rs.getString("status"));
                 c.setTier(rs.getInt("tier_id"));
 
@@ -380,5 +377,4 @@ public class CustomerDAO extends DBContext {
 
         return null;
     }
-    
 }

@@ -1,4 +1,4 @@
-package controller;
+package controller.activity;
 
 import dal.ActivityDAO;
 import model.activity.Activity;
