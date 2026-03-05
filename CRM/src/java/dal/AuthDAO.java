@@ -165,7 +165,7 @@ public class AuthDAO extends DBContext {
             while (rs.next()) {
                 roles.add(new Role(
                         rs.getInt("id"),
-                        rs.getString("role_name")
+                        rs.getString("name")
                 ));
             }
         } catch (SQLException e) {

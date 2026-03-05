@@ -4,7 +4,6 @@
  */
 
 // Search functionality
-
 const searchInput = document.querySelector('.search-input');
 const tableRows = document.querySelectorAll('.activity-table tbody tr');
 
