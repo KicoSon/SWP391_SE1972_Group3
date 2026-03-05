@@ -289,12 +289,9 @@
                                     <td>${c.email}</td>
                                     <td>${c.phone}</td>
                                     <td>${c.tier}</td>
-                                    <td>${c.createAt}</td>
-
+                                    <td>${c.createdAt}</td>
                                     <td>
-                                        <span class="badge ${c.status == 'ACTIVE' ? 'active' : 'inactive'}">
-                                            ${c.status == 'ACTIVE' ? 'Hoạt động' : 'Bị khóa'}
-                                        </span>
+                                        ${c.status}
                                     </td>
 
                                     <td>

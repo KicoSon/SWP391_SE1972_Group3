@@ -126,19 +126,19 @@ public class UserSession {
     
     public boolean isAdmin() {
 //        return hasRole("ADMIN");
-        return hasRole("ADMIN");
+        return hasRole("Manager");
     }
     
     public boolean isSupportStaff() {
-        return hasRole("SUPPORT_STAFF");
+        return hasRole("Customer Service");
     }
     
     public boolean isSaleStaff() {
-        return hasRole("SALE_STAFF");
+        return hasRole("Sales");
     }    
     
     public boolean isMarketingStaff() {
-    return hasRole("MARKETING_STAFF");
+    return hasRole("Marketing");
 }
 
     

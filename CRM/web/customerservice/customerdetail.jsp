@@ -135,9 +135,10 @@
                         </div>
 
                         <div>
-                            <span class="badge ${customer.status == 'ACTIVE' ? 'active' : 'inactive'}">
-                                ${customer.status == 'ACTIVE' ? 'Hoạt động' : 'Bị khóa'}
-                            </span>
+                            <div class="info-box">
+                                <div class="label">Status</div>
+                                <div class="value">#${customer.status}</div>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -166,7 +167,7 @@
 
                     <div class="info-box">
                         <div class="label">Ngày tạo</div>
-                        <div class="value">Ngày tạo ${customer.createAt}</div>
+                        <div class="value">Ngày tạo ${customer.createdAt}</div>
                     </div>
 
                 </div>
