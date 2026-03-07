@@ -424,7 +424,7 @@ public class ActivityDAO extends DBContext {
         List<Activity> list = new ArrayList<>();
 
         // 1. JOIN 2 lần vào bảng users (1 cho người tạo, 1 cho người thực hiện)
-        String sql = "SELECT DISTINCT a.id, a.title, a.type,a.description, a.due_date, a.status, a.priority, a.created_at, a.created_by, "
+        String sql = "SELECT DISTINCT a.id, a.title, a.type,a.description, a.due_date, a.status, a.priority, a.customer_id, a.created_at, a.created_by, "
                 + "c.full_name AS customer_name, l.full_name AS lead_name, "
                 + "u_creator.full_name AS creator_name, " // Thay full_name thành tên cột của bạn nếu cần
                 + "u_owner.full_name AS assignee_name " // Thay full_name thành tên cột của bạn nếu cần
@@ -462,6 +462,7 @@ public class ActivityDAO extends DBContext {
                     act.setDueDate(rs.getTimestamp("due_date"));
                     act.setStatus(rs.getString("status"));
                     act.setPriority(rs.getString("priority"));
+                    act.setCustomerId(rs.getObject("customer_id") != null ? rs.getInt("customer_id") : null);
 
                     // FIXED: Lấy thời gian tạo và ID người tạo
                     act.setCreatedAt(rs.getTimestamp("created_at"));
@@ -634,6 +635,19 @@ public class ActivityDAO extends DBContext {
             ps.executeUpdate();
         } catch (Exception e) {
             e.printStackTrace();
+        }
+    }
+
+    public boolean updateActivityStatus(int id, String status, String outcomeNotes) {
+        String sql = "UPDATE activities SET status = ?, outcome_notes = ?, completed_at = GETDATE(), updated_at = GETDATE() WHERE id = ?";
+        try (PreparedStatement ps = connection.prepareStatement(sql)) {
+            ps.setString(1, status);
+            ps.setString(2, outcomeNotes);
+            ps.setInt(3, id);
+            return ps.executeUpdate() > 0;
+        } catch (SQLException e) {
+            e.printStackTrace();
+            return false;
         }
     }
 

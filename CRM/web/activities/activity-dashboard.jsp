@@ -218,6 +218,12 @@
                                                onclick="openDetailModal(${act.id})"
                                                class="action-btn view-btn" title="Xem chi tiết"><i
                                                     class="fas fa-eye"></i></a>
+                                                <c:if test="${act.type == 'Email' && act.status != 'Completed'}">
+                                                <a href="${pageContext.request.contextPath}/emails/compose?customerId=${act.customerId}&activityId=${act.id}" 
+                                                   class="action-btn email-btn" title="Gửi mail thực hiện ngay">
+                                                    <i class="fas fa-envelope" style="color: #6366F1;"></i>
+                                                </a>
+                                            </c:if>
                                     </tr>
                                 </c:forEach>
 

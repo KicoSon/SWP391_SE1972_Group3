@@ -187,12 +187,12 @@
                                 </div>
 
                                 <div class="form-row">
-                                    <label class="form-label">Owner:</label>
+                                    <label class="form-label">PIC = People in Charge:</label>
                                     <div>
                                         <div class="select-with-icon">
                                             <span class="select-icon">⭐</span>
                                             <select class="form-control" name="owner" required>
-                                                <option value="">-- Chọn người chủ trì --</option>
+                                                <option value="">-- Chọn người phụ trách --</option>
                                                 <c:forEach items="${staffList}" var="u">
                                                     <option value="${u.id}"
                                                             ${sessionScope.userSession.staffInfo.id==u.id
