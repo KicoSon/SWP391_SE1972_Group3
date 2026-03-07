@@ -40,6 +40,8 @@ public class Activity {
     private Timestamp createdAt;
     private Timestamp updatedAt;
 
+    private String commenterName;
+
     public Activity() {
     }
 
@@ -210,5 +212,14 @@ public class Activity {
 
     public void setUpdatedAt(Timestamp updatedAt) {
         this.updatedAt = updatedAt;
+    }
+
+    // Getter & Setter cho tên người comment
+    public String getCommenterName() {
+        return commenterName;
+    }
+
+    public void setCommenterName(String commenterName) {
+        this.commenterName = commenterName;
     }
 }

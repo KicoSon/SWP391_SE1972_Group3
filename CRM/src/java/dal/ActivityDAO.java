@@ -9,7 +9,7 @@ import model.activity.ActivityParticipant;
 
 public class ActivityDAO extends DBContext {
 
-   // 1. Thêm mới Activity (Sử dụng Transaction chuẩn DB)
+    // 1. Thêm mới Activity (Sử dụng Transaction chuẩn DB)
     public int insertActivity(Activity activity, List<Integer> participantIds) {
         String sqlActivity = "INSERT INTO activities "
                 + "(title, type, description, lead_id, customer_id, opportunity_id, due_date, reminder_at, status, priority, created_by, created_at) "
@@ -367,7 +367,8 @@ public class ActivityDAO extends DBContext {
     public boolean updateActivity(Activity activity) {
         String sql = "UPDATE activities SET "
                 + "title = ?, type = ?, description = ?, lead_id = ?, customer_id = ?, "
-                + "opportunity_id = ?, due_date = ?, reminder_at = ?, status = ?, priority = ? "
+                + "opportunity_id = ?, due_date = ?, reminder_at = ?, status = ?, priority = ?, "
+                + "updated_at = GETDATE() "
                 + "WHERE id = ?";
 
         try (PreparedStatement ps = getConnection().prepareStatement(sql)) {
@@ -421,36 +422,36 @@ public class ActivityDAO extends DBContext {
 
     public List<Activity> getActivitiesForDashboard(Integer userId) {
         List<Activity> list = new ArrayList<>();
-        
+
         // 1. JOIN 2 lần vào bảng users (1 cho người tạo, 1 cho người thực hiện)
         String sql = "SELECT DISTINCT a.id, a.title, a.type,a.description, a.due_date, a.status, a.priority, a.created_at, a.created_by, "
-                   + "c.full_name AS customer_name, l.full_name AS lead_name, "
-                   + "u_creator.full_name AS creator_name, " // Thay full_name thành tên cột của bạn nếu cần
-                   + "u_owner.full_name AS assignee_name "   // Thay full_name thành tên cột của bạn nếu cần
-                   + "FROM activities a "
-                   + "LEFT JOIN customers c ON a.customer_id = c.id "
-                   + "LEFT JOIN leads l ON a.lead_id = l.id "
-                   + "LEFT JOIN users u_creator ON a.created_by = u_creator.id "
-                   // Chỉ lấy tên của người đóng vai trò là 'Owner' (Người được giao chính)
-                   + "LEFT JOIN activity_participants ap_owner ON a.id = ap_owner.activity_id AND ap_owner.role = 'Owner' "
-                   + "LEFT JOIN users u_owner ON ap_owner.user_id = u_owner.id ";
+                + "c.full_name AS customer_name, l.full_name AS lead_name, "
+                + "u_creator.full_name AS creator_name, " // Thay full_name thành tên cột của bạn nếu cần
+                + "u_owner.full_name AS assignee_name " // Thay full_name thành tên cột của bạn nếu cần
+                + "FROM activities a "
+                + "LEFT JOIN customers c ON a.customer_id = c.id "
+                + "LEFT JOIN leads l ON a.lead_id = l.id "
+                + "LEFT JOIN users u_creator ON a.created_by = u_creator.id "
+                // Chỉ lấy tên của người đóng vai trò là 'Owner' (Người được giao chính)
+                + "LEFT JOIN activity_participants ap_owner ON a.id = ap_owner.activity_id AND ap_owner.role = 'Owner' "
+                + "LEFT JOIN users u_owner ON ap_owner.user_id = u_owner.id ";
 
         // 2. LOGIC LỌC DỮ LIỆU (Nếu là Sale thì chỉ thấy việc của mình)
         // 2. LOGIC LỌC DỮ LIỆU CHUẨN CRM (Thấy việc của mình HOẶC việc do mình tạo ra)
         if (userId != null) {
             // Đổi JOIN thành LEFT JOIN kết hợp điều kiện ở WHERE
             sql += "LEFT JOIN activity_participants ap_filter ON a.id = ap_filter.activity_id "
-                 + "WHERE (ap_filter.user_id = ? OR a.created_by = ?) ";
+                    + "WHERE (ap_filter.user_id = ? OR a.created_by = ?) ";
         }
 
-        sql += "ORDER BY a.created_at DESC"; 
-                   
+        sql += "ORDER BY a.created_at DESC";
+
         try (PreparedStatement ps = getConnection().prepareStatement(sql)) {
             if (userId != null) {
                 ps.setInt(1, userId); // Dấu ? thứ nhất (ap_filter.user_id)
                 ps.setInt(2, userId); // Dấu ? thứ hai (a.created_by)
             }
-            
+
             try (ResultSet rs = ps.executeQuery()) {
                 while (rs.next()) {
                     Activity act = new Activity();
@@ -461,7 +462,7 @@ public class ActivityDAO extends DBContext {
                     act.setDueDate(rs.getTimestamp("due_date"));
                     act.setStatus(rs.getString("status"));
                     act.setPriority(rs.getString("priority"));
-                    
+
                     // FIXED: Lấy thời gian tạo và ID người tạo
                     act.setCreatedAt(rs.getTimestamp("created_at"));
                     act.setCreatedBy(rs.getInt("created_by"));
@@ -469,16 +470,16 @@ public class ActivityDAO extends DBContext {
                     // FIXED: Lấy Tên người tạo và Tên người được giao
                     act.setCreatorName(rs.getString("creator_name"));
                     act.setAssigneeName(rs.getString("assignee_name"));
-                    
+
                     String customerName = rs.getString("customer_name");
                     String leadName = rs.getString("lead_name");
-                    
+
                     if (customerName != null) {
-                        act.setCustomerName(customerName); 
+                        act.setCustomerName(customerName);
                     } else if (leadName != null) {
-                        act.setLeadName(leadName); 
+                        act.setLeadName(leadName);
                     }
-                    
+
                     list.add(act);
                 }
             }
@@ -487,16 +488,16 @@ public class ActivityDAO extends DBContext {
         }
         return list;
     }
-    
+
     public Activity getActivityById(int id) {
         String sql = "SELECT a.*, c.full_name AS customer_name, l.full_name AS lead_name, "
-                   + "o.title AS opportunity_title, u.full_name AS creator_name "
-                   + "FROM activities a "
-                   + "LEFT JOIN customers c ON a.customer_id = c.id "
-                   + "LEFT JOIN leads l ON a.lead_id = l.id "
-                   + "LEFT JOIN opportunities o ON a.opportunity_id = o.id " // Móc bảng Cơ hội
-                   + "LEFT JOIN users u ON a.created_by = u.id "
-                   + "WHERE a.id = ?";
+                + "o.title AS opportunity_title, u.full_name AS creator_name "
+                + "FROM activities a "
+                + "LEFT JOIN customers c ON a.customer_id = c.id "
+                + "LEFT JOIN leads l ON a.lead_id = l.id "
+                + "LEFT JOIN opportunities o ON a.opportunity_id = o.id " // Móc bảng Cơ hội
+                + "LEFT JOIN users u ON a.created_by = u.id "
+                + "WHERE a.id = ?";
         try (PreparedStatement ps = getConnection().prepareStatement(sql)) {
             ps.setInt(1, id);
             try (ResultSet rs = ps.executeQuery()) {
@@ -510,12 +511,18 @@ public class ActivityDAO extends DBContext {
                     act.setStatus(rs.getString("status"));
                     act.setPriority(rs.getString("priority"));
                     act.setOutcomeNotes(rs.getString("outcome_notes"));
-                    
+
                     // Xử lý an toàn cho ID khóa ngoại
-                    if (rs.getObject("lead_id") != null) act.setLeadId(rs.getLong("lead_id"));
-                    if (rs.getObject("customer_id") != null) act.setCustomerId(rs.getInt("customer_id"));
-                    if (rs.getObject("opportunity_id") != null) act.setOpportunityId(rs.getInt("opportunity_id"));
-                    
+                    if (rs.getObject("lead_id") != null) {
+                        act.setLeadId(rs.getLong("lead_id"));
+                    }
+                    if (rs.getObject("customer_id") != null) {
+                        act.setCustomerId(rs.getInt("customer_id"));
+                    }
+                    if (rs.getObject("opportunity_id") != null) {
+                        act.setOpportunityId(rs.getInt("opportunity_id"));
+                    }
+
                     // Nhóm Thời gian (Time & Dates)
                     act.setDueDate(rs.getTimestamp("due_date"));
                     act.setReminderAt(rs.getTimestamp("reminder_at"));
@@ -523,13 +530,13 @@ public class ActivityDAO extends DBContext {
                     act.setCreatedAt(rs.getTimestamp("created_at"));
                     act.setUpdatedAt(rs.getTimestamp("updated_at"));
                     act.setCreatedBy(rs.getInt("created_by"));
-                    
+
                     // Nhóm Tên hiển thị (Thuộc tính ảo)
                     act.setCustomerName(rs.getString("customer_name"));
                     act.setLeadName(rs.getString("lead_name"));
                     act.setOpportunityTitle(rs.getString("opportunity_title"));
                     act.setCreatorName(rs.getString("creator_name"));
-                    
+
                     return act;
                 }
             }
@@ -544,10 +551,10 @@ public class ActivityDAO extends DBContext {
     public List<String> getParticipantsFullInfo(int activityId) {
         List<String> list = new ArrayList<>();
         String sql = "SELECT u.full_name, ap.role "
-                   + "FROM activity_participants ap "
-                   + "JOIN users u ON ap.user_id = u.id "
-                   + "WHERE ap.activity_id = ? "
-                   + "ORDER BY ap.role DESC"; // Owner lên trước
+                + "FROM activity_participants ap "
+                + "JOIN users u ON ap.user_id = u.id "
+                + "WHERE ap.activity_id = ? "
+                + "ORDER BY ap.role DESC"; // Owner lên trước
         try (PreparedStatement ps = getConnection().prepareStatement(sql)) {
             ps.setInt(1, activityId);
             try (ResultSet rs = ps.executeQuery()) {
@@ -562,6 +569,7 @@ public class ActivityDAO extends DBContext {
         }
         return list;
     }
+
     public List<ActivityAttachment> getAttachmentsByActivityId(int activityId) {
         List<ActivityAttachment> list = new ArrayList<>();
         String sql = "SELECT * FROM activity_attachments WHERE activity_id = ? ORDER BY uploaded_at DESC";
@@ -583,5 +591,50 @@ public class ActivityDAO extends DBContext {
         }
         return list;
     }
-    
+
+    // --- PHẦN COMMENT (MỚI THÊM) ---
+    // 1. Lấy danh sách comment của 1 Activity
+    public List<model.activity.ActivityComment> getCommentsByActivityId(int activityId) {
+        List<model.activity.ActivityComment> list = new ArrayList<>();
+        // JOIN bảng comment với bảng users để lấy tên đầy đủ
+        String sql = "SELECT c.*, u.full_name "
+                + "FROM activity_comments c "
+                + "JOIN users u ON c.user_id = u.id "
+                + "WHERE c.activity_id = ? "
+                + "ORDER BY c.created_at DESC";
+
+        try (PreparedStatement ps = getConnection().prepareStatement(sql)) {
+            ps.setInt(1, activityId);
+            try (ResultSet rs = ps.executeQuery()) {
+                while (rs.next()) {
+                    model.activity.ActivityComment ac = new model.activity.ActivityComment();
+                    ac.setId(rs.getInt("id"));
+                    ac.setActivityId(rs.getInt("activity_id"));
+                    ac.setUserId(rs.getInt("user_id"));
+                    ac.setContent(rs.getString("content"));
+                    ac.setCreatedAt(rs.getTimestamp("created_at"));
+                    ac.setCommenterName(rs.getString("full_name"));
+                    list.add(ac);
+                }
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return list;
+    }
+
+    // 2. Thêm comment mới
+    public void insertComment(int activityId, int userId, String content) {
+        // Cột created_at đã có DEFAULT GETDATE() trong SQL nên không cần insert
+        String sql = "INSERT INTO activity_comments (activity_id, user_id, content) VALUES (?, ?, ?)";
+        try (PreparedStatement ps = getConnection().prepareStatement(sql)) {
+            ps.setInt(1, activityId);
+            ps.setInt(2, userId);
+            ps.setString(3, content);
+            ps.executeUpdate();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
 }

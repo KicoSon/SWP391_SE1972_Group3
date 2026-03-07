@@ -78,7 +78,7 @@ public class ActivityCreateController extends HttpServlet {
 
         // 3.2. Lấy danh sách Opportunity (lọc theo sale nếu cần)
         OpportunityDAO oppDAO = new OpportunityDAO();
-List<model.sales.Opportunity> oppList;
+        List<model.sales.Opportunity> oppList;
         if (userSession.isSaleStaff() && !userSession.isAdmin() && userSession.getStaff() != null) {
             int currentStaffId = userSession.getStaff().getId();
             oppList = oppDAO.filterOpportunities(null, null, null, currentStaffId);
@@ -90,6 +90,20 @@ List<model.sales.Opportunity> oppList;
         StaffDAO staffDAO = new StaffDAO();
         request.setAttribute("staffList", staffDAO.getAllActiveStaff());
 
+        String idParam = request.getParameter("id");
+        if (idParam != null && !idParam.isEmpty()) {
+            try {
+                int id = Integer.parseInt(idParam);
+                ActivityDAO dao = new ActivityDAO();
+                // Gọi hàm getActivityById có sẵn trong DAO
+                Activity existingActivity = dao.getActivityById(id);
+
+                // Gửi sang JSP với cái tên là "act"
+                request.setAttribute("act", existingActivity);
+            } catch (NumberFormatException e) {
+                System.out.println("ID không hợp lệ: " + e.getMessage());
+            }
+        }
         // 4. Forward sang JSP
         request.getRequestDispatcher("/activities/activity-create.jsp").forward(request, response);
     }
@@ -113,7 +127,7 @@ List<model.sales.Opportunity> oppList;
             String idParam = request.getParameter("id");
             int activityId = -1;
             boolean isEditMode = false;
-            
+
             if (idParam != null && !idParam.isEmpty()) {
                 try {
                     activityId = Integer.parseInt(idParam);
@@ -125,11 +139,11 @@ List<model.sales.Opportunity> oppList;
 
             // 1. Map dữ liệu Text cơ bản
             Activity act = new Activity();
-            
+
             if (isEditMode) {
                 act.setId(activityId);
             }
-            
+
             act.setTitle(request.getParameter("title"));
             act.setDescription(request.getParameter("description"));
             act.setType(request.getParameter("type"));
@@ -150,7 +164,7 @@ List<model.sales.Opportunity> oppList;
 
             if (dateStr != null && !dateStr.isEmpty() && timeStr != null && !timeStr.isEmpty()) {
                 String dateTimeStr = dateStr + " " + timeStr + ":00";
-act.setDueDate(Timestamp.valueOf(dateTimeStr));
+                act.setDueDate(Timestamp.valueOf(dateTimeStr));
             } else {
                 act.setDueDate(null);
             }
@@ -210,16 +224,16 @@ act.setDueDate(Timestamp.valueOf(dateTimeStr));
             }
 
             ActivityDAO dao = new ActivityDAO();
-            
+
             // === EDIT MODE: CẬP NHẬT ===
             if (isEditMode) {
                 boolean updateSuccess = dao.updateActivity(act);
-                
+
                 if (updateSuccess) {
                     // Xử lý upload file mới nếu có
                     String uploadPath = getServletContext().getInitParameter("uploadDirectory");
                     if (uploadPath != null && !uploadPath.isEmpty()) {
-File uploadDir = new File(uploadPath);
+                        File uploadDir = new File(uploadPath);
                         if (!uploadDir.exists()) {
                             uploadDir.mkdirs();
                         }
@@ -239,15 +253,14 @@ File uploadDir = new File(uploadPath);
                             }
                         }
                     }
-                    
+
                     // Redirect về detail page
                     response.sendRedirect(request.getContextPath() + "/sale/dashboard?msg=updated");
                 } else {
                     request.setAttribute("error", "Lỗi: Không thể cập nhật hoạt động. Vui lòng thử lại.");
                     doGet(request, response);
                 }
-            }
-            // === CREATE MODE: TẠO MỚI ===
+            } // === CREATE MODE: TẠO MỚI ===
             else {
                 int newActivityId = dao.insertActivity(act, participantIds);
 

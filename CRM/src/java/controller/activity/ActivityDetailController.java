@@ -3,6 +3,8 @@ package controller.activity;
 import dal.ActivityDAO;
 import model.activity.Activity;
 import model.activity.ActivityAttachment;
+import model.activity.ActivityComment; // Import mới
+import model.UserSession; // Import mới
 import java.io.IOException;
 import java.util.List;
 import jakarta.servlet.ServletException;
@@ -10,6 +12,7 @@ import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import jakarta.servlet.http.HttpSession; // Import mới
 
 @WebServlet(name = "ActivityDetailController", urlPatterns = {"/activities/detail"})
 public class ActivityDetailController extends HttpServlet {
@@ -35,20 +38,54 @@ public class ActivityDetailController extends HttpServlet {
                 return;
             }
 
-            // 2. Lấy danh sách người tham gia
+            // 2. Lấy danh sách người tham gia & File đính kèm
             List<String> participants = dao.getParticipantsFullInfo(activityId);
-            
-            // 3. Lấy danh sách file đính kèm
             List<ActivityAttachment> attachments = dao.getAttachmentsByActivityId(activityId);
+            
+            // 3. Lấy danh sách COMMENT (MỚI)
+            List<ActivityComment> comments = dao.getCommentsByActivityId(activityId);
 
             // Gắn vào request
             request.setAttribute("activity", activity);
             request.setAttribute("participants", participants);
             request.setAttribute("attachments", attachments);
+            request.setAttribute("commentList", comments); // Gửi list comment sang JSP
             
             request.getRequestDispatcher("/activities/activity-detail.jsp").forward(request, response);
             
         } catch (NumberFormatException e) {
+            response.sendRedirect(request.getContextPath() + "/sale/dashboard");
+        }
+    }
+
+    // Xử lý khi bấm nút "Gửi bình luận"
+    @Override
+    protected void doPost(HttpServletRequest request, HttpServletResponse response)
+            throws ServletException, IOException {
+        request.setCharacterEncoding("UTF-8");
+        
+        try {
+            // Lấy dữ liệu từ Form
+            int activityId = Integer.parseInt(request.getParameter("activityId"));
+            String content = request.getParameter("content");
+            
+            // Lấy ID người đang đăng nhập
+            HttpSession session = request.getSession();
+            UserSession userSession = (UserSession) session.getAttribute("userSession");
+            
+            if (userSession != null && userSession.getStaff() != null) {
+                int userId = userSession.getStaff().getId(); // Lấy ID nhân viên
+                
+                // Gọi DAO lưu vào DB
+                ActivityDAO dao = new ActivityDAO();
+                dao.insertComment(activityId, userId, content);
+            }
+            
+            // Load lại trang chi tiết để thấy comment mới
+            response.sendRedirect(request.getContextPath() + "/activities/detail?id=" + activityId);
+            
+        } catch (Exception e) {
+            e.printStackTrace();
             response.sendRedirect(request.getContextPath() + "/sale/dashboard");
         }
     }
