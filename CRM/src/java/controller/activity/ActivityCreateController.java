@@ -69,7 +69,7 @@ public class ActivityCreateController extends HttpServlet {
         List<Lead> leadList;
 
         if (userSession.isSaleStaff() && !userSession.isAdmin()) {
-            long currentStaffId = (long) userSession.getStaffInfo().getId();
+            long currentStaffId = (long) userSession.getStaff().getId();
             leadList = leadDAO.getLeadsBySaleId(currentStaffId);
         } else {
             leadList = leadDAO.getLeadsBySaleId(null);

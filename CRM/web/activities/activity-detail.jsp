@@ -13,8 +13,6 @@
         <link rel="stylesheet" href="${pageContext.request.contextPath}/assets/css/activity-detail.css">
     </head>
     <body>
-    </head>
-    <body>
         <div class="container">
             <c:if test="${param.view != 'modal'}">
                 <a href="${pageContext.request.contextPath}/sale/dashboard" class="back-button">

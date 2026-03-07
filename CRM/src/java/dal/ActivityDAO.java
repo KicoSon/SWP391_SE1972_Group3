@@ -236,61 +236,6 @@ public class ActivityDAO extends DBContext {
         return false;
     }
 
-    public boolean updateActivity(Activity activity) {
-        String sql = "UPDATE activities SET "
-                + "title = ?, type = ?, description = ?, lead_id = ?, customer_id = ?, "
-                + "opportunity_id = ?, due_date = ?, reminder_at = ?, status = ?, priority = ? "
-                + "WHERE id = ?";
-
-        try (PreparedStatement ps = getConnection().prepareStatement(sql)) {
-            ps.setString(1, activity.getTitle());
-            ps.setString(2, activity.getType());
-            ps.setString(3, activity.getDescription());
-
-            if (activity.getLeadId() != null) {
-                ps.setLong(4, activity.getLeadId());
-            } else {
-                ps.setNull(4, Types.BIGINT);
-            }
-
-            if (activity.getCustomerId() != null) {
-                ps.setInt(5, activity.getCustomerId());
-            } else {
-                ps.setNull(5, Types.INTEGER);
-            }
-
-            if (activity.getOpportunityId() != null) {
-                ps.setInt(6, activity.getOpportunityId());
-            } else {
-                ps.setNull(6, Types.INTEGER);
-            }
-
-            ps.setTimestamp(7, activity.getDueDate());
-            ps.setTimestamp(8, activity.getReminderAt());
-            ps.setString(9, activity.getStatus());
-            ps.setString(10, activity.getPriority());
-            ps.setInt(11, activity.getId());
-
-            int affectedRows = ps.executeUpdate();
-            return affectedRows > 0;
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-        return false;
-    }
-
-    public void insertAttachment(int activityId, String fileName, String filePath) {
-        String sql = "INSERT INTO activity_attachments (activity_id, file_name, file_path) VALUES (?, ?, ?)";
-        try (PreparedStatement ps = getConnection().prepareStatement(sql)) {
-            ps.setInt(1, activityId);
-            ps.setString(2, fileName);
-            ps.setString(3, filePath);
-            ps.executeUpdate();
-        } catch (SQLException e) {
-            e.printStackTrace();
-        }
-    }
-
     public int insertActivity3(Activity activity, List<Integer> participantIds) {
         String sqlActivity = "INSERT INTO activities "
                 + "(title, type, description, lead_id, customer_id, opportunity_id, due_date, reminder_at, status, priority, created_by, created_at) "
@@ -418,6 +363,62 @@ public class ActivityDAO extends DBContext {
             }
         }
     }
+
+    public boolean updateActivity(Activity activity) {
+        String sql = "UPDATE activities SET "
+                + "title = ?, type = ?, description = ?, lead_id = ?, customer_id = ?, "
+                + "opportunity_id = ?, due_date = ?, reminder_at = ?, status = ?, priority = ? "
+                + "WHERE id = ?";
+
+        try (PreparedStatement ps = getConnection().prepareStatement(sql)) {
+            ps.setString(1, activity.getTitle());
+            ps.setString(2, activity.getType());
+            ps.setString(3, activity.getDescription());
+
+            if (activity.getLeadId() != null) {
+                ps.setLong(4, activity.getLeadId());
+            } else {
+                ps.setNull(4, Types.BIGINT);
+            }
+
+            if (activity.getCustomerId() != null) {
+                ps.setInt(5, activity.getCustomerId());
+            } else {
+                ps.setNull(5, Types.INTEGER);
+            }
+
+            if (activity.getOpportunityId() != null) {
+                ps.setInt(6, activity.getOpportunityId());
+            } else {
+                ps.setNull(6, Types.INTEGER);
+            }
+
+            ps.setTimestamp(7, activity.getDueDate());
+            ps.setTimestamp(8, activity.getReminderAt());
+            ps.setString(9, activity.getStatus());
+            ps.setString(10, activity.getPriority());
+            ps.setInt(11, activity.getId());
+
+            int affectedRows = ps.executeUpdate();
+            return affectedRows > 0;
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return false;
+    }
+
+    public void insertAttachment(int activityId, String fileName, String filePath) {
+        String sql = "INSERT INTO activity_attachments (activity_id, file_name, file_path) VALUES (?, ?, ?)";
+        try (PreparedStatement ps = getConnection().prepareStatement(sql)) {
+            ps.setInt(1, activityId);
+            ps.setString(2, fileName);
+            ps.setString(3, filePath);
+            ps.executeUpdate();
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+    }
+
     public List<Activity> getActivitiesForDashboard(Integer userId) {
         List<Activity> list = new ArrayList<>();
         
