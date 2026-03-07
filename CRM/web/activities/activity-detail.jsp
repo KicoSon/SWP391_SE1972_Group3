@@ -45,11 +45,13 @@
                         </div>
                         <c:if test="${sessionScope.userSession != null 
                                       and sessionScope.userSession.userId == activity.createdBy}">
-                              <div class="header-actions">
-                                  <a href="${pageContext.request.contextPath}/activities/create?id=${activity.id}" class="btn btn-white" target="_parent">
-                                      <i class="fas fa-pen"></i> Chỉnh sửa toàn bộ
-                                  </a>
-                              </div>
+                            <c:if test="${activity.status != 'Completed'}">
+                                <div class="header-actions">
+                                    <a href="${pageContext.request.contextPath}/activities/create?id=${activity.id}" class="btn btn-white" target="_parent">
+                                        <i class="fas fa-pen"></i> Chỉnh sửa toàn bộ
+                                    </a>
+                                </div>
+                            </c:if>
                         </c:if>
                     </div>
                     <div class="status-display">

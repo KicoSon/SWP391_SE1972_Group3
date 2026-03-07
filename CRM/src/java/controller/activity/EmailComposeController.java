@@ -14,8 +14,18 @@ import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
+import jakarta.servlet.annotation.MultipartConfig;
+import jakarta.servlet.http.Part;
+import java.io.File;
+import java.nio.file.Paths;
+import java.util.ArrayList;
 
 @WebServlet(name = "EmailComposeController", urlPatterns = {"/emails/compose"})
+@MultipartConfig( // BẮT BUỘC PHẢI CÓ
+        fileSizeThreshold = 1024 * 1024 * 2, // 2MB
+        maxFileSize = 1024 * 1024 * 10, // 10MB
+        maxRequestSize = 1024 * 1024 * 50 // 50MB
+)
 public class EmailComposeController extends HttpServlet {
 
     @Override
@@ -46,9 +56,22 @@ public class EmailComposeController extends HttpServlet {
             }
         }
 
-        // Luôn load danh sách khách hàng để dự phòng cho trường hợp "Soạn mail mới" trực tiếp
         CustomerDAO customerDAO = new CustomerDAO();
-        request.setAttribute("customers", customerDAO.getAllActiveCustomers());
+        List<Customer> customers;
+
+        // Kiểm tra quyền: Nếu là Sale và KHÔNG PHẢI Admin -> Chỉ lấy khách của mình
+        if (userSession.isSaleStaff() && !userSession.isAdmin()) {
+            // Lấy ID của nhân viên đang đăng nhập
+            int currentStaffId = userSession.getStaff().getId();
+
+            // Gọi hàm lấy khách theo Owner ID (Hàm này bạn đã có trong CustomerDAO)
+            customers = customerDAO.getCustomersByOwnerId(currentStaffId);
+        } else {
+            // Nếu là Admin hoặc Manager -> Lấy tất cả để họ hỗ trợ bất kỳ ai
+            customers = customerDAO.getAllActiveCustomers();
+        }
+
+        request.setAttribute("customers", customers);
 
         request.getRequestDispatcher("/emails/email-compose.jsp").forward(request, response);
     }
@@ -58,39 +81,82 @@ public class EmailComposeController extends HttpServlet {
             throws ServletException, IOException {
         request.setCharacterEncoding("UTF-8");
 
-        int customerId = Integer.parseInt(request.getParameter("customerId"));
-        String activityIdRaw = request.getParameter("activityId"); // Nhận lại ID từ form ẩn
-        String subject = request.getParameter("subject");
-        String content = request.getParameter("content");
+        try {
+            // 1. Lấy thông tin cơ bản từ Form
+            String customerIdRaw = request.getParameter("customerId");
+            int customerId = (customerIdRaw != null && !customerIdRaw.isEmpty()) ? Integer.parseInt(customerIdRaw) : 0;
 
-        // 1. Lấy thông tin khách hàng để có Email nhận
-        CustomerDAO customerDAO = new CustomerDAO();
-        Customer receiver = customerDAO.getCustomerById(customerId);
+            String activityIdRaw = request.getParameter("activityId");
+            String subject = request.getParameter("subject");
+            String content = request.getParameter("content");
 
-        // 2. Lấy thông tin người gửi từ Session
-        HttpSession session = request.getSession();
-        UserSession userSession = (UserSession) session.getAttribute("userSession");
-        int fromUserId = userSession.getStaff().getId();
+            // 2. LẤY FILE TỪ FORM (Chỉ để gửi mail, không lưu)
+            List<Part> fileParts = new ArrayList<>();
+            if (request.getParts() != null) {
+                for (Part part : request.getParts()) {
+                    // Lọc lấy các file đính kèm có dung lượng > 0
+                    if ("attachments".equals(part.getName()) && part.getSize() > 0 && part.getSubmittedFileName() != null) {
+                        fileParts.add(part);
+                    }
+                }
+            }
 
-        // 3. Tiến hành gửi mail thật
-        boolean sendSuccess = EmailService.sendEmail(receiver.getEmail(), subject, content);
+            // Lấy thông tin người nhận & người gửi
+            CustomerDAO customerDAO = new CustomerDAO();
+            Customer receiver = customerDAO.getCustomerById(customerId);
 
-        // 4. Lưu vào lịch sử Email DB
-        EmailDAO emailDAO = new EmailDAO();
-        emailDAO.insertEmailLog(fromUserId, customerId, receiver.getEmail(), subject, content, sendSuccess ? "Sent" : "Failed");
+            HttpSession session = request.getSession();
+            UserSession userSession = (UserSession) session.getAttribute("userSession");
+            int fromUserId = userSession.getStaff().getId();
 
-        // --- PHẦN MỚI: Tự động hoàn thành Activity nếu gửi mail thành công ---
-        if (sendSuccess && activityIdRaw != null && !activityIdRaw.isEmpty()) {
-            int activityId = Integer.parseInt(activityIdRaw);
-            ActivityDAO activityDAO = new ActivityDAO();
-            // Cập nhật trạng thái activity từ Planned sang Completed
-            activityDAO.updateActivityStatus(activityId, "Completed", "Hệ thống: Đã thực hiện gửi mail vào lúc " + new java.util.Date());
-        }
+            // 3. GỬI MAIL (File sẽ được stream trực tiếp lên Gmail server)
+            boolean sendSuccess = EmailService.sendEmail(receiver.getEmail(), subject, content, fileParts);
 
-        if (sendSuccess) {
-            response.sendRedirect(request.getContextPath() + "/sale/dashboard?msg=emailsent");
-        } else {
-            request.setAttribute("error", "Gửi mail thất bại. Vui lòng kiểm tra lại cấu hình.");
+            // 4. LƯU LOG VÀO DATABASE
+            // a. Lưu vào bảng lịch sử Email (emails table)
+            EmailDAO emailDAO = new EmailDAO();
+            emailDAO.insertEmailLog(fromUserId, customerId, receiver.getEmail(), subject, content, sendSuccess ? "Sent" : "Failed");
+
+            if (sendSuccess) {
+                ActivityDAO activityDAO = new ActivityDAO();
+
+                // b. Cập nhật hoặc Tạo mới Activity (Để hiện lên Dashboard)
+                if (activityIdRaw != null && !activityIdRaw.trim().isEmpty()) {
+                    // TRƯỜNG HỢP 1: Gửi từ Activity có sẵn -> Update trạng thái thành Completed
+                    int actId = Integer.parseInt(activityIdRaw);
+                    activityDAO.updateActivityStatus(actId, "Completed", "Đã gửi email: " + subject);
+                } else {
+                    // TRƯỜNG HỢP 2: Soạn mail mới -> Tự tạo Activity mới ghi nhận việc này
+                    model.activity.Activity newAct = new model.activity.Activity();
+                    newAct.setTitle("Gửi Email: " + subject);
+                    newAct.setType("Email");
+                    newAct.setDescription("Nội dung: " + content);
+                    newAct.setCustomerId(customerId);
+                    newAct.setCreatedBy(fromUserId);
+                    newAct.setStatus("Completed"); // Xong luôn
+                    newAct.setPriority("Medium");
+
+                    java.sql.Timestamp now = new java.sql.Timestamp(System.currentTimeMillis());
+                    newAct.setDueDate(now);
+                    newAct.setReminderAt(now);
+
+                    List<Integer> participants = new ArrayList<>();
+                    participants.add(fromUserId);
+
+                    activityDAO.insertActivity(newAct, participants);
+                }
+
+                // Xong việc -> Quay về Dashboard
+                response.sendRedirect(request.getContextPath() + "/sale/dashboard?msg=emailsent");
+            } else {
+                // Gửi thất bại
+                request.setAttribute("error", "Gửi mail thất bại. Vui lòng kiểm tra lại đường truyền.");
+                doGet(request, response);
+            }
+
+        } catch (Exception e) {
+            e.printStackTrace();
+            request.setAttribute("error", "Lỗi hệ thống: " + e.getMessage());
             doGet(request, response);
         }
     }

@@ -16,7 +16,7 @@
                         <h1 class="form-title">Soạn Email Gửi Khách Hàng</h1>
                     </div>
 
-                    <form action="compose" method="POST" id="emailForm" style="padding: 30px;">
+                    <form action="compose" method="POST" id="emailForm" enctype="multipart/form-data" style="padding: 30px;">
                         <input type="hidden" name="activityId" value="${sourceActivityId}">
                         <div class="form-grid">
                             <div class="form-row">
@@ -61,6 +61,12 @@
                             <button type="submit" class="btn btn-primary" onclick="prepareSubmit()">
                                 <i class="fas fa-paper-plane"></i> Gửi Mail Ngay
                             </button>
+                        </div>
+
+                        <div class="form-row full-width" style="margin-top: 20px;">
+                            <label class="form-label"><i class="fas fa-paperclip"></i> Đính kèm tài liệu:</label>
+                            <input type="file" name="attachments" class="form-control" multiple>
+                            <small style="color: #666;">Giữ phím Ctrl để chọn nhiều file.</small>
                         </div>
                     </form>
                 </div>

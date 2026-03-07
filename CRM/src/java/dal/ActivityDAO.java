@@ -365,48 +365,50 @@ public class ActivityDAO extends DBContext {
     }
 
     public boolean updateActivity(Activity activity) {
-        String sql = "UPDATE activities SET "
-                + "title = ?, type = ?, description = ?, lead_id = ?, customer_id = ?, "
-                + "opportunity_id = ?, due_date = ?, reminder_at = ?, status = ?, priority = ?, "
-                + "updated_at = GETDATE() "
-                + "WHERE id = ?";
+    // Sửa câu SQL: Thêm logic cập nhật completed_at dựa trên status
+    String sql = "UPDATE activities SET "
+            + "title = ?, type = ?, description = ?, lead_id = ?, customer_id = ?, "
+            + "opportunity_id = ?, due_date = ?, reminder_at = ?, priority = ?, "
+            + "updated_at = GETDATE(), "
+            + "status = ?, "
+            + "completed_at = CASE "
+            + "                 WHEN ? = 'Completed' THEN ISNULL(completed_at, GETDATE()) "
+            + "                 ELSE NULL "
+            + "               END "
+            
+            + "WHERE id = ?";
 
-        try (PreparedStatement ps = getConnection().prepareStatement(sql)) {
-            ps.setString(1, activity.getTitle());
-            ps.setString(2, activity.getType());
-            ps.setString(3, activity.getDescription());
+    try (PreparedStatement ps = getConnection().prepareStatement(sql)) {
+        ps.setString(1, activity.getTitle());
+        ps.setString(2, activity.getType());
+        ps.setString(3, activity.getDescription());
 
-            if (activity.getLeadId() != null) {
-                ps.setLong(4, activity.getLeadId());
-            } else {
-                ps.setNull(4, Types.BIGINT);
-            }
+        // Xử lý các trường có thể Null (Lead, Customer, Opportunity)
+        if (activity.getLeadId() != null) ps.setLong(4, activity.getLeadId());
+        else ps.setNull(4, Types.BIGINT);
 
-            if (activity.getCustomerId() != null) {
-                ps.setInt(5, activity.getCustomerId());
-            } else {
-                ps.setNull(5, Types.INTEGER);
-            }
+        if (activity.getCustomerId() != null) ps.setInt(5, activity.getCustomerId());
+        else ps.setNull(5, Types.INTEGER);
 
-            if (activity.getOpportunityId() != null) {
-                ps.setInt(6, activity.getOpportunityId());
-            } else {
-                ps.setNull(6, Types.INTEGER);
-            }
+        if (activity.getOpportunityId() != null) ps.setInt(6, activity.getOpportunityId());
+        else ps.setNull(6, Types.INTEGER);
 
-            ps.setTimestamp(7, activity.getDueDate());
-            ps.setTimestamp(8, activity.getReminderAt());
-            ps.setString(9, activity.getStatus());
-            ps.setString(10, activity.getPriority());
-            ps.setInt(11, activity.getId());
+        ps.setTimestamp(7, activity.getDueDate());
+        ps.setTimestamp(8, activity.getReminderAt());
+        ps.setString(9, activity.getPriority());
 
-            int affectedRows = ps.executeUpdate();
-            return affectedRows > 0;
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-        return false;
+        // Tham số cho Status (dùng 2 lần: 1 cho cột status, 1 cho câu điều kiện CASE WHEN)
+        ps.setString(10, activity.getStatus()); 
+        ps.setString(11, activity.getStatus()); 
+
+        ps.setInt(12, activity.getId());
+
+        return ps.executeUpdate() > 0;
+    } catch (Exception e) {
+        e.printStackTrace();
     }
+    return false;
+}
 
     public void insertAttachment(int activityId, String fileName, String filePath) {
         String sql = "INSERT INTO activity_attachments (activity_id, file_name, file_path) VALUES (?, ?, ?)";
@@ -424,15 +426,18 @@ public class ActivityDAO extends DBContext {
         List<Activity> list = new ArrayList<>();
 
         // 1. JOIN 2 lần vào bảng users (1 cho người tạo, 1 cho người thực hiện)
-        String sql = "SELECT DISTINCT a.id, a.title, a.type,a.description, a.due_date, a.status, a.priority, a.customer_id, a.created_at, a.created_by, "
+        String sql = "SELECT DISTINCT a.id, a.title, a.type, a.description, a.due_date, a.priority, a.customer_id, a.created_at, a.created_by, "
+                + "CASE "
+                + "  WHEN a.status != 'Completed' AND a.due_date < GETDATE() THEN 'Overdue' "
+                + "  ELSE a.status "
+                + "END AS status, " // Ghi đè cột status bằng giá trị đã tính toán
                 + "c.full_name AS customer_name, l.full_name AS lead_name, "
-                + "u_creator.full_name AS creator_name, " // Thay full_name thành tên cột của bạn nếu cần
-                + "u_owner.full_name AS assignee_name " // Thay full_name thành tên cột của bạn nếu cần
+                + "u_creator.full_name AS creator_name, "
+                + "u_owner.full_name AS assignee_name "
                 + "FROM activities a "
                 + "LEFT JOIN customers c ON a.customer_id = c.id "
                 + "LEFT JOIN leads l ON a.lead_id = l.id "
                 + "LEFT JOIN users u_creator ON a.created_by = u_creator.id "
-                // Chỉ lấy tên của người đóng vai trò là 'Owner' (Người được giao chính)
                 + "LEFT JOIN activity_participants ap_owner ON a.id = ap_owner.activity_id AND ap_owner.role = 'Owner' "
                 + "LEFT JOIN users u_owner ON ap_owner.user_id = u_owner.id ";
 

@@ -99,7 +99,7 @@ public class ActivityCreateController extends HttpServlet {
                 Activity existingActivity = dao.getActivityById(id);
 
                 // Gửi sang JSP với cái tên là "act"
-                request.setAttribute("act", existingActivity);
+                request.setAttribute("activity", existingActivity);
             } catch (NumberFormatException e) {
                 System.out.println("ID không hợp lệ: " + e.getMessage());
             }

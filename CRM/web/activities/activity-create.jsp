@@ -217,17 +217,36 @@
                                     </div>
                                 </div>
 
-                                <div class="form-row">
-                                    <label class="form-label">Status:</label>
-                                    <div>
-                                        <select class="form-control" name="status">
-                                            <%-- Nếu status cũ khớp với value nào thì thêm chữ 'selected' --%>
-                                            <option value="Planned" ${act.status == 'Planned' ? 'selected' : ''}>Planned</option>
-                                            <option value="In Progress" ${act.status == 'In Progress' ? 'selected' : ''}>In Progress</option>
-                                            <option value="Completed" ${act.status == 'Completed' ? 'selected' : ''}>Completed</option>
-                                            <option value="Overdue" ${act.status == 'Overdue' ? 'selected' : ''}>Overdue</option>
-                                        </select>
-                                    </div>
+                                <div class="form-group">
+                                    <label class="form-label">Trạng thái (Status):</label>
+
+                                    <c:choose>
+                                        <%-- TRƯỜNG HỢP 1: Đã hoàn thành -> Hiện ô input chết (Không cho bấm) --%>
+                                        <%-- Lưu ý: Kiểm tra kỹ tên biến là 'activity' hay 'act' nhé --%>
+                                        <c:when test="${activity.status == 'Completed'}">
+                                            <div style="position: relative;">
+                                                <input type="text" class="form-control" value="Completed" readonly 
+                                                       style="background-color: #e9ecef; color: #198754; font-weight: bold; border-color: #198754;">
+                                                <i class="fas fa-check-circle" style="position: absolute; right: 10px; top: 10px; color: #198754;"></i>
+                                            </div>
+
+                                            <%-- Vẫn phải gửi hidden để Server không bị null --%>
+                                            <input type="hidden" name="status" value="Completed">
+                                            <small class="text-danger" style="margin-top: 5px; display: block;">
+                                                <i class="fas fa-lock"></i> Công việc đã hoàn thành, không thể thay đổi.
+                                            </small>
+                                        </c:when>
+
+                                        <%-- TRƯỜNG HỢP 2: Chưa hoàn thành -> Hiện Dropdown bình thường --%>
+                                        <c:otherwise>
+                                            <select name="status" class="form-control">
+                                                <option value="Planned" ${activity.status == 'Planned' ? 'selected' : ''}>Planned</option>
+                                                <option value="In Progress" ${activity.status == 'In Progress' ? 'selected' : ''}>In Progress</option>
+                                                <option value="Completed" ${activity.status == 'Completed' ? 'selected' : ''}>Completed</option>
+                                                <option value="Cancelled" ${activity.status == 'Cancelled' ? 'selected' : ''}>Cancelled</option>
+                                            </select>
+                                        </c:otherwise>
+                                    </c:choose>
                                 </div>
 
                                 <div class="form-row full-width">
