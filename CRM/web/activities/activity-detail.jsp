@@ -171,20 +171,66 @@
 
                     <div class="section">
                         <h2 class="section-title"><i class="fas fa-paperclip"></i> Tài liệu đính kèm (${attachments.size()})</h2>
-                    <c:forEach items="${attachments}" var="file">
-                        <div class="attachment-item">
-                            <div style="display: flex; align-items: center; gap: 15px;">
-                                <i class="fas fa-file-pdf" style="font-size: 24px; color: #EF4444;"></i>
-                                <div>
-                                    <div style="font-weight: 600; color: #111827;">${file.fileName}</div>
-                                    <div style="font-size: 12px; color: #6B7280;">Up lúc: <fmt:formatDate value="${file.uploadedAt}" pattern="dd/MM HH:mm" /></div>
-                                </div>
+
+                    <div class="attachments-grid" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 15px;">
+                        <c:forEach items="${attachments}" var="file">
+                            <%-- Tạo biến tên file chữ thường để check đuôi cho dễ --%>
+                            <c:set var="fname" value="${fn:toLowerCase(file.fileName)}" />
+
+                            <div class="attachment-item" style="border: 1px solid #eee; padding: 10px; border-radius: 8px; background: #fff;">
+
+                                <%-- TRƯỜNG HỢP 1: NẾU LÀ ẢNH -> HIỆN PREVIEW --%>
+                                <c:choose>
+                                    <c:when test="${fn:endsWith(fname, '.jpg') || fn:endsWith(fname, '.jpeg') || fn:endsWith(fname, '.png') || fn:endsWith(fname, '.gif')}">
+                                        <div style="margin-bottom: 10px; text-align: center; background: #f9f9f9; border-radius: 4px; overflow: hidden;">
+                                            <img src="${pageContext.request.contextPath}/download?file=${file.filePath}" 
+                                                 alt="${file.fileName}" 
+                                                 style="max-width: 100%; height: 150px; object-fit: contain; cursor: pointer;"
+                                                 onclick="window.open(this.src, '_blank')" title="Click để xem ảnh lớn">
+                                        </div>
+                                        <div style="font-weight: 600; font-size: 14px; margin-bottom: 5px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">
+                                            <i class="fas fa-image" style="color: #6366F1;"></i> ${file.fileName}
+                                        </div>
+                                    </c:when>
+
+                                    <%-- TRƯỜNG HỢP 2: KHÔNG PHẢI ẢNH -> HIỆN ICON VÀ NÚT TẢI --%>
+                                    <c:otherwise>
+                                        <div style="display: flex; align-items: center; gap: 15px; margin-bottom: 10px;">
+                                            <c:choose>
+                                                <c:when test="${fn:endsWith(fname, '.pdf')}">
+                                                    <i class="fas fa-file-pdf" style="font-size: 32px; color: #EF4444;"></i>
+                                                </c:when>
+                                                <c:when test="${fn:endsWith(fname, '.doc') || fn:endsWith(fname, '.docx')}">
+                                                    <i class="fas fa-file-word" style="font-size: 32px; color: #2563EB;"></i>
+                                                </c:when>
+                                                <c:when test="${fn:endsWith(fname, '.xls') || fn:endsWith(fname, '.xlsx')}">
+                                                    <i class="fas fa-file-excel" style="font-size: 32px; color: #10B981;"></i>
+                                                </c:when>
+                                                <c:otherwise>
+                                                    <i class="fas fa-file" style="font-size: 32px; color: #6B7280;"></i>
+                                                </c:otherwise>
+                                            </c:choose>
+
+                                            <div style="overflow: hidden;">
+                                                <div style="font-weight: 600; font-size: 14px; color: #111827; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">
+                                                    ${file.fileName}
+                                                </div>
+                                                <div style="font-size: 11px; color: #6B7280;">
+                                                    <fmt:formatDate value="${file.uploadedAt}" pattern="dd/MM HH:mm" />
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </c:otherwise>
+                                </c:choose>
+
+                                <%-- Nút tải về (Luôn hiện cho cả ảnh và file thường) --%>
+                                <a href="${pageContext.request.contextPath}/download?file=${file.filePath}&mode=download" class="btn-download" style="width: 100%; text-align: center; display: block; padding: 6px; background: #f3f4f6; border-radius: 4px; text-decoration: none; color: #374151; font-size: 13px;">
+                                    <i class="fas fa-download"></i> Tải về
+                                </a>
                             </div>
-                            <a href="${pageContext.request.contextPath}/download?file=${file.filePath}" class="btn-download">
-                                <i class="fas fa-download"></i> Tải về
-                            </a>
-                        </div>
-                    </c:forEach>
+                        </c:forEach>
+                    </div>
+
                     <c:if test="${empty attachments}">
                         <div class="field-group" style="text-align: center; color: #6B7280;">Không có tài liệu nào đính kèm.</div>
                     </c:if>
