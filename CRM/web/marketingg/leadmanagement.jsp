@@ -212,16 +212,25 @@
 
                 </h2>
 
-                <a href="${pageContext.request.contextPath}/marketingg/addLead"
-                   class="btn btn-primary">
+              <div style="display:flex;gap:10px">
 
-                    <i class="fas fa-plus"></i>
+<a href="${pageContext.request.contextPath}/marketingg/addLead"
+   class="btn btn-primary">
 
-                    Thêm Lead
+    <i class="fas fa-plus"></i>
+    Thêm Lead
 
-                </a>
+</a>
 
-            </div>
+<a href="${pageContext.request.contextPath}/marketingg/importLead"
+   class="btn btn-outline">
+
+    <i class="fas fa-file-excel"></i>
+    Import Excel
+
+</a>
+
+</div>            </div>
 
 
             <!-- FILTER -->
