@@ -205,7 +205,7 @@
 
 
             <div class="nav-item">
-                <a href="${pageContext.request.contextPath}/admin/adminProfile" class="nav-link">
+                <a href="${pageContext.request.contextPath}/marketing/profile" class="nav-link">
                     <i class="fas fa-user-shield"></i> Thông tin cá nhân
                 </a>
             </div>
