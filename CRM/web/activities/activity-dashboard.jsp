@@ -66,33 +66,34 @@
             <div class="page-wrapper">
 
                 <!-- Filter Bar -->
-                <div class="filter-bar">
-                    <input type="text" class="search-input" placeholder="Search">
+                <form action="${pageContext.request.contextPath}/sale/dashboard" method="GET" class="filter-bar">
+
+                    <input type="text" name="search" value="${param.search}" class="search-input" placeholder="Search...">
 
                     <div class="filter-group">
                         <span class="filter-label">Filter Type:</span>
-                        <select>
-                            <option>All</option>
-                            <option>Call</option>
-                            <option>Task</option>
-                            <option>Email</option>
-                            <option>Note</option>
-                            <option>Meeting</option>
+                        <select name="type">
+                            <option value="">All</option>
+                            <option value="Call" ${param.type == 'Call' ? 'selected' : ''}>Call</option>
+                            <option value="Task" ${param.type == 'Task' ? 'selected' : ''}>Task</option>
+                            <option value="Email" ${param.type == 'Email' ? 'selected' : ''}>Email</option>
+                            <option value="Meeting" ${param.type == 'Meeting' ? 'selected' : ''}>Meeting</option>
+                            <option value="Note" ${param.type == 'Note' ? 'selected' : ''}>Note</option>
                         </select>
                     </div>
 
                     <div class="filter-group">
                         <span class="filter-label">From</span>
-                        <input type="date" value="2026-01-01">
+                        <input type="date" name="from" value="${param.from}">
                     </div>
 
                     <div class="filter-group">
                         <span class="filter-label">To</span>
-                        <input type="date" value="2026-02-03">
+                        <input type="date" name="to" value="${param.to}">
                     </div>
 
-                    <button class="btn btn-primary">Filter</button>
-                </div>
+                    <button class="btn btn-primary" type="submit">Filter</button>
+                </form>
 
                 <!-- Action Bar -->
                 <div class="action-bar">
@@ -241,11 +242,25 @@
                         <!-- Pagination -->
                         <div class="pagination">
                             <div class="pagination-controls">
-                                <button class="page-btn" disabled>&lt;</button>
-                                <span class="page-info">Page 1 / 3</span>
-                                <button class="page-btn">&gt;</button>
+                                <c:if test="${currentPage > 1}">
+                                    <a href="?page=${currentPage - 1}&search=${param.search}&type=${param.type}&from=${param.from}&to=${param.to}" 
+                                       class="page-btn" style="text-decoration: none;">&lt;</a>
+                                </c:if>
+                                <c:if test="${currentPage <= 1}">
+                                    <button class="page-btn" disabled>&lt;</button>
+                                </c:if>
+
+                                <span class="page-info">Page ${currentPage} / ${totalPages}</span>
+
+                                <c:if test="${currentPage < totalPages}">
+                                    <a href="?page=${currentPage + 1}&search=${param.search}&type=${param.type}&from=${param.from}&to=${param.to}" 
+                                       class="page-btn" style="text-decoration: none;">&gt;</a>
+                                </c:if>
+                                <c:if test="${currentPage >= totalPages}">
+                                    <button class="page-btn" disabled>&gt;</button>
+                                </c:if>
                             </div>
-                            <div class="total-info">Total: 25 activities</div>
+                            <div class="total-info">Total: ${totalRecords} activities</div>
                         </div>
                     </div><!-- /.card-body -->
                 </div><!-- /.card -->

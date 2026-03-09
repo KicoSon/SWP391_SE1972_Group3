@@ -21,7 +21,7 @@ public class ActivityDashboardController extends HttpServlet {
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
         
-        // 1. Kiểm tra session đăng nhập
+        request.setCharacterEncoding("UTF-8");
         HttpSession session = request.getSession();
         UserSession userSession = (UserSession) session.getAttribute("userSession");
 
@@ -30,27 +30,41 @@ public class ActivityDashboardController extends HttpServlet {
             return;
         }
 
-        // ========================================================
-        // 2. LOGIC PHÂN QUYỀN (CHUẨN CRM)
-        // ========================================================
-        Integer filterUserId = null;
+        // 1. LẤY THAM SỐ TỪ URL (Search, Type, Page...)
+        String keyword = request.getParameter("search");
+        String type = request.getParameter("type");
+        String fromDate = request.getParameter("from");
+        String toDate = request.getParameter("to");
+        
+        int pageIndex = 1;
+        int pageSize = 10; // Số dòng mỗi trang
+        try {
+            if (request.getParameter("page") != null) {
+                pageIndex = Integer.parseInt(request.getParameter("page"));
+            }
+        } catch (NumberFormatException e) {
+            pageIndex = 1;
+        }
 
-        // Nếu là Sale thông thường (không có quyền Admin/Manager) 
-        // -> Gán filterUserId = ID của chính họ để SQL chỉ lọc việc của họ
+        // 2. PHÂN QUYỀN
+        Integer filterUserId = null;
         if (userSession.isSaleStaff() && !userSession.isAdmin()) {
             filterUserId = userSession.getStaff().getId();
         }
-        // Nếu là Sếp/Admin -> filterUserId giữ nguyên là null (SQL sẽ lấy tất cả)
 
-        // 3. Gọi DAO lấy danh sách Activity đã được Join với Customer/Lead
         ActivityDAO dao = new ActivityDAO();
-        List<Activity> activityList = dao.getActivitiesForDashboard(filterUserId);
 
-        // 4. Gắn danh sách vào request để gửi sang giao diện (JSP)
-        request.setAttribute("activities", activityList);
-        
-        // Code này forward request vào bên trong thư mục chứa file JSP
-        request.getRequestDispatcher("/activities/activity-dashboard.jsp")
-               .forward(request, response);
+        // 3. GỌI DB ĐỂ LẤY DỮ LIỆU
+        List<Activity> list = dao.searchActivities(filterUserId, keyword, type, fromDate, toDate, pageIndex, pageSize);
+        int totalRecords = dao.countActivities(filterUserId, keyword, type, fromDate, toDate);
+        int totalPages = (int) Math.ceil((double) totalRecords / pageSize);
+
+        // 4. GỬI DỮ LIỆU SANG JSP
+        request.setAttribute("activities", list);
+        request.setAttribute("totalRecords", totalRecords);
+        request.setAttribute("totalPages", totalPages);
+        request.setAttribute("currentPage", pageIndex);
+
+        request.getRequestDispatcher("/activities/activity-dashboard.jsp").forward(request, response);
     }
 }

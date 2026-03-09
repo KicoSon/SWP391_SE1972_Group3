@@ -365,50 +365,58 @@ public class ActivityDAO extends DBContext {
     }
 
     public boolean updateActivity(Activity activity) {
-    // Sửa câu SQL: Thêm logic cập nhật completed_at dựa trên status
-    String sql = "UPDATE activities SET "
-            + "title = ?, type = ?, description = ?, lead_id = ?, customer_id = ?, "
-            + "opportunity_id = ?, due_date = ?, reminder_at = ?, priority = ?, "
-            + "updated_at = GETDATE(), "
-            + "status = ?, "
-            + "completed_at = CASE "
-            + "                 WHEN ? = 'Completed' THEN ISNULL(completed_at, GETDATE()) "
-            + "                 ELSE NULL "
-            + "               END "
-            
-            + "WHERE id = ?";
+        // Sửa câu SQL: Thêm logic cập nhật completed_at dựa trên status
+        String sql = "UPDATE activities SET "
+                + "title = ?, type = ?, description = ?, lead_id = ?, customer_id = ?, "
+                + "opportunity_id = ?, due_date = ?, reminder_at = ?, priority = ?, "
+                + "updated_at = GETDATE(), "
+                + "status = ?, "
+                + "completed_at = CASE "
+                + "                 WHEN ? = 'Completed' THEN ISNULL(completed_at, GETDATE()) "
+                + "                 ELSE NULL "
+                + "               END "
+                + "WHERE id = ?";
 
-    try (PreparedStatement ps = getConnection().prepareStatement(sql)) {
-        ps.setString(1, activity.getTitle());
-        ps.setString(2, activity.getType());
-        ps.setString(3, activity.getDescription());
+        try (PreparedStatement ps = getConnection().prepareStatement(sql)) {
+            ps.setString(1, activity.getTitle());
+            ps.setString(2, activity.getType());
+            ps.setString(3, activity.getDescription());
 
-        // Xử lý các trường có thể Null (Lead, Customer, Opportunity)
-        if (activity.getLeadId() != null) ps.setLong(4, activity.getLeadId());
-        else ps.setNull(4, Types.BIGINT);
+            // Xử lý các trường có thể Null (Lead, Customer, Opportunity)
+            if (activity.getLeadId() != null) {
+                ps.setLong(4, activity.getLeadId());
+            } else {
+                ps.setNull(4, Types.BIGINT);
+            }
 
-        if (activity.getCustomerId() != null) ps.setInt(5, activity.getCustomerId());
-        else ps.setNull(5, Types.INTEGER);
+            if (activity.getCustomerId() != null) {
+                ps.setInt(5, activity.getCustomerId());
+            } else {
+                ps.setNull(5, Types.INTEGER);
+            }
 
-        if (activity.getOpportunityId() != null) ps.setInt(6, activity.getOpportunityId());
-        else ps.setNull(6, Types.INTEGER);
+            if (activity.getOpportunityId() != null) {
+                ps.setInt(6, activity.getOpportunityId());
+            } else {
+                ps.setNull(6, Types.INTEGER);
+            }
 
-        ps.setTimestamp(7, activity.getDueDate());
-        ps.setTimestamp(8, activity.getReminderAt());
-        ps.setString(9, activity.getPriority());
+            ps.setTimestamp(7, activity.getDueDate());
+            ps.setTimestamp(8, activity.getReminderAt());
+            ps.setString(9, activity.getPriority());
 
-        // Tham số cho Status (dùng 2 lần: 1 cho cột status, 1 cho câu điều kiện CASE WHEN)
-        ps.setString(10, activity.getStatus()); 
-        ps.setString(11, activity.getStatus()); 
+            // Tham số cho Status (dùng 2 lần: 1 cho cột status, 1 cho câu điều kiện CASE WHEN)
+            ps.setString(10, activity.getStatus());
+            ps.setString(11, activity.getStatus());
 
-        ps.setInt(12, activity.getId());
+            ps.setInt(12, activity.getId());
 
-        return ps.executeUpdate() > 0;
-    } catch (Exception e) {
-        e.printStackTrace();
+            return ps.executeUpdate() > 0;
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return false;
     }
-    return false;
-}
 
     public void insertAttachment(int activityId, String fileName, String filePath) {
         String sql = "INSERT INTO activity_attachments (activity_id, file_name, file_path) VALUES (?, ?, ?)";
@@ -654,6 +662,166 @@ public class ActivityDAO extends DBContext {
             e.printStackTrace();
             return false;
         }
+    }
+
+    // 1. Hàm đếm tổng số bản ghi (Để tính xem có bao nhiêu trang)
+    public int countActivities(Integer userId, String keyword, String type, String fromDate, String toDate) {
+        StringBuilder sql = new StringBuilder("SELECT COUNT(DISTINCT a.id) FROM activities a ");
+
+        // Join các bảng để tìm kiếm tên
+        sql.append("LEFT JOIN customers c ON a.customer_id = c.id ");
+        sql.append("LEFT JOIN leads l ON a.lead_id = l.id ");
+        sql.append("LEFT JOIN activity_participants ap_filter ON a.id = ap_filter.activity_id ");
+
+        sql.append("WHERE 1=1 ");
+
+        // A. Phân quyền (Nếu là Sale -> Chỉ đếm việc của mình)
+        if (userId != null) {
+            sql.append("AND (ap_filter.user_id = ").append(userId).append(" OR a.created_by = ").append(userId).append(") ");
+        }
+
+        // B. Lọc theo từ khóa
+        if (keyword != null && !keyword.trim().isEmpty()) {
+            sql.append("AND (a.title LIKE ? OR c.full_name LIKE ? OR l.full_name LIKE ?) ");
+        }
+        // C. Lọc theo Type
+        if (type != null && !type.equals("All") && !type.isEmpty()) {
+            sql.append("AND a.type = ? ");
+        }
+        // D. Lọc ngày
+        if (fromDate != null && !fromDate.isEmpty()) {
+            sql.append("AND a.due_date >= ? ");
+        }
+        if (toDate != null && !toDate.isEmpty()) {
+            sql.append("AND a.due_date <= ? ");
+        }
+
+        try (PreparedStatement ps = getConnection().prepareStatement(sql.toString())) {
+            int index = 1;
+            if (keyword != null && !keyword.trim().isEmpty()) {
+                String searchPattern = "%" + keyword.trim() + "%";
+                ps.setString(index++, searchPattern);
+                ps.setString(index++, searchPattern);
+                ps.setString(index++, searchPattern);
+            }
+            if (type != null && !type.equals("All") && !type.isEmpty()) {
+                ps.setString(index++, type);
+            }
+            if (fromDate != null && !fromDate.isEmpty()) {
+                ps.setString(index++, fromDate);
+            }
+            if (toDate != null && !toDate.isEmpty()) {
+                ps.setString(index++, toDate + " 23:59:59");
+            }
+
+            try (ResultSet rs = ps.executeQuery()) {
+                if (rs.next()) {
+                    return rs.getInt(1);
+                }
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return 0;
+    }
+
+    // 2. Hàm lấy danh sách phân trang (Dùng OFFSET FETCH)
+    public List<Activity> searchActivities(Integer userId, String keyword, String type, String fromDate, String toDate, int pageIndex, int pageSize) {
+        List<Activity> list = new ArrayList<>();
+        StringBuilder sql = new StringBuilder("SELECT DISTINCT a.id, a.title, a.type, a.description, a.due_date, a.priority, ");
+
+        // THÊM LẠI LOGIC TỰ ĐỘNG TÍNH OVERDUE
+        sql.append("CASE ");
+        sql.append("  WHEN a.status != 'Completed' AND a.due_date < GETDATE() THEN 'Overdue' ");
+        sql.append("  ELSE a.status ");
+        sql.append("END AS status, "); // Cột này sẽ ghi đè status gốc
+
+        sql.append("a.created_at, a.created_by, ");
+        sql.append("c.full_name AS customer_name, l.full_name AS lead_name, ");
+        sql.append("u_creator.full_name AS creator_name, u_owner.full_name AS assignee_name ");
+
+        sql.append("FROM activities a ");
+        sql.append("LEFT JOIN customers c ON a.customer_id = c.id ");
+        sql.append("LEFT JOIN leads l ON a.lead_id = l.id ");
+        sql.append("LEFT JOIN users u_creator ON a.created_by = u_creator.id ");
+
+        // Join để lấy Owner (Người thực hiện)
+        sql.append("LEFT JOIN activity_participants ap_owner ON a.id = ap_owner.activity_id AND ap_owner.role = 'Owner' ");
+        sql.append("LEFT JOIN users u_owner ON ap_owner.user_id = u_owner.id ");
+
+        // Join để lọc quyền xem
+        sql.append("LEFT JOIN activity_participants ap_filter ON a.id = ap_filter.activity_id ");
+
+        sql.append("WHERE 1=1 ");
+
+        // --- CÁC ĐIỀU KIỆN LỌC (Copy y hệt hàm count) ---
+        if (userId != null) {
+            sql.append("AND (ap_filter.user_id = ").append(userId).append(" OR a.created_by = ").append(userId).append(") ");
+        }
+        if (keyword != null && !keyword.trim().isEmpty()) {
+            sql.append("AND (a.title LIKE ? OR c.full_name LIKE ? OR l.full_name LIKE ?) ");
+        }
+        if (type != null && !type.equals("All") && !type.isEmpty()) {
+            sql.append("AND a.type = ? ");
+        }
+        if (fromDate != null && !fromDate.isEmpty()) {
+            sql.append("AND a.due_date >= ? ");
+        }
+        if (toDate != null && !toDate.isEmpty()) {
+            sql.append("AND a.due_date <= ? ");
+        }
+
+        // --- PHÂN TRANG ---
+        sql.append("ORDER BY a.created_at DESC ");
+        sql.append("OFFSET ? ROWS FETCH NEXT ? ROWS ONLY");
+
+        try (PreparedStatement ps = getConnection().prepareStatement(sql.toString())) {
+            int index = 1;
+            // Set tham số lọc
+            if (keyword != null && !keyword.trim().isEmpty()) {
+                String searchPattern = "%" + keyword.trim() + "%";
+                ps.setString(index++, searchPattern);
+                ps.setString(index++, searchPattern);
+                ps.setString(index++, searchPattern);
+            }
+            if (type != null && !type.equals("All") && !type.isEmpty()) {
+                ps.setString(index++, type);
+            }
+            if (fromDate != null && !fromDate.isEmpty()) {
+                ps.setString(index++, fromDate);
+            }
+            if (toDate != null && !toDate.isEmpty()) {
+                ps.setString(index++, toDate + " 23:59:59");
+            }
+
+            // Set tham số phân trang
+            int offset = (pageIndex - 1) * pageSize;
+            ps.setInt(index++, offset);
+            ps.setInt(index++, pageSize);
+
+            try (ResultSet rs = ps.executeQuery()) {
+                while (rs.next()) {
+                    Activity act = new Activity();
+                    act.setId(rs.getInt("id"));
+                    act.setTitle(rs.getString("title"));
+                    act.setType(rs.getString("type"));
+                    act.setDescription(rs.getString("description"));
+                    act.setDueDate(rs.getTimestamp("due_date"));
+                    act.setStatus(rs.getString("status"));
+                    act.setPriority(rs.getString("priority"));
+                    act.setCreatedAt(rs.getTimestamp("created_at"));
+                    act.setCreatedBy(rs.getInt("created_by"));
+                    act.setCustomerName(rs.getString("customer_name"));
+                    act.setLeadName(rs.getString("lead_name"));
+                    act.setCreatorName(rs.getString("creator_name"));
+                    act.setAssigneeName(rs.getString("assignee_name"));
+                    list.add(act);
+                }
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return list;
     }
 
 }
