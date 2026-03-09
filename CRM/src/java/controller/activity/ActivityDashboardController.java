@@ -20,7 +20,7 @@ public class ActivityDashboardController extends HttpServlet {
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
-        
+
         request.setCharacterEncoding("UTF-8");
         HttpSession session = request.getSession();
         UserSession userSession = (UserSession) session.getAttribute("userSession");
@@ -35,7 +35,7 @@ public class ActivityDashboardController extends HttpServlet {
         String type = request.getParameter("type");
         String fromDate = request.getParameter("from");
         String toDate = request.getParameter("to");
-        
+
         int pageIndex = 1;
         int pageSize = 10; // Số dòng mỗi trang
         try {
@@ -58,6 +58,15 @@ public class ActivityDashboardController extends HttpServlet {
         List<Activity> list = dao.searchActivities(filterUserId, keyword, type, fromDate, toDate, pageIndex, pageSize);
         int totalRecords = dao.countActivities(filterUserId, keyword, type, fromDate, toDate);
         int totalPages = (int) Math.ceil((double) totalRecords / pageSize);
+
+        int[] stats = dao.getActivityStats(filterUserId);
+
+        //THỐNG KÊ SUMMARY
+        request.setAttribute("statTotal", stats[0]);
+        request.setAttribute("statPlanned", stats[1]);      // <--- MỚI THÊM
+        request.setAttribute("statInProgress", stats[2]);
+        request.setAttribute("statCompleted", stats[3]);
+        request.setAttribute("statOverdue", stats[4]);
 
         // 4. GỬI DỮ LIỆU SANG JSP
         request.setAttribute("activities", list);

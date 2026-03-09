@@ -824,4 +824,52 @@ public class ActivityDAO extends DBContext {
         return list;
     }
 
+    // 3. Hàm lấy thống kê nhanh (Cập nhật: 5 chỉ số)
+    public int[] getActivityStats(Integer userId) {
+        // QUAN TRỌNG: Khai báo mảng có 5 phần tử
+        // [0]=Total, [1]=Planned, [2]=InProgress, [3]=Completed, [4]=Overdue
+        int[] stats = {0, 0, 0, 0, 0};
+
+        StringBuilder sql = new StringBuilder("SELECT ");
+        sql.append("COUNT(*) AS total, ");
+
+        // 1. Planned (Chỉ đếm những cái CÒN HẠN)
+        sql.append("SUM(CASE WHEN status = 'Planned' AND due_date >= GETDATE() THEN 1 ELSE 0 END) AS planned, ");
+
+        // 2. In Progress (Chỉ đếm những cái CÒN HẠN)
+        sql.append("SUM(CASE WHEN status = 'In Progress' AND due_date >= GETDATE() THEN 1 ELSE 0 END) AS in_progress, ");
+
+        // 3. Completed (Đã xong)
+        sql.append("SUM(CASE WHEN status = 'Completed' THEN 1 ELSE 0 END) AS completed, ");
+
+        // 4. Overdue (Chưa xong & Đã QUÁ HẠN - Trừ Cancelled ra)
+        sql.append("SUM(CASE WHEN status NOT IN ('Completed', 'Cancelled') AND due_date < GETDATE() THEN 1 ELSE 0 END) AS overdue ");
+
+        sql.append("FROM activities a ");
+        sql.append("LEFT JOIN activity_participants ap ON a.id = ap.activity_id ");
+        sql.append("WHERE 1=1 ");
+
+        if (userId != null) {
+            sql.append("AND (ap.user_id = ? OR a.created_by = ?) ");
+        }
+
+        try (PreparedStatement ps = getConnection().prepareStatement(sql.toString())) {
+            if (userId != null) {
+                ps.setInt(1, userId);
+                ps.setInt(2, userId);
+            }
+            try (ResultSet rs = ps.executeQuery()) {
+                if (rs.next()) {
+                    stats[0] = rs.getInt("total");
+                    stats[1] = rs.getInt("planned");
+                    stats[2] = rs.getInt("in_progress");
+                    stats[3] = rs.getInt("completed");
+                    stats[4] = rs.getInt("overdue"); // Dòng này sẽ không lỗi nữa
+                }
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return stats;
+    }
 }

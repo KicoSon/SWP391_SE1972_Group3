@@ -64,6 +64,65 @@
             </div>
 
             <div class="page-wrapper">
+                <div class="summary-section" style="margin-bottom: 20px;">
+                    <h2 class="summary-title">Overview</h2>
+
+                    <div class="summary-stats" style="display: flex; gap: 20px; align-items: center; flex-wrap: wrap;">
+
+                        <div class="stat-item" style="padding-right: 20px; border-right: 2px solid #eee;">
+                            <span class="stat-label">Total: 
+                                <span style="font-weight: 800; font-size: 1.2em; color: #111827;">${statTotal}</span>
+                            </span>
+                        </div>
+
+                        <div class="stat-item">
+                            <span class="stat-label">Planned: 
+                                <span style="color: #3B82F6; font-weight: bold;">${statPlanned}</span>
+                            </span>
+                        </div>
+
+                        <div class="stat-item">
+                            <span class="stat-label">In Progress: 
+                                <span style="color: #F59E0B; font-weight: bold;">${statInProgress}</span>
+                            </span>
+                        </div>
+
+                        <div class="stat-item">
+                            <span class="stat-label">Completed: 
+                                <span style="color: #10B981; font-weight: bold;">${statCompleted}</span>
+                            </span>
+                        </div>
+
+                        <div class="stat-item">
+                            <span class="stat-label">Overdue: 
+                                <span style="color: #EF4444; font-weight: bold;">${statOverdue}</span>
+                            </span>
+                        </div>
+                    </div>
+
+                    <div style="display: flex; height: 50px; margin-top: 15px; width: 100%; background-color: #E5E7EB; border-radius: 6px; overflow: hidden;">
+
+                        <c:if test="${statPlanned > 0}">
+                            <div style="background-color: #3B82F6; flex-grow: ${statPlanned};" title="Planned: ${statPlanned}"></div>
+                        </c:if>
+
+                        <c:if test="${statInProgress > 0}">
+                            <div style="background-color: #F59E0B; flex-grow: ${statInProgress};" title="In Progress: ${statInProgress}"></div>
+                        </c:if>
+
+                        <c:if test="${statCompleted > 0}">
+                            <div style="background-color: #10B981; flex-grow: ${statCompleted};" title="Completed: ${statCompleted}"></div>
+                        </c:if>
+
+                        <c:if test="${statOverdue > 0}">
+                            <div style="background-color: #EF4444; flex-grow: ${statOverdue};" title="Overdue: ${statOverdue}"></div>
+                        </c:if>
+
+                        <c:if test="${statTotal == 0}">
+                            <div style="flex-grow: 1; background-color: #D1D5DB;"></div>
+                        </c:if>
+                    </div>
+                </div>
 
                 <!-- Filter Bar -->
                 <form action="${pageContext.request.contextPath}/sale/dashboard" method="GET" class="filter-bar">
@@ -265,31 +324,7 @@
                     </div><!-- /.card-body -->
                 </div><!-- /.card -->
 
-                <!-- Summary Section -->
-                <div class="summary-section">
-                    <h2 class="summary-title">Summary</h2>
 
-                    <div class="summary-stats">
-                        <div class="stat-item">
-                            <span class="stat-label">Tasks: 10</span>
-                        </div>
-                        <div class="stat-item">
-                            <span class="stat-label">Overdue: <span
-                                    class="stat-value stat-overdue">2</span></span>
-                        </div>
-                        <div class="stat-item">
-                            <span class="stat-label">Completed: <span
-                                    class="stat-value stat-completed">8</span></span>
-                        </div>
-                    </div>
-
-                    <div class="chart-container">
-                        <div class="chart-bar chart-bar-blue"></div>
-                        <div class="chart-bar chart-bar-yellow"></div>
-                        <div class="chart-bar chart-bar-green"></div>
-                        <div class="chart-bar chart-bar-purple"></div>
-                    </div>
-                </div>
             </div>
         </div>
 
