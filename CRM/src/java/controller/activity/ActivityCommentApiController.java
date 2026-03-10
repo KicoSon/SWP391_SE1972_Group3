@@ -87,6 +87,11 @@ public class ActivityCommentApiController extends HttpServlet {
     // Hàm phụ để xử lý ký tự đặc biệt trong JSON
     private String escapeJson(String text) {
         if (text == null) return "";
-        return text.replace("\\", "\\\\").replace("\"", "\\\"");
+        return text
+            .replace("\\", "\\\\")
+            .replace("\"", "\\\"")
+            .replace("\n", "\\n")   // newline - nguyên nhân chính
+            .replace("\r", "\\r")   // carriage return
+            .replace("\t", "\\t");  // tab
     }
 }

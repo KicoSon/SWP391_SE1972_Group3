@@ -167,6 +167,14 @@
                             <span class="nav-text">Khách hàng</span>
                         </a>
                     </li>
+
+                    <!-- Activity Dashboard - shown to all staff -->
+                    <li class="nav-item">
+                        <a href="${pageContext.request.contextPath}/sale/dashboard" class="nav-link">
+                            <i class="fas fa-calendar-check"></i>
+                            <span class="nav-text">Activity Dashboard</span>
+                        </a>
+                    </li>
                     
                     <!-- ADMIN-ONLY Features -->
                     <c:if test="${userSession.isAdmin()}">

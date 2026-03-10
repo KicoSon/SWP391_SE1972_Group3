@@ -180,6 +180,13 @@
             </div>
 
             <div class="nav-item">
+                <a href="${pageContext.request.contextPath}/sale/dashboard"
+                   class="nav-link">
+                    <i class="fas fa-calendar-check"></i> Activity Dashboard
+                </a>
+            </div>
+
+            <div class="nav-item">
                 <a href="${pageContext.request.contextPath}/customerservice/customerlist"
                    class="nav-link">
                     <i class="fas fa-users"></i> Quản lý khách hàng

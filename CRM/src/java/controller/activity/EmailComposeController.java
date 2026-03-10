@@ -39,6 +39,12 @@ public class EmailComposeController extends HttpServlet {
             return;
         }
 
+        // Marketing bị chặn hoàn toàn - không được vào trang soạn mail
+        if (userSession.isMarketingStaff()) {
+            response.sendRedirect(request.getContextPath() + "/sale/dashboard?error=nopermission");
+            return;
+        }
+
         String activityIdParam = request.getParameter("activityId");
 
         // Nếu đi từ Activity (có ID hoạt động)

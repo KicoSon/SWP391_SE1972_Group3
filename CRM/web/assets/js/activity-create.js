@@ -254,3 +254,42 @@ function populateForm(activity) {
         });
     }
 }
+
+// --- 4. OVERRIDE FORM SUBMIT (Khu vực mới thêm) ---
+document.getElementById('activityForm').addEventListener('submit', function(e) {
+    e.preventDefault(); // Chặn hành vi submit mặc định
+    
+    // Đổi chữ nút submit để báo hiệu
+    const submitBtn = this.querySelector('button[type="submit"]');
+    const originalText = submitBtn.innerHTML;
+    submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Đang lưu...';
+    submitBtn.disabled = true;
+
+    // Lấy toàn bộ dữ liệu từ form (bao gồm cả input hidden và fileInput hiện tại)
+    const formData = new FormData(this);
+
+    // Gửi bằng AJAX
+    fetch(this.action, {
+        method: 'POST',
+        body: formData
+    })
+    .then(response => {
+        // Trình duyệt tự động follow redirect của response
+        if (response.redirected) {
+            window.location.href = response.url; // Điều hướng trang nếu server redirect
+        } else {
+            // Nếu không có redirect (ví dụ có lỗi trên server, server rớt lại form)
+            return response.text().then(html => {
+                document.open();
+                document.write(html);
+                document.close();
+            });
+        }
+    })
+    .catch(error => {
+        console.error('Lỗi khi submit form:', error);
+        alert('Có lỗi xảy ra khi lưu nội dung. Vui lòng kiểm tra console.');
+        submitBtn.innerHTML = originalText;
+        submitBtn.disabled = false;
+    });
+});

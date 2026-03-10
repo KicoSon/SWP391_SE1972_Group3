@@ -110,30 +110,10 @@ public class ActivityDAO extends DBContext {
             return -1;
         } finally {
             // Đóng resources thủ công để tránh leak
-            try {
-                if (rs != null) {
-                    rs.close();
-                }
-            } catch (SQLException e) {
-            }
-            try {
-                if (psPart != null) {
-                    psPart.close();
-                }
-            } catch (SQLException e) {
-            }
-            try {
-                if (psAct != null) {
-                    psAct.close();
-                }
-            } catch (SQLException e) {
-            }
-            try {
-                if (conn != null) {
-                    conn.close();
-                }
-            } catch (SQLException e) {
-            }
+            try { if (rs != null) rs.close(); } catch (SQLException e) { }
+            try { if (psPart != null) psPart.close(); } catch (SQLException e) { }
+            try { if (psAct != null) psAct.close(); } catch (SQLException e) { }
+            try { if (conn != null) conn.close(); } catch (SQLException e) { }
         }
     }
 
@@ -355,12 +335,6 @@ public class ActivityDAO extends DBContext {
                 }
             } catch (SQLException e) {
             }
-            try {
-                if (conn != null) {
-                    conn.close();
-                }
-            } catch (SQLException e) {
-            }
         }
     }
 
@@ -420,12 +394,17 @@ public class ActivityDAO extends DBContext {
 
     public void insertAttachment(int activityId, String fileName, String filePath) {
         String sql = "INSERT INTO activity_attachments (activity_id, file_name, file_path) VALUES (?, ?, ?)";
-        try (PreparedStatement ps = getConnection().prepareStatement(sql)) {
+        // Mở connection riêng để tránh bị ảnh hưởng bởi connection đã đóng từ insertActivity()
+        String url = "jdbc:sqlserver://localhost:1433;databaseName =CRM";
+        try (Connection conn = DriverManager.getConnection(url, "sa", "123");
+             PreparedStatement ps = conn.prepareStatement(sql)) {
             ps.setInt(1, activityId);
             ps.setString(2, fileName);
             ps.setString(3, filePath);
             ps.executeUpdate();
+            System.out.println("[insertAttachment] File saved: " + fileName + " for activityId=" + activityId);
         } catch (SQLException e) {
+            System.err.println("[insertAttachment] FAILED to save attachment: " + e.getMessage());
             e.printStackTrace();
         }
     }
@@ -664,6 +643,50 @@ public class ActivityDAO extends DBContext {
         }
     }
 
+    /**
+     * Kiểm tra xem userId có thuộc danh sách người tham gia (Owner hoặc Participant)
+     * của activityId không. Dùng để xác định quyền LIMITED.
+     */
+    public boolean isUserInvolvedInActivity(int activityId, int userId) {
+        String sql = "SELECT COUNT(1) FROM activity_participants WHERE activity_id = ? AND user_id = ?";
+        try (PreparedStatement ps = getConnection().prepareStatement(sql)) {
+            ps.setInt(1, activityId);
+            ps.setInt(2, userId);
+            try (ResultSet rs = ps.executeQuery()) {
+                if (rs.next()) {
+                    return rs.getInt(1) > 0;
+                }
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return false;
+    }
+
+    /**
+     * Cập nhật CHỈ trường Status của Activity.
+     * Dùng cho người có quyền LIMITED (PIC / Participant - không phải Creator/Manager).
+     */
+    public boolean updateActivityStatusOnly(int activityId, String status) {
+        String sql = "UPDATE activities SET "
+                + "status = ?, "
+                + "updated_at = GETDATE(), "
+                + "completed_at = CASE "
+                + "                 WHEN ? = 'Completed' THEN ISNULL(completed_at, GETDATE()) "
+                + "                 ELSE NULL "
+                + "               END "
+                + "WHERE id = ?";
+        try (PreparedStatement ps = getConnection().prepareStatement(sql)) {
+            ps.setString(1, status);
+            ps.setString(2, status); // dùng 2 lần cho câu CASE WHEN
+            ps.setInt(3, activityId);
+            return ps.executeUpdate() > 0;
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return false;
+    }
+
     // 1. Hàm đếm tổng số bản ghi (Để tính xem có bao nhiêu trang)
     public int countActivities(Integer userId, String keyword, String type, String fromDate, String toDate) {
         StringBuilder sql = new StringBuilder("SELECT COUNT(DISTINCT a.id) FROM activities a ");
@@ -872,4 +895,16 @@ public class ActivityDAO extends DBContext {
         }
         return stats;
     }
+    
+    public boolean isUserPIC(int activityId, int userId) {
+    String sql = "SELECT COUNT(*) FROM activity_participants WHERE activity_id = ? AND user_id = ? AND role = 'Owner'";
+    try (PreparedStatement ps = getConnection().prepareStatement(sql)) {
+        ps.setInt(1, activityId);
+        ps.setInt(2, userId);
+        try (ResultSet rs = ps.executeQuery()) {
+            if (rs.next()) return rs.getInt(1) > 0;
+        }
+    } catch (SQLException e) { e.printStackTrace(); }
+    return false;
+}
 }

@@ -47,8 +47,11 @@ public class ActivityDashboardController extends HttpServlet {
         }
 
         // 2. PHÂN QUYỀN
+        // Manager/Admin thấy TẤT CẢ activity trong hệ thống.
+        // Còn lại (Sale, Support, Marketing) chỉ thấy activity mà mình là
+        // người tạo (created_by) HOẶC là Participant/PIC (activity_participants).
         Integer filterUserId = null;
-        if (userSession.isSaleStaff() && !userSession.isAdmin()) {
+        if (!userSession.isAdmin()) {
             filterUserId = userSession.getStaff().getId();
         }
 

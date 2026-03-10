@@ -348,14 +348,16 @@
                                                 <span style="font-weight: 700; color: #111827; font-size: 14px;">\${cmt.commenterName}</span>
                                                 <span style="font-size: 12px; color: #6B7280; margin-left: 8px;">\${cmt.createdAt}</span>
                                             </div>
-                                            <div style="background: white; padding: 12px 16px; border-radius: 0 12px 12px 12px; border: 1px solid #E5E7EB; color: #374151; font-size: 14px; line-height: 1.5; box-shadow: 0 1px 2px rgba(0,0,0,0.05);">
-                                                \${cmt.content}
-                                            </div>
+                                            <div style="background: white; padding: 12px 16px; border-radius: 0 12px 12px 12px; border: 1px solid #E5E7EB; color: #374151; font-size: 14px; line-height: 1.5; box-shadow: 0 1px 2px rgba(0,0,0,0.05); white-space: pre-wrap; word-break: break-word; overflow-wrap: break-word;">\${cmt.content}</div>
                                         </div>
                                     </div>
                                 `;
                                     });
                                     listArea.innerHTML = html;
+                                })
+                                .catch(error => {
+                                    console.error('[Comment] Lỗi load bình luận:', error);
+                                    listArea.innerHTML = '<div style="text-align: center; color: #EF4444; padding: 10px;">Không thể tải bình luận. Vui lòng thử lại.</div>';
                                 });
                     }
 
