@@ -554,7 +554,8 @@ public class ActivityDAO extends DBContext {
                 while (rs.next()) {
                     String name = rs.getString("full_name");
                     String role = rs.getString("role");
-                    list.add(name + " (" + role + ")"); // Ví dụ: "Chu Việt Hải (Owner)"
+                    String displayRole = "Owner".equals(role) ? "PIC" : role;
+                    list.add(name + " (" + displayRole + ")"); // Ví dụ: "Chu Việt Hải (PIC)"
                 }
             }
         } catch (Exception e) {
@@ -951,5 +952,68 @@ public class ActivityDAO extends DBContext {
                 }
             }
         }
+    }
+
+    // Xóa Activity và các dữ liệu liên quan (Participants, Attachments)
+    public boolean deleteActivity(int activityId) {
+        String sqlParticipants = "DELETE FROM activity_participants WHERE activity_id = ?";
+        String sqlAttachments = "DELETE FROM activity_attachments WHERE activity_id = ?";
+        String sqlActivity = "DELETE FROM activities WHERE id = ?";
+
+        Connection conn = null;
+        PreparedStatement psPart = null;
+        PreparedStatement psAtt = null;
+        PreparedStatement psAct = null;
+        boolean success = false;
+
+        try {
+            conn = getConnection();
+            conn.setAutoCommit(false); // Bắt đầu Transaction
+
+            // 1. Xóa người tham gia
+            psPart = conn.prepareStatement(sqlParticipants);
+            psPart.setInt(1, activityId);
+            psPart.executeUpdate();
+
+            // 2. Xóa đính kèm
+            psAtt = conn.prepareStatement(sqlAttachments);
+            psAtt.setInt(1, activityId);
+            psAtt.executeUpdate();
+
+            // 3. Xóa Activity chính
+            psAct = conn.prepareStatement(sqlActivity);
+            psAct.setInt(1, activityId);
+            int rowsDeleted = psAct.executeUpdate();
+
+            if (rowsDeleted > 0) {
+                conn.commit();
+                success = true;
+            } else {
+                conn.rollback();
+            }
+
+        } catch (SQLException e) {
+            System.out.println("Lỗi khi xóa Activity: " + e.getMessage());
+            try {
+                if (conn != null) {
+                    conn.rollback();
+                }
+            } catch (SQLException ex) {
+                System.out.println("Lỗi rollback: " + ex.getMessage());
+            }
+        } finally {
+            try {
+                if (psPart != null) psPart.close();
+                if (psAtt != null) psAtt.close();
+                if (psAct != null) psAct.close();
+                if (conn != null) {
+                    conn.setAutoCommit(true);
+                    conn.close();
+                }
+            } catch (SQLException e) {
+                e.printStackTrace();
+            }
+        }
+        return success;
     }
 }

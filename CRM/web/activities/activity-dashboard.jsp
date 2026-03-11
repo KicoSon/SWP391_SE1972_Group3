@@ -15,6 +15,43 @@
                     <link rel="stylesheet" href="${pageContext.request.contextPath}/assets/css/activity-dashboard.css">
                     <link rel="stylesheet" href="${pageContext.request.contextPath}/assets/css/sidebar.css">
                     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+                    
+                    <!-- Thêm FullCalendar.js -->
+                    <script src='https://cdn.jsdelivr.net/npm/fullcalendar@6.1.11/index.global.min.js'></script>
+                    
+                    <style>
+                        /* Tùy chỉnh nhỏ cho Calendar View */
+                        .fc-event { cursor: pointer; border-radius: 4px; border: none; padding: 2px 4px; }
+                        .fc-toolbar-title { font-size: 1.25em !important; font-weight: 700 !important; color: #333; }
+                        .fc-button-primary { background-color: #667eea !important; border-color: #667eea !important; }
+                        .fc-button-primary:hover { background-color: #5a6fd6 !important; border-color: #5a6fd6 !important; }
+                        .fc-button-active { background-color: #4a5fc6 !important; border-color: #4a5fc6 !important; }
+                        
+                        /* Group button Toggle View */
+                        .view-toggle-group {
+                            display: inline-flex;
+                            background: rgba(255,255,255,0.2);
+                            border-radius: 8px;
+                            padding: 4px;
+                            margin-right: 15px;
+                        }
+                        .view-toggle-btn {
+                            border: none;
+                            background: transparent;
+                            color: white;
+                            padding: 8px 16px;
+                            border-radius: 6px;
+                            font-size: 14px;
+                            font-weight: 600;
+                            cursor: pointer;
+                            transition: 0.3s;
+                        }
+                        .view-toggle-btn.active {
+                            background: white;
+                            color: #667eea;
+                            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+                        }
+                    </style>
                 </head>
 
                 <body>
@@ -156,39 +193,48 @@
                                 <form action="${pageContext.request.contextPath}/sale/dashboard" method="GET"
                                     class="filter-bar">
 
-                                    <input type="text" name="search" value="${param.search}" class="search-input"
+                                    <input type="text" name="search" value="${searchMsg}" class="search-input"
                                         placeholder="Search...">
 
                                     <div class="filter-group">
                                         <span class="filter-label">Filter Type:</span>
                                         <select name="type">
                                             <option value="">All</option>
-                                            <option value="Call" ${param.type=='Call' ? 'selected' : '' }>Call</option>
-                                            <option value="Task" ${param.type=='Task' ? 'selected' : '' }>Task</option>
-                                            <option value="Email" ${param.type=='Email' ? 'selected' : '' }>Email
+                                            <option value="Call" ${typeMsg=='Call' ? 'selected' : '' }>Call</option>
+                                            <option value="Task" ${typeMsg=='Task' ? 'selected' : '' }>Task</option>
+                                            <option value="Email" ${typeMsg=='Email' ? 'selected' : '' }>Email
                                             </option>
-                                            <option value="Meeting" ${param.type=='Meeting' ? 'selected' : '' }>Meeting
+                                            <option value="Meeting" ${typeMsg=='Meeting' ? 'selected' : '' }>Meeting
                                             </option>
-                                            <option value="Note" ${param.type=='Note' ? 'selected' : '' }>Note</option>
+                                            <option value="Note" ${typeMsg=='Note' ? 'selected' : '' }>Note</option>
                                         </select>
                                     </div>
 
                                     <div class="filter-group">
                                         <span class="filter-label">From</span>
-                                        <input type="date" name="from" value="${param.from}">
+                                        <input type="date" name="from" value="${fromMsg}">
                                     </div>
 
                                     <div class="filter-group">
                                         <span class="filter-label">To</span>
-                                        <input type="date" name="to" value="${param.to}">
+                                        <input type="date" name="to" value="${toMsg}">
                                     </div>
 
                                     <button class="btn btn-primary" type="submit">Filter</button>
                                 </form>
 
                                 <!-- Action Bar -->
-                                <div class="action-bar">
-                                    <div class="action-buttons">
+                                <div class="action-bar" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+                                    <div class="action-buttons" style="display: flex; gap: 10px;">
+                                        <!-- Thêm Nhóm nút bật tắc Giao diện Bảng/Lịch -->
+                                        <div class="view-toggle-group">
+                                            <button type="button" class="view-toggle-btn active" id="btn-list-view" onclick="switchView('list')">
+                                                <i class="fas fa-list"></i> Dạng Bảng
+                                            </button>
+                                            <button type="button" class="view-toggle-btn" id="btn-calendar-view" onclick="switchView('calendar')">
+                                                <i class="fas fa-calendar-alt"></i> Dạng Lịch
+                                            </button>
+                                        </div>
                                         <c:if test="${sessionScope.userSession.admin}">
                                             <a href="${pageContext.request.contextPath}/sale/export-activities"
                                                 style="text-decoration: none;">
@@ -201,9 +247,14 @@
                                     </div>
                                 </div>
 
-                                <!-- Activity Table -->
-                                <div class="card">
-                                    <div class="card-body">
+                                <!-- Giao Diện Lịch (Mặc định ẩn) -->
+                                <div id="calendar-view" style="display: none; background: white; padding: 20px; border-radius: 20px; box-shadow: 0 10px 30px rgba(0,0,0,0.1); margin-bottom: 25px;">
+                                    <div id="calendar"></div>
+                                </div>
+
+                                <!-- Giao Diện Bảng (Mặc định hiện) -->
+                                <div class="card fade-in" id="list-view">
+                                    <div class="card-body" style="overflow-x: auto;">
                                         <table class="activity-table">
                                             <thead>
                                                 <tr>
@@ -313,11 +364,11 @@
 
 
 
-                                                                    <%-- Nút 🗑️ Xóa: Chỉ Manager --%>
+                                                                        <%-- Nút 🗑️ Xóa: Chỉ Manager --%>
                                                                         <c:if test="${sessionScope.userSession.admin}">
-                                                                            <a href="#" class="action-btn delete-btn"
+                                                                            <a href="javascript:void(0);" class="action-btn delete-btn"
                                                                                 title="Xóa" style="color: #EF4444;"
-                                                                                onclick="return confirm('Bạn có chắc muốn xóa hoạt động này?');"><i
+                                                                                onclick="deleteActivity(${act.id}, this)"><i
                                                                                     class="fas fa-trash"></i></a>
                                                                         </c:if>
 
@@ -350,7 +401,7 @@
                                         <div class="pagination">
                                             <div class="pagination-controls">
                                                 <c:if test="${currentPage > 1}">
-                                                    <a href="?page=${currentPage - 1}&search=${param.search}&type=${param.type}&from=${param.from}&to=${param.to}"
+                                                    <a href="?page=${currentPage - 1}&search=${searchMsg}&type=${typeMsg}&from=${fromMsg}&to=${toMsg}"
                                                         class="page-btn" style="text-decoration: none;">&lt;</a>
                                                 </c:if>
                                                 <c:if test="${currentPage <= 1}">
@@ -360,7 +411,7 @@
                                                 <span class="page-info">Page ${currentPage} / ${totalPages}</span>
 
                                                 <c:if test="${currentPage < totalPages}">
-                                                    <a href="?page=${currentPage + 1}&search=${param.search}&type=${param.type}&from=${param.from}&to=${param.to}"
+                                                    <a href="?page=${currentPage + 1}&search=${searchMsg}&type=${typeMsg}&from=${fromMsg}&to=${toMsg}"
                                                         class="page-btn" style="text-decoration: none;">&gt;</a>
                                                 </c:if>
                                                 <c:if test="${currentPage >= totalPages}">
@@ -385,5 +436,101 @@
                         <iframe id="detailIframe" class="detail-modal-iframe" src=""></iframe>
                     </div>
                 </div>
+
+                <script>
+                    function deleteActivity(id, btnElement) {
+                        if(confirm('Bạn có chắc muốn xóa hoạt động này?')) {
+                            fetch('${pageContext.request.contextPath}/activities/delete?id=' + id, {
+                                method: 'GET'
+                            })
+                            .then(response => response.json())
+                            .then(data => {
+                                if(data.success) {
+                                    // Tìm tr <td> bọc cái nút này và xóa đi
+                                    var row = btnElement.closest('tr');
+                                    row.style.animation = 'fadeOut 0.3s ease';
+                                    setTimeout(() => row.remove(), 300);
+                                    
+                                    // Tạo toast thông báo thành công (nếu cần, có thể dùng thư viện toast sẵn có)
+                                    alert(data.message);
+                                } else {
+                                    alert('Lỗi: ' + data.message);
+                                }
+                            })
+                            .catch(error => {
+                                console.error('Error:', error);
+                                alert('Đã xảy ra lỗi khi xóa Activity');
+                            });
+                        }
+                    }
+
+                    // ====== LOGIC CALENDAR VIEW ======
+                    let calendarLoaded = false;
+                    let calendarInstance = null;
+                    
+                    function switchView(view) {
+                        const listView = document.getElementById('list-view');
+                        const calendarView = document.getElementById('calendar-view');
+                        const btnList = document.getElementById('btn-list-view');
+                        const btnCal = document.getElementById('btn-calendar-view');
+                        
+                        if (view === 'list') {
+                            listView.style.display = 'block';
+                            calendarView.style.display = 'none';
+                            btnList.classList.add('active');
+                            btnCal.classList.remove('active');
+                        } else {
+                            listView.style.display = 'none';
+                            calendarView.style.display = 'block';
+                            btnCal.classList.add('active');
+                            btnList.classList.remove('active');
+                            
+                            // Chỉ khởi tạo Lịch 1 lần khi User bấm sang
+                            if (!calendarLoaded) {
+                                initCalendar();
+                                calendarLoaded = true;
+                            } else {
+                                calendarInstance.render(); // Vẽ lại để fix lỗi kích thước khi đổi từ display:none sang block
+                            }
+                        }
+                    }
+                    
+                    function initCalendar() {
+                        const calendarEl = document.getElementById('calendar');
+                        calendarInstance = new FullCalendar.Calendar(calendarEl, {
+                            initialView: 'dayGridMonth',
+                            headerToolbar: {
+                                left: 'prev,next today',
+                                center: 'title',
+                                right: 'dayGridMonth,timeGridWeek,timeGridDay'
+                            },
+                            locale: 'vi', // Tiếng Việt
+                            buttonText: {
+                                today: 'Hôm nay',
+                                month: 'Tháng',
+                                week: 'Tuần',
+                                day: 'Ngày'
+                            },
+                            events: '${pageContext.request.contextPath}/api/activities/calendar', // Nguồn dữ liệu
+                            eventContent: function(arg) {
+                                // Cho phép render HTML (Icon & Thẻ <del>) và Chủ động phủ màu nền (Background)
+                                // Vì FullCalendar v6 khi xài html đôi khi sẽ lột sạch class CSS có sẵn của nó
+                                let bgColor = arg.event.backgroundColor || '#007bff';
+                                return { 
+                                    html: '<div style="background-color: ' + bgColor + '; color: white; padding: 2px 4px; border-radius: 3px; width: 100%; height: 100%; overflow: hidden; white-space: nowrap; text-overflow: ellipsis; font-size: 0.85em;">' 
+                                          + arg.event.title 
+                                          + '</div>'
+                                };
+                            },
+                            eventClick: function(info) {
+                                info.jsEvent.preventDefault(); // Tránh bị nhảy URL nếu có URL rác
+                                // Mở đúng cái Modal Detail đang dùng ở Giao diện bảng
+                                openDetailModal(info.event.id);
+                            }
+                        });
+                        calendarInstance.render();
+                    }
+                </script>
+                </body>
 
                 </html>

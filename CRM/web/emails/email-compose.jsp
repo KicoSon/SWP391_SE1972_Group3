@@ -4,11 +4,32 @@
 <html>
     <head>
         <title>Soạn Email mới</title>
+        <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
         <link rel="stylesheet" href="${pageContext.request.contextPath}/assets/css/activity-create.css">
+        <link rel="stylesheet" href="${pageContext.request.contextPath}/assets/css/sidebar.css">
         <link href="https://cdn.quilljs.com/1.3.6/quill.snow.css" rel="stylesheet">
+        <style>
+            /* Override the purple body background so the purple Manager sidebar stands out */
+            body {
+                background: linear-gradient(135deg, #3a7bd5, #3a6073) !important;
+            }
+        </style>
     </head>
     <body>
-        <jsp:include page="/sales/sidebar.jsp" />
+        <c:choose>
+            <c:when test="${sessionScope.userSession.admin}">
+                <jsp:include page="/components/sidebar.jsp" />
+            </c:when>
+            <c:when test="${sessionScope.userSession.supportStaff}">
+                <jsp:include page="/customerservice/sidebar.jsp" />
+            </c:when>
+            <c:when test="${sessionScope.userSession.marketingStaff}">
+                <jsp:include page="/marketingg/sidebar.jsp" />
+            </c:when>
+            <c:otherwise>
+                <jsp:include page="/sales/sidebar.jsp" />
+            </c:otherwise>
+        </c:choose>
         <div class="main-content">
             <div class="container" style="max-width: 800px;">
                 <div class="form-wrapper">

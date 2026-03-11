@@ -76,6 +76,12 @@ public class ActivityDashboardController extends HttpServlet {
         request.setAttribute("totalRecords", totalRecords);
         request.setAttribute("totalPages", totalPages);
         request.setAttribute("currentPage", pageIndex);
+        
+        // Gửi lại các tham số tìm kiếm để Phân trang (Pagination) nhớ được trạng thái
+        request.setAttribute("searchMsg", keyword != null ? keyword : "");
+        request.setAttribute("typeMsg", type != null ? type : "All");
+        request.setAttribute("fromMsg", fromDate != null ? fromDate : "");
+        request.setAttribute("toMsg", toDate != null ? toDate : "");
 
         request.getRequestDispatcher("/activities/activity-dashboard.jsp").forward(request, response);
     }

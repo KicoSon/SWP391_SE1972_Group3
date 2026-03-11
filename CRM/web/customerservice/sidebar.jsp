@@ -187,6 +187,13 @@
             </div>
 
             <div class="nav-item">
+                <a href="${pageContext.request.contextPath}/emails/compose"
+                   class="nav-link">
+                    <i class="fas fa-paper-plane"></i> Soạn Email
+                </a>
+            </div>
+
+            <div class="nav-item">
                 <a href="${pageContext.request.contextPath}/customerservice/customerlist"
                    class="nav-link">
                     <i class="fas fa-users"></i> Quản lý khách hàng

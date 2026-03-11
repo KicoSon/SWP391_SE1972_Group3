@@ -175,6 +175,13 @@
                             <span class="nav-text">Activity Dashboard</span>
                         </a>
                     </li>
+
+                    <li class="nav-item">
+                        <a href="${pageContext.request.contextPath}/emails/compose" class="nav-link">
+                            <i class="fas fa-paper-plane"></i>
+                            <span class="nav-text">Soạn Email</span>
+                        </a>
+                    </li>
                     
                     <!-- ADMIN-ONLY Features -->
                     <c:if test="${userSession.isAdmin()}">
