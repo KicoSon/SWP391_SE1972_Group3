@@ -2,8 +2,10 @@ package controller.activity;
 
 import dal.ActivityDAO; // Import thêm DAO để xử lý trạng thái Activity
 import dal.CustomerDAO;
+import dal.LeadDAO;
 import dal.EmailDAO;
 import model.Customer;
+import model.Lead;
 import model.UserSession;
 import util.EmailService;
 import java.io.IOException;
@@ -53,17 +55,26 @@ public class EmailComposeController extends HttpServlet {
             ActivityDAO actDAO = new ActivityDAO();
             model.activity.Activity act = actDAO.getActivityById(activityId);
 
-            if (act != null && act.getCustomerId() != null) {
-                CustomerDAO custDAO = new CustomerDAO();
-                model.Customer fixedCustomer = custDAO.getCustomerById(act.getCustomerId());
-                // Gửi đối tượng khách hàng cố định này sang JSP
-                request.setAttribute("fixedCustomer", fixedCustomer);
-                request.setAttribute("sourceActivityId", activityId);
+            if (act != null) {
+                if (act.getCustomerId() != null && act.getCustomerId() > 0) {
+                    CustomerDAO custDAO = new CustomerDAO();
+                    model.Customer fixedCustomer = custDAO.getCustomerById(act.getCustomerId());
+                    // Gửi đối tượng khách hàng cố định này sang JSP
+                    request.setAttribute("fixedCustomer", fixedCustomer);
+                    request.setAttribute("sourceActivityId", activityId);
+                } else if (act.getLeadId() != null && act.getLeadId() > 0) {
+                    LeadDAO lDAO = new LeadDAO();
+                    model.Lead fixedLead = lDAO.getLeadById(act.getLeadId());
+                    request.setAttribute("fixedLead", fixedLead);
+                    request.setAttribute("sourceActivityId", activityId);
+                }
             }
         }
 
         CustomerDAO customerDAO = new CustomerDAO();
         List<Customer> customers;
+        LeadDAO leadDAO = new LeadDAO();
+        List<Lead> leads;
 
         // Kiểm tra quyền: Nếu là Sale và KHÔNG PHẢI Admin -> Chỉ lấy khách của mình
         if (userSession.isSaleStaff() && !userSession.isAdmin()) {
@@ -72,12 +83,15 @@ public class EmailComposeController extends HttpServlet {
 
             // Gọi hàm lấy khách theo Owner ID (Hàm này bạn đã có trong CustomerDAO)
             customers = customerDAO.getCustomersByOwnerId(currentStaffId);
+            leads = leadDAO.getLeadsBySaleId((long) currentStaffId);
         } else {
             // Nếu là Admin hoặc Manager -> Lấy tất cả để họ hỗ trợ bất kỳ ai
             customers = customerDAO.getAllActiveCustomers();
+            leads = leadDAO.getLeadsBySaleId(null);
         }
 
         request.setAttribute("customers", customers);
+        request.setAttribute("leads", leads);
 
         request.getRequestDispatcher("/emails/email-compose.jsp").forward(request, response);
     }
@@ -89,8 +103,28 @@ public class EmailComposeController extends HttpServlet {
 
         try {
             // 1. Lấy thông tin cơ bản từ Form
-            String customerIdRaw = request.getParameter("customerId");
-            int customerId = (customerIdRaw != null && !customerIdRaw.isEmpty()) ? Integer.parseInt(customerIdRaw) : 0;
+            String recipientRaw = request.getParameter("recipientId");
+            int customerId = 0;
+            Long leadId = null;
+            String receiverEmail = "";
+            
+            if (recipientRaw != null && !recipientRaw.isEmpty()) {
+                String[] parts = recipientRaw.split("_");
+                if (parts.length == 2) {
+                    if ("customer".equals(parts[0])) {
+                        customerId = Integer.parseInt(parts[1]);
+                        CustomerDAO customerDAO = new CustomerDAO();
+                        Customer receiver = customerDAO.getCustomerById(customerId);
+                        if (receiver != null) receiverEmail = receiver.getEmail();
+                    } else if ("lead".equals(parts[0])) {
+                        leadId = Long.parseLong(parts[1]);
+                        LeadDAO leadDAO = new LeadDAO();
+                        Lead receiver = leadDAO.getLeadById(leadId);
+                        if (receiver != null) receiverEmail = receiver.getEmail();
+                        customerId = 0; // Để null cho db
+                    }
+                }
+            }
 
             String activityIdRaw = request.getParameter("activityId");
             String subject = request.getParameter("subject");
@@ -107,21 +141,18 @@ public class EmailComposeController extends HttpServlet {
                 }
             }
 
-            // Lấy thông tin người nhận & người gửi
-            CustomerDAO customerDAO = new CustomerDAO();
-            Customer receiver = customerDAO.getCustomerById(customerId);
-
             HttpSession session = request.getSession();
             UserSession userSession = (UserSession) session.getAttribute("userSession");
             int fromUserId = userSession.getStaff().getId();
 
             // 3. GỬI MAIL (File sẽ được stream trực tiếp lên Gmail server)
-            boolean sendSuccess = EmailService.sendEmail(receiver.getEmail(), subject, content, fileParts);
+            boolean sendSuccess = EmailService.sendEmail(receiverEmail, subject, content, fileParts);
 
             // 4. LƯU LOG VÀO DATABASE
             // a. Lưu vào bảng lịch sử Email (emails table)
             EmailDAO emailDAO = new EmailDAO();
-            emailDAO.insertEmailLog(fromUserId, customerId, receiver.getEmail(), subject, content, sendSuccess ? "Sent" : "Failed");
+            // Nếu là lead, truyền 0 cho toCustomerId (EmailDAO sẽ lưu là null hoặc 0)
+            emailDAO.insertEmailLog(fromUserId, customerId, receiverEmail, subject, content, sendSuccess ? "Sent" : "Failed");
 
             if (sendSuccess) {
                 ActivityDAO activityDAO = new ActivityDAO();
@@ -137,7 +168,8 @@ public class EmailComposeController extends HttpServlet {
                     newAct.setTitle("Gửi Email: " + subject);
                     newAct.setType("Email");
                     newAct.setDescription("Nội dung: " + content);
-                    newAct.setCustomerId(customerId);
+                    if (customerId > 0) newAct.setCustomerId(customerId);
+                    if (leadId != null) newAct.setLeadId(leadId);
                     newAct.setCreatedBy(fromUserId);
                     newAct.setStatus("Completed"); // Xong luôn
                     newAct.setPriority("Medium");

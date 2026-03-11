@@ -29,16 +29,36 @@
                                             <i class="fas fa-user-check" style="color: #10b981;"></i> 
                                             ${fixedCustomer.fullName} (${fixedCustomer.email})
                                         </div>
-                                        <input type="hidden" name="customerId" value="${fixedCustomer.id}">
+                                        <input type="hidden" name="recipientId" value="customer_${fixedCustomer.id}">
+                                    </c:when>
+                                    
+                                    <%-- TRƯỜNG HỢP 1.5: Có tiềm năng (Lead) từ Activity --%>
+                                    <c:when test="${not empty fixedLead}">
+                                        <div class="form-control" style="background: #f3f4f6; font-weight: 600; border-color: #10b981; display: flex; align-items: center; gap: 10px;">
+                                            <i class="fas fa-user-check" style="color: #10b981;"></i> 
+                                            ${fixedLead.fullName} (${fixedLead.email})
+                                        </div>
+                                        <input type="hidden" name="recipientId" value="lead_${fixedLead.id}">
                                     </c:when>
 
                                     <%-- TRƯỜNG HỢP 2: Soạn mail trực tiếp (Hiện danh sách chọn) --%>
                                     <c:otherwise>
-                                        <select name="customerId" class="form-control" required>
-                                            <option value="">-- Chọn khách hàng --</option>
-                                            <c:forEach items="${customers}" var="c">
-                                                <option value="${c.id}">${c.fullName} (${c.email})</option>
-                                            </c:forEach>
+                                        <select name="recipientId" class="form-control" required style="width: 100%;">
+                                            <option value="">-- Chọn Người nhận --</option>
+                                            <optgroup label="Khách hàng (Customers)">
+                                                <c:forEach items="${customers}" var="c">
+                                                    <c:if test="${not empty c.email}">
+                                                        <option value="customer_${c.id}">${c.fullName} (${c.email})</option>
+                                                    </c:if>
+                                                </c:forEach>
+                                            </optgroup>
+                                            <optgroup label="Tiềm năng (Leads)">
+                                                <c:forEach items="${leads}" var="l">
+                                                    <c:if test="${not empty l.email}">
+                                                        <option value="lead_${l.id}">${l.fullName} (${l.email})</option>
+                                                    </c:if>
+                                                </c:forEach>
+                                            </optgroup>
                                         </select>
                                     </c:otherwise>
                                 </c:choose>

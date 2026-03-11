@@ -897,14 +897,59 @@ public class ActivityDAO extends DBContext {
     }
     
     public boolean isUserPIC(int activityId, int userId) {
-    String sql = "SELECT COUNT(*) FROM activity_participants WHERE activity_id = ? AND user_id = ? AND role = 'Owner'";
-    try (PreparedStatement ps = getConnection().prepareStatement(sql)) {
-        ps.setInt(1, activityId);
-        ps.setInt(2, userId);
-        try (ResultSet rs = ps.executeQuery()) {
-            if (rs.next()) return rs.getInt(1) > 0;
+        String sql = "SELECT COUNT(*) FROM activity_participants WHERE activity_id = ? AND user_id = ? AND role = 'Owner'";
+        try (PreparedStatement ps = getConnection().prepareStatement(sql)) {
+            ps.setInt(1, activityId);
+            ps.setInt(2, userId);
+            try (ResultSet rs = ps.executeQuery()) {
+                if (rs.next()) return rs.getInt(1) > 0;
+            }
+        } catch (SQLException e) { e.printStackTrace(); }
+        return false;
+    }
+
+    public void updateActivityParticipants(int activityId, List<Integer> participantIds) {
+        String deleteSql = "DELETE FROM activity_participants WHERE activity_id = ?";
+        String insertSql = "INSERT INTO activity_participants (activity_id, user_id, role) VALUES (?, ?, ?)";
+        Connection conn = null;
+        try {
+            conn = getConnection();
+            conn.setAutoCommit(false);
+
+            try (PreparedStatement psDelete = conn.prepareStatement(deleteSql)) {
+                psDelete.setInt(1, activityId);
+                psDelete.executeUpdate();
+            }
+
+            if (participantIds != null && !participantIds.isEmpty()) {
+                try (PreparedStatement psInsert = conn.prepareStatement(insertSql)) {
+                    for (int i = 0; i < participantIds.size(); i++) {
+                        psInsert.setInt(1, activityId);
+                        psInsert.setInt(2, participantIds.get(i));
+                        psInsert.setString(3, (i == 0) ? "Owner" : "Participant");
+                        psInsert.addBatch();
+                    }
+                    psInsert.executeBatch();
+                }
+            }
+            conn.commit();
+        } catch (SQLException e) {
+            if (conn != null) {
+                try {
+                    conn.rollback();
+                } catch (SQLException ex) {
+                    ex.printStackTrace();
+                }
+            }
+            e.printStackTrace();
+        } finally {
+            if (conn != null) {
+                try {
+                    conn.close();
+                } catch (SQLException e) {
+                    e.printStackTrace();
+                }
+            }
         }
-    } catch (SQLException e) { e.printStackTrace(); }
-    return false;
-}
+    }
 }

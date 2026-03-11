@@ -24,6 +24,7 @@ import java.util.Date;
 import java.util.Collection;
 
 public class EmailService {
+    public static String lastError = "";
 
     // CẤU HÌNH GMAIL (Thay bằng email và app password của bạn)
     private static final String SENDER_EMAIL = "haicvhe181052@fpt.edu.vn"; // <--- THAY CÁI NÀY
@@ -53,28 +54,37 @@ public class EmailService {
             msg.setSubject(subject, "UTF-8");
             msg.setSentDate(new Date());
 
-            // 2. TẠO MULTIPART (Chứa cả nội dung và file)
-            Multipart multipart = new MimeMultipart();
+            // Kiểm tra xem có file đính kèm hay không
+            boolean hasAttachments = false;
+            if (fileParts != null) {
+                for (Part part : fileParts) {
+                    if (part.getSize() > 0 && part.getSubmittedFileName() != null && !part.getSubmittedFileName().isEmpty()) {
+                        hasAttachments = true;
+                        break;
+                    }
+                }
+            }
 
-            // --- PHẦN 1: NỘI DUNG TEXT (Luôn có) ---
-            MimeBodyPart textPart = new MimeBodyPart();
-            textPart.setContent(bodyHTML, "text/html; charset=UTF-8");
-            multipart.addBodyPart(textPart);
+            if (hasAttachments) {
+                // TẠO MULTIPART (Chứa cả nội dung và file)
+                Multipart multipart = new MimeMultipart();
 
-            // --- PHẦN 2: FILE ĐÍNH KÈM (Kiểm tra xem có file không) ---
-            if (fileParts != null && !fileParts.isEmpty()) {
-                // Dùng vòng lặp để đính kèm từng file một
+                // --- PHẦN 1: NỘI DUNG TEXT (Luôn có) ---
+                MimeBodyPart textPart = new MimeBodyPart();
+                textPart.setContent(bodyHTML, "text/html; charset=UTF-8");
+                multipart.addBodyPart(textPart);
+
+                // --- PHẦN 2: FILE ĐÍNH KÈM ---
                 for (Part part : fileParts) {
                     if (part.getSize() > 0 && part.getSubmittedFileName() != null && !part.getSubmittedFileName().isEmpty()) {
 
                         MimeBodyPart attachPart = new MimeBodyPart();
                         String fileName = part.getSubmittedFileName();
-                        InputStream is = part.getInputStream();
 
                         DataSource source = new DataSource() {
                             @Override
                             public InputStream getInputStream() throws IOException {
-                                return is;
+                                return part.getInputStream();
                             }
 
                             @Override
@@ -98,14 +108,24 @@ public class EmailService {
                         multipart.addBodyPart(attachPart);
                     }
                 }
+                msg.setContent(multipart);
+            } else {
+                // Gửi email đơn giản chỉ có text/html, không đính kèm
+                msg.setContent(bodyHTML, "text/html; charset=UTF-8");
             }
 
-            msg.setContent(multipart);
             Transport.send(msg);
             return true;
 
         } catch (Exception e) {
             e.printStackTrace();
+            lastError = e.toString() + "\n";
+            for (StackTraceElement element : e.getStackTrace()) {
+                lastError += element.toString() + "\n";
+            }
+            if (e.getCause() != null) {
+                lastError += "Caused by: " + e.getCause().toString() + "\n";
+            }
             return false;
         }
     }

@@ -12,7 +12,13 @@ public class EmailDAO extends DBContext {
             ps.setString(1, subject);
             ps.setString(2, content);
             ps.setInt(3, fromUserId);
-            ps.setInt(4, toCustomerId);
+            
+            if (toCustomerId > 0) {
+                ps.setInt(4, toCustomerId);
+            } else {
+                ps.setNull(4, Types.INTEGER);
+            }
+            
             ps.setString(5, toEmail);
             ps.setString(6, status);
             return ps.executeUpdate() > 0;

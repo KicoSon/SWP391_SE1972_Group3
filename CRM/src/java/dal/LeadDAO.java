@@ -203,7 +203,7 @@ public class LeadDAO extends DBContext {
         List<Lead> list = new ArrayList<>();
 
         // 1. SELECT thêm assigned_sales_id theo ý bạn
-        String sql = "SELECT id, full_name, assigned_sales_id FROM leads WHERE status != 'converted'";
+        String sql = "SELECT id, full_name, email, assigned_sales_id FROM leads WHERE status != 'converted'";
 
         // 2. Nếu truyền vào saleId (Tức là nhân viên thường) -> Cấp thêm điều kiện lọc
         if (saleId != null) {
@@ -225,6 +225,7 @@ public class LeadDAO extends DBContext {
                 Lead l = new Lead();
                 l.setId(rs.getLong("id"));
                 l.setFullName(rs.getString("full_name"));
+                l.setEmail(rs.getString("email"));
 
                 // 3. Lấy thêm assigned_sales_id gán vào model (Như bạn suy luận)
                 // Dùng getObject để tránh lỗi ClassCastException nếu nhỡ may bị NULL ở DB

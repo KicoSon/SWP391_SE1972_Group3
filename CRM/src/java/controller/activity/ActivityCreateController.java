@@ -260,6 +260,26 @@ public class ActivityCreateController extends HttpServlet {
 
                 boolean updateSuccess = dao.updateActivity(act);
                 if (updateSuccess) {
+                    // Participants
+                    List<Integer> participantIds = new ArrayList<>();
+                    String ownerIdRaw = request.getParameter("owner");
+                    if (ownerIdRaw != null && !ownerIdRaw.isEmpty()) {
+                        try { participantIds.add(Integer.parseInt(ownerIdRaw)); }
+                        catch (NumberFormatException ex) { /* bỏ qua */ }
+                    }
+                    String otherParticipants = request.getParameter("participantIds");
+                    if (otherParticipants != null && !otherParticipants.isEmpty()) {
+                        for (String pId : otherParticipants.split(",")) {
+                            try {
+                                int id = Integer.parseInt(pId.trim());
+                                if (!participantIds.contains(id)) participantIds.add(id);
+                            } catch (NumberFormatException ex) { /* bỏ qua */ }
+                        }
+                    }
+                    if (!participantIds.isEmpty()) {
+                        dao.updateActivityParticipants(activityId, participantIds);
+                    }
+
                     // Xử lý upload file mới nếu có
                     handleAttachmentUpload(request, activityId, dao);
                     response.sendRedirect(request.getContextPath() + "/sale/dashboard?msg=updated");

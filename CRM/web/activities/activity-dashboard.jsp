@@ -311,15 +311,7 @@
                                                                     class="action-btn view-btn" title="Xem chi tiết"><i
                                                                         class="fas fa-eye"></i></a>
 
-                                                                <%-- Nút ✏️ Sửa: Manager, Sale, Support (không có
-                                                                    Marketing) --%>
-                                                                    <c:if
-                                                                        test="${!sessionScope.userSession.marketingStaff}">
-                                                                        <a href="${pageContext.request.contextPath}/activities/create?id=${act.id}"
-                                                                            class="action-btn edit-btn"
-                                                                            title="Chỉnh sửa" style="color: #3B82F6;"><i
-                                                                                class="fas fa-edit"></i></a>
-                                                                    </c:if>
+
 
                                                                     <%-- Nút 🗑️ Xóa: Chỉ Manager --%>
                                                                         <c:if test="${sessionScope.userSession.admin}">
