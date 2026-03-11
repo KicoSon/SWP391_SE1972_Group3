@@ -117,10 +117,13 @@ public class CustomerDAO extends DBContext {
                 c.setAddress(rs.getString("address"));
 
                 c.setTierId(rs.getInt("tier_id"));
+                c.setTierName(rs.getString("tier_name"));
 
                 c.setStatus(rs.getString("status"));
 
-               
+                c.setOwnerId(rs.getInt("owner_id"));        
+                c.setOwnerName(rs.getString("owner_name"));
+
                 c.setCreatedAt(rs.getTimestamp("created_at").toLocalDateTime());
 
                 return c;

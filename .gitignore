@@ -13,3 +13,4 @@ Thumbs.db
 
 # --- Cấu hình Database cá nhân ---
 CRM/src/java/dal/DBContext.java
+CRM/nbproject/private/private.properties
