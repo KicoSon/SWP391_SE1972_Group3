@@ -13,17 +13,27 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
-@WebServlet(name = "ManageCustomer", urlPatterns = {"/managecustomer"})
+@WebServlet(name = "ManageCustomer", urlPatterns = { "/managecustomer" })
 public class ManageCustomer extends HttpServlet {
 
-    private static final int PAGE_SIZE = 8; // số dòng / trang
+    // private static final int PAGE_SIZE = 8; // số dòng / trang
 
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
 
         try {
-            //Xu li View + EDIT
+//            int PAGE_SIZE = Integer.parseInt(request.getParameter("pageSize"));
+            int PAGE_SIZE = 8; // default
+
+            String pageSizeParam = request.getParameter("pageSize");
+
+            if (pageSizeParam != null && !pageSizeParam.isEmpty()) {
+                PAGE_SIZE = Integer.parseInt(pageSizeParam);
+            }
+
+            request.setAttribute("pageSize", PAGE_SIZE);
+            // Xu li View + EDIT
             CustomerDAO dao = new CustomerDAO();
             String action = request.getParameter("action");
             if ("view".equals(action)) {
@@ -50,7 +60,7 @@ public class ManageCustomer extends HttpServlet {
             } else if ("add".equals(action)) {
                 UserDAO userDao = new UserDAO();
                 List<User> owners = userDao.getAllUsers();
-//
+                //
                 request.removeAttribute("customer");
                 request.setAttribute("owners", owners);
 
@@ -61,7 +71,7 @@ public class ManageCustomer extends HttpServlet {
 
             List<Customer> allCustomers = dao.getAllCustomers();
 
-            //get all cus num
+            // get all cus num
             int totalAll = allCustomers.size();
 
             // Count active + inactive acc
@@ -145,7 +155,7 @@ public class ManageCustomer extends HttpServlet {
                     filtered.add(c);
                 }
             }
-//---
+            // ---
 
             /* ===== Pagination ===== */
             int totalCustomers = filtered.size();
@@ -241,9 +251,9 @@ public class ManageCustomer extends HttpServlet {
                 }
             } else if ("edit".equals(action)) {
                 try {
-//                    String cusId = request.getParameter("id");
+                    // String cusId = request.getParameter("id");
                     boolean result = false;
-//                    int id = Integer.parseInt(cusId);
+                    // int id = Integer.parseInt(cusId);
                     int id = Integer.parseInt(idParam);
 
                     String fullName = request.getParameter("fullName");

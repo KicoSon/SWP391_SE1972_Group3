@@ -107,6 +107,7 @@
                 <!-- Search & Filter -->
                 <div class="search-box">
                     <form action="${pageContext.request.contextPath}/managecustomer" method="GET">
+                        <input type = "hidden" name="pageSize" value = "${pageSize}">
                         <div class="search-input-group">
                             <i class="fas fa-search"></i>
                             <input type="text" 
@@ -129,7 +130,7 @@
                 <div class="search-box" style="margin-top:15px;">
 
                     <form action="${pageContext.request.contextPath}/managecustomer" method="GET">
-
+                        <input type = "hidden" name="pageSize" value = "${pageSize}">
                         <!-- Giữ search -->
                         <input type="hidden" name="search" value="${param.search}"/>
 
@@ -216,7 +217,7 @@
 
                 <!-- Customers Table -->
                 <div class="table-card">
-                    <div class="table-header">
+                    <div class="table-header" style="display:flex; justify-content:space-between; align-items:center;">
                         <h3>
                             <i class="fas fa-list"></i> 
                             Danh sách khách hàng
@@ -224,6 +225,29 @@
                                 <span class="badge badge-info">Kết quả tìm kiếm: "${param.search}"</span>
                             </c:if>
                         </h3>
+                        <form method="get" action="${pageContext.request.contextPath}/managecustomer"
+                              class="page-size-box">
+
+                            <c:if test="${not empty param.search}">
+                                <input type="hidden" name="search" value="${param.search}">
+                            </c:if>
+
+                            <label>Show</label>
+
+                            <select name="pageSize"
+                                    class="page-size-select"
+                                    onchange="this.form.submit()">
+
+                                <option value="8" ${pageSize==8?'selected':''}>8</option>
+                                <option value="10" ${pageSize==10?'selected':''}>10</option>
+                                <option value="15" ${pageSize==15?'selected':''}>15</option>
+                                <option value="20" ${pageSize==20?'selected':''}>20</option>
+
+                            </select>
+
+                            <label>rows</label>
+
+                        </form>
                     </div>
 
                     <c:choose>
