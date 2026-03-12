@@ -10,12 +10,13 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Chi tiết Khách hàng - Admin</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
-    <link rel="stylesheet" href="${pageContext.request.contextPath}/assets/css/sidebar.css">
+    <!--<link rel="stylesheet" href="${pageContext.request.contextPath}/assets/css/sidebar.css">-->
     <link rel="stylesheet" href="${pageContext.request.contextPath}/admin/assets/css/customer-details.css">
 </head>
 <body>
     <!-- Include Sidebar -->
-    <jsp:include page="/components/sidebar.jsp" />
+    <%--<jsp:include page="/components/sidebar.jsp" />--%>
+    <jsp:include page="sidebar.jsp" />
 
     <div class="main-content">
         <div class="container">
