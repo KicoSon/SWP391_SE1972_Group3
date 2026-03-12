@@ -28,11 +28,28 @@
                         </h1>
                         <p class="customer-text-muted">Quản lý toàn bộ khách hàng trong hệ thống</p>
                     </div>
-                    <c:if test="${canCreate}">
-                        <a href="${pageContext.request.contextPath}/managecustomer?action=add" class="btn btn-primary">
-                            <i class="fas fa-plus"></i> Thêm khách hàng
-                        </a>
-                    </c:if>
+                    <div>
+                        <c:if test="${canCreate}">
+                            <a href="${pageContext.request.contextPath}/managecustomer?action=add" class="btn btn-primary">
+                                <i class="fas fa-plus"></i> Thêm khách hàng
+                            </a>
+                        </c:if>
+                        <form action="${pageContext.request.contextPath}/admin/customer-import-preview"
+                              method="post"
+                              enctype="multipart/form-data"
+                              style="display:inline">
+
+                            <label class="btn btn-primary">
+                                <i class="fas fa-file-import"></i> Import List
+                                <input type="file"
+                                       name="excelFile"
+                                       accept=".xlsx,.xls"
+                                       onchange="this.form.submit()"
+                                       style="display:none">
+                            </label>
+
+                        </form>
+                    </div>
                 </div>
 
                 <!-- Success/Error Messages -->
@@ -374,34 +391,54 @@
             <input type="hidden" name="action" id="statusAction">
             <input type="hidden" name="customerId" id="customerId">
         </form>
-
-        <script>
-            function confirmBan(customerId, customerName) {
-                if (confirm('Bạn có chắc muốn khóa tài khoản của "' + customerName + '"?\n\nKhách hàng sẽ không thể đăng nhập sau khi bị khóa.')) {
-                    document.getElementById('statusAction').value = 'ban';
-                    document.getElementById('customerId').value = customerId;
-                    document.getElementById('statusForm').submit();
-                }
-            }
-
-            function confirmUnban(customerId, customerName) {
-                if (confirm('Bạn có chắc muốn mở khóa tài khoản của "' + customerName + '"?')) {
-                    document.getElementById('statusAction').value = 'unban';
-                    document.getElementById('customerId').value = customerId;
-                    document.getElementById('statusForm').submit();
-                }
-            }
-
-            // Auto-hide alerts after 5 seconds
-            setTimeout(function () {
-                const alerts = document.querySelectorAll('.alert');
-                alerts.forEach(function (alert) {
-                    alert.style.opacity = '0';
-                    setTimeout(function () {
-                        alert.remove();
-                    }, 300);
-                });
-            }, 5000);
-        </script>
     </body>
 </html>
+<script>
+    function confirmBan(customerId, customerName) {
+        if (confirm('Bạn có chắc muốn khóa tài khoản của "' + customerName + '"?\n\nKhách hàng sẽ không thể đăng nhập sau khi bị khóa.')) {
+            document.getElementById('statusAction').value = 'ban';
+            document.getElementById('customerId').value = customerId;
+            document.getElementById('statusForm').submit();
+        }
+    }
+
+    function confirmUnban(customerId, customerName) {
+        if (confirm('Bạn có chắc muốn mở khóa tài khoản của "' + customerName + '"?')) {
+            document.getElementById('statusAction').value = 'unban';
+            document.getElementById('customerId').value = customerId;
+            document.getElementById('statusForm').submit();
+        }
+    }
+
+    // Auto-hide alerts after 5 seconds
+    setTimeout(function () {
+        const alerts = document.querySelectorAll('.alert');
+        alerts.forEach(function (alert) {
+            alert.style.opacity = '0';
+            setTimeout(function () {
+                alert.remove();
+            }, 300);
+        });
+    }, 5000);
+    function openFilePicker() {
+        document.getElementById("excelFile").click();
+    }
+
+    function autoPreview(input) {
+
+        if (input.files.length > 0) {
+            document.getElementById("importForm").submit();
+        }
+
+    }
+    window.onload = function () {
+
+        const hasPreview = "${not empty previewCustomers}";
+
+        if (hasPreview === "true") {
+            var modal = new bootstrap.Modal(document.getElementById("previewModal"));
+            modal.show();
+        }
+
+    }
+</script>

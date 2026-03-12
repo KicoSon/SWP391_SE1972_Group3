@@ -8,7 +8,6 @@ import model.admin.DashboardTrend;
 public class AdminDAO extends DBContext {
 
     /* ===================== TOTAL STAT ===================== */
-
     public double getTotalRevenue() {
 
         String sql = "SELECT SUM(total_amount) FROM orders WHERE status='PAID'";
@@ -54,7 +53,9 @@ public class AdminDAO extends DBContext {
             PreparedStatement ps = connection.prepareStatement(sql);
             ResultSet rs = ps.executeQuery();
 
-            if (rs.next()) return rs.getInt(1);
+            if (rs.next()) {
+                return rs.getInt(1);
+            }
 
         } catch (Exception e) {
             e.printStackTrace();
@@ -64,7 +65,6 @@ public class AdminDAO extends DBContext {
     }
 
     /* ===================== REVENUE TREND ===================== */
-
     public List<DashboardTrend> getRevenueByMonth() {
 
         List<DashboardTrend> list = new ArrayList<>();
@@ -102,7 +102,6 @@ public class AdminDAO extends DBContext {
     }
 
     /* ===================== ORDERS STATUS ===================== */
-
     public Map<String, Integer> getOrdersByStatus() {
 
         Map<String, Integer> map = new LinkedHashMap<>();
@@ -130,7 +129,6 @@ public class AdminDAO extends DBContext {
     }
 
     /* ===================== TICKET STATUS ===================== */
-
     public Map<String, Integer> getTicketsByStatus() {
 
         Map<String, Integer> map = new LinkedHashMap<>();
@@ -158,7 +156,6 @@ public class AdminDAO extends DBContext {
     }
 
     /* ===================== TICKET PRIORITY ===================== */
-
     public Map<String, Integer> getTicketsByPriority() {
 
         Map<String, Integer> map = new LinkedHashMap<>();
@@ -186,7 +183,6 @@ public class AdminDAO extends DBContext {
     }
 
     /* ===================== TOP PRODUCTS ===================== */
-
     public List<Map<String, Object>> getTopProducts(int limit) {
 
         List<Map<String, Object>> list = new ArrayList<>();
@@ -227,8 +223,28 @@ public class AdminDAO extends DBContext {
         return list;
     }
 
-    /* ===================== RECENT ORDERS ===================== */
+    public String getStaffNameById(int id) {
 
+        String sql = "SELECT full_name FROM users WHERE id = ?";
+
+        try {
+            PreparedStatement ps = connection.prepareStatement(sql);
+            ps.setInt(1, id);
+
+            ResultSet rs = ps.executeQuery();
+
+            if (rs.next()) {
+                return rs.getString("full_name");
+            }
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        return "Unknown";
+    }
+
+    /* ===================== RECENT ORDERS ===================== */
 //    public List<Order> getRecentOrders(int limit) {
 //
 //        List<Order> list = new ArrayList<>();
