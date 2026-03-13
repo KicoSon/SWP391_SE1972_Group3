@@ -47,19 +47,15 @@ public class ActivityDetailController extends HttpServlet {
             if (userSession != null && userSession.getStaff() != null) {
                 int currentUserId = userSession.getStaff().getId();
 
-                // Ưu tiên 1: Manager / Admin → Toàn quyền
-                if (userSession.isAdmin()) {
+                // Ưu tiên 1: Manager/Admin hoặc Creator -> Full quyền
+                if (userSession.isAdmin() || activity.getCreatedBy() == currentUserId) {
                     canEdit = "FULL";
                 }
-                // Ưu tiên 2: Người tạo (Creator) → Toàn quyền
-                else if (activity.getCreatedBy() == currentUserId) {
-                    canEdit = "FULL";
-                }
-                // Ưu tiên 3: PIC hoặc Participant → Quyền hạn chế (chỉ sửa Status)
+                // Ưu tiên 2: PIC/Participant -> Không được sửa
                 else if (dao.isUserInvolvedInActivity(activityId, currentUserId)) {
-                    canEdit = "LIMITED";
+                    canEdit = "NONE";
                 }
-                // Ưu tiên 4: Còn lại → Chỉ xem + Bình luận (canEdit = "NONE")
+                // Ưu tiên 3: Còn lại -> Chỉ xem + Bình luận (NONE)
             }
 
             request.setAttribute("canEdit", canEdit);

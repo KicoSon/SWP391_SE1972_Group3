@@ -43,12 +43,11 @@
                                 <div class="activity-id">Activity ID: <span>#${activity.id}</span> | Tạo bởi: <b>${activity.creatorName}</b></div>
                             </div>
                         </div>
-                        <c:if test="${sessionScope.userSession != null 
-                                      and sessionScope.userSession.userId == activity.createdBy}">
+                        <c:if test="${not empty canEdit and canEdit != 'NONE'}">
                             <c:if test="${activity.status != 'Completed'}">
                                 <div class="header-actions">
                                     <a href="${pageContext.request.contextPath}/activities/create?id=${activity.id}" class="btn btn-white" target="_parent">
-                                        <i class="fas fa-pen"></i> Chỉnh sửa toàn bộ
+                                        <i class="fas fa-pen"></i> Chỉnh sửa
                                     </a>
                                 </div>
                             </c:if>

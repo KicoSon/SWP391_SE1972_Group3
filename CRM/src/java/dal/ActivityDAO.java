@@ -564,6 +564,32 @@ public class ActivityDAO extends DBContext {
         return list;
     }
 
+    public List<ActivityParticipant> getParticipantsByActivityId(int activityId) {
+        List<ActivityParticipant> list = new ArrayList<>();
+        String sql = "SELECT id, activity_id, user_id, role "
+                + "FROM activity_participants "
+                + "WHERE activity_id = ? "
+                + "ORDER BY CASE WHEN role = 'Owner' THEN 0 ELSE 1 END, id";
+
+        try (PreparedStatement ps = getConnection().prepareStatement(sql)) {
+            ps.setInt(1, activityId);
+            try (ResultSet rs = ps.executeQuery()) {
+                while (rs.next()) {
+                    ActivityParticipant ap = new ActivityParticipant();
+                    ap.setId(rs.getInt("id"));
+                    ap.setActivityId(rs.getInt("activity_id"));
+                    ap.setUserId(rs.getInt("user_id"));
+                    ap.setRole(rs.getString("role"));
+                    list.add(ap);
+                }
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        return list;
+    }
+
     public List<ActivityAttachment> getAttachmentsByActivityId(int activityId) {
         List<ActivityAttachment> list = new ArrayList<>();
         String sql = "SELECT * FROM activity_attachments WHERE activity_id = ? ORDER BY uploaded_at DESC";
@@ -584,6 +610,31 @@ public class ActivityDAO extends DBContext {
             e.printStackTrace();
         }
         return list;
+    }
+
+    public void deleteAttachmentsByIds(int activityId, List<Integer> attachmentIds) {
+        if (attachmentIds == null || attachmentIds.isEmpty()) {
+            return;
+        }
+
+        StringBuilder sql = new StringBuilder("DELETE FROM activity_attachments WHERE activity_id = ? AND id IN (");
+        for (int i = 0; i < attachmentIds.size(); i++) {
+            if (i > 0) {
+                sql.append(",");
+            }
+            sql.append("?");
+        }
+        sql.append(")");
+
+        try (PreparedStatement ps = getConnection().prepareStatement(sql.toString())) {
+            ps.setInt(1, activityId);
+            for (int i = 0; i < attachmentIds.size(); i++) {
+                ps.setInt(i + 2, attachmentIds.get(i));
+            }
+            ps.executeUpdate();
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
     }
 
     // --- PHẦN COMMENT (MỚI THÊM) ---

@@ -2,6 +2,7 @@ package controller.activity;
 
 import dal.ActivityDAO;
 import model.activity.Activity;
+import model.activity.ActivityParticipant;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServlet;
@@ -60,6 +61,16 @@ public class ActivityDetailApiController extends HttpServlet {
     // Method để build JSON string từ Activity object
     private String buildActivityJson(Activity activity, ActivityDAO dao) {
         StringBuilder json = new StringBuilder();
+        java.util.List<ActivityParticipant> participantRows = dao.getParticipantsByActivityId(activity.getId());
+        int ownerId = 0;
+
+        for (ActivityParticipant ap : participantRows) {
+            if ("Owner".equals(ap.getRole())) {
+                ownerId = ap.getUserId();
+                break;
+            }
+        }
+
         json.append("{");
         json.append("\"id\": ").append(activity.getId()).append(",");
         json.append("\"title\": \"").append(escapeJson(activity.getTitle())).append("\",");
@@ -84,6 +95,20 @@ public class ActivityDetailApiController extends HttpServlet {
         }
         
         json.append("\"createdBy\": ").append(activity.getCreatedBy()).append(",");
+        json.append("\"ownerId\": ").append(ownerId).append(",");
+
+        json.append("\"participantIds\": [");
+        boolean firstParticipant = true;
+        for (ActivityParticipant ap : participantRows) {
+            if (!"Owner".equals(ap.getRole())) {
+                if (!firstParticipant) {
+                    json.append(",");
+                }
+                json.append(ap.getUserId());
+                firstParticipant = false;
+            }
+        }
+        json.append("],");
         
         // Thêm danh sách participants
         java.util.List<String> participants = dao.getParticipantsFullInfo(activity.getId());

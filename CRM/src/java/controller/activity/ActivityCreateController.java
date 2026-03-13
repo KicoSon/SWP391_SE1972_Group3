@@ -6,16 +6,22 @@ import dal.OpportunityDAO;
 import dal.StaffDAO;
 import dal.LeadDAO;
 import model.activity.Activity;
+import model.activity.ActivityParticipant;
 import model.Customer;
 import model.UserSession;
 import model.Lead;
 
 import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
 import java.nio.file.Paths;
+import java.nio.charset.StandardCharsets;
 import java.sql.Timestamp;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Scanner;
+import java.util.Set;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.MultipartConfig;
 import jakarta.servlet.annotation.WebServlet;
@@ -40,22 +46,21 @@ public class ActivityCreateController extends HttpServlet {
         if (activity == null || userSession == null || userSession.getStaff() == null) {
             return "NONE";
         }
-        int currentUserId = userSession.getStaff().getId();
 
-        // Ưu tiên 1: Manager / Admin → Toàn quyền
-        if (userSession.isAdmin()) {
-            return "FULL";
-        }
-        // Ưu tiên 2: Người tạo (Creator) → Toàn quyền
-        if (activity.getCreatedBy() == currentUserId) {
-            return "FULL";
-        }
-        // Ưu tiên 3: PIC hoặc Participant → Chỉ sửa Status
+        int currentUserId = userSession.getStaff().getId();
         ActivityDAO dao = new ActivityDAO();
-        if (dao.isUserInvolvedInActivity(activity.getId(), currentUserId)) {
-            return "LIMITED";
+
+        // Ưu tiên 1: Manager/Admin hoặc Creator -> Full quyền
+        if (userSession.isAdmin() || activity.getCreatedBy() == currentUserId) {
+            return "FULL";
         }
-        // Ưu tiên 4: Còn lại → Chỉ xem
+
+        // Ưu tiên 2: PIC/Participant -> Không được sửa
+        if (dao.isUserInvolvedInActivity(activity.getId(), currentUserId)) {
+            return "NONE";
+        }
+
+        // Ưu tiên 3: Còn lại -> Không được sửa
         return "NONE";
     }
 
@@ -140,6 +145,20 @@ public class ActivityCreateController extends HttpServlet {
                     }
 
                     request.setAttribute("activity", existingActivity);
+
+                    List<ActivityParticipant> existingParticipants = dao.getParticipantsByActivityId(id);
+                    Integer ownerId = null;
+                    List<Integer> participantIds = new ArrayList<>();
+                    for (ActivityParticipant ap : existingParticipants) {
+                        if ("Owner".equals(ap.getRole())) {
+                            ownerId = ap.getUserId();
+                        } else {
+                            participantIds.add(ap.getUserId());
+                        }
+                    }
+                    request.setAttribute("activityOwnerId", ownerId);
+                    request.setAttribute("activityParticipantIds", participantIds);
+                    request.setAttribute("existingAttachments", dao.getAttachmentsByActivityId(id));
                     request.setAttribute("canEdit", canEdit);
                 }
             } catch (NumberFormatException e) {
@@ -280,8 +299,12 @@ public class ActivityCreateController extends HttpServlet {
                         dao.updateActivityParticipants(activityId, participantIds);
                     }
 
+                    // Dùng DAO mới cho attachment để tránh connection đã bị đóng
+                    ActivityDAO attachmentDao = new ActivityDAO();
+                    deleteRemovedAttachments(request, activityId, attachmentDao);
+
                     // Xử lý upload file mới nếu có
-                    handleAttachmentUpload(request, activityId, dao);
+                    handleAttachmentUpload(request, activityId, attachmentDao);
                     response.sendRedirect(request.getContextPath() + "/sale/dashboard?msg=updated");
                 } else {
                     request.setAttribute("error", "Lỗi: Không thể cập nhật hoạt động. Vui lòng thử lại.");
@@ -383,5 +406,106 @@ public class ActivityCreateController extends HttpServlet {
                 attachmentDao.insertAttachment(activityId, fileName, "uploads/" + uniqueFileName);
             }
         }
+    }
+
+    private void deleteRemovedAttachments(HttpServletRequest request, int activityId, ActivityDAO attachmentDao)
+            throws Exception {
+        Set<Integer> keptIds = new HashSet<>();
+        List<String> existingAttachmentIds = getMultipartFieldValues(request, "existingAttachmentIds");
+        if (!existingAttachmentIds.isEmpty()) {
+            for (String rawId : existingAttachmentIds) {
+                try {
+                    keptIds.add(Integer.parseInt(rawId.trim()));
+                } catch (NumberFormatException ex) {
+                    // Bỏ qua ID không hợp lệ
+                }
+            }
+        }
+
+        Set<Integer> removedIds = new HashSet<>();
+        String removedIdsRaw = getMultipartFieldValue(request, "removedAttachmentIds");
+        if (removedIdsRaw != null && !removedIdsRaw.trim().isEmpty()) {
+            for (String rawId : removedIdsRaw.split(",")) {
+                try {
+                    removedIds.add(Integer.parseInt(rawId.trim()));
+                } catch (NumberFormatException ex) {
+                    // Bỏ qua ID không hợp lệ
+                }
+            }
+        }
+
+        List<model.activity.ActivityAttachment> existingAttachments = attachmentDao.getAttachmentsByActivityId(activityId);
+        for (model.activity.ActivityAttachment attachment : existingAttachments) {
+            if (!keptIds.isEmpty()) {
+                if (!keptIds.contains(attachment.getId())) {
+                    removedIds.add(attachment.getId());
+                }
+            } else if (existingAttachmentIds.isEmpty()) {
+                // Không có input nào còn lại nghĩa là người dùng đã bỏ hết file cũ.
+                removedIds.add(attachment.getId());
+            }
+        }
+
+        if (removedIds.isEmpty()) {
+            return;
+        }
+
+        String uploadPath = getServletContext().getInitParameter("uploadDirectory");
+        for (model.activity.ActivityAttachment attachment : existingAttachments) {
+            if (!removedIds.contains(attachment.getId())) {
+                continue;
+            }
+
+            try {
+                if (uploadPath != null && !uploadPath.isEmpty() && attachment.getFilePath() != null) {
+                    String storedFileName = Paths.get(attachment.getFilePath()).getFileName().toString();
+                    File physicalFile = new File(uploadPath, storedFileName);
+                    if (physicalFile.exists()) {
+                        physicalFile.delete();
+                    }
+                }
+            } catch (Exception ex) {
+                ex.printStackTrace();
+            }
+        }
+
+        attachmentDao.deleteAttachmentsByIds(activityId, new ArrayList<>(removedIds));
+    }
+
+    private String getMultipartFieldValue(HttpServletRequest request, String fieldName) throws Exception {
+        List<String> values = getMultipartFieldValues(request, fieldName);
+        return values.isEmpty() ? null : values.get(0);
+    }
+
+    private List<String> getMultipartFieldValues(HttpServletRequest request, String fieldName) throws Exception {
+        List<String> values = new ArrayList<>();
+
+        String[] parameterValues = request.getParameterValues(fieldName);
+        if (parameterValues != null) {
+            for (String value : parameterValues) {
+                if (value != null) {
+                    values.add(value);
+                }
+            }
+            if (!values.isEmpty()) {
+                return values;
+            }
+        }
+
+        for (Part part : request.getParts()) {
+            if (!fieldName.equals(part.getName()) || part.getSubmittedFileName() != null) {
+                continue;
+            }
+
+            try (InputStream inputStream = part.getInputStream();
+                 Scanner scanner = new Scanner(inputStream, StandardCharsets.UTF_8.name())) {
+                scanner.useDelimiter("\\A");
+                if (scanner.hasNext()) {
+                    values.add(scanner.next());
+                }
+            }
+        }
+
+        return values;
     }
 }

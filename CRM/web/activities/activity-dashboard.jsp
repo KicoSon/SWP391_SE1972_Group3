@@ -221,6 +221,10 @@
                                     </div>
 
                                     <button class="btn btn-primary" type="submit">Filter</button>
+                                    <a href="${pageContext.request.contextPath}/sale/dashboard" class=" btn btn-secondary"
+                                        style="text-decoration: none; display: inline-flex; align-items: center; justify-content: center;">
+                                        Clear
+                                    </a>
                                 </form>
 
                                 <!-- Action Bar -->

@@ -139,12 +139,27 @@ function initFileUpload() {
     const uploadArea = document.getElementById('fileUploadArea');
     const fileInput = document.getElementById('fileInput');
     const uploadedFilesContainer = document.getElementById('uploadedFiles');
+    const existingAttachmentsList = document.getElementById('existingAttachmentsList');
 
     if(!uploadArea || !fileInput) return;
 
     uploadArea.addEventListener('click', () => fileInput.click());
 
     fileInput.addEventListener('change', handleFiles);
+
+    if (existingAttachmentsList) {
+        existingAttachmentsList.addEventListener('click', function (e) {
+            const removeButton = e.target.closest('.existing-file-remove');
+            if (!removeButton) {
+                return;
+            }
+
+            const fileItem = removeButton.closest('.existing-file');
+            if (fileItem) {
+                fileItem.remove();
+            }
+        });
+    }
 
     uploadArea.addEventListener('dragover', (e) => {
         e.preventDefault();
@@ -186,6 +201,10 @@ function initFileUpload() {
 document.addEventListener("DOMContentLoaded", function () {
     // Gọi hàm lọc Khách hàng
     filterRelatedTo();
+
+    if (Array.isArray(initialParticipantIds) && initialParticipantIds.length > 0) {
+        initialParticipantIds.forEach(participantId => addParticipant(String(participantId)));
+    }
     
     // Khởi tạo File Upload
     initFileUpload();
@@ -243,14 +262,18 @@ function populateForm(activity) {
         document.querySelector('select[name="related_to"]').value = 'lead-' + activity.leadId;
     }
 
-    if (activity.createdBy)
-        document.querySelector('select[name="owner"]').value = activity.createdBy;
+    const ownerSelect = document.querySelector('select[name="owner"]');
+    if (ownerSelect && !ownerSelect.value) {
+        if (activity.ownerId) {
+            ownerSelect.value = String(activity.ownerId);
+        } else if (activity.createdBy) {
+            ownerSelect.value = String(activity.createdBy);
+        }
+    }
 
-    if (activity.participants && activity.participants.length > 0 && typeof allParticipantsData !== 'undefined') {
-        activity.participants.forEach(participantName => {
-            const participant = allParticipantsData.find(p => p.name === participantName);
-            if (participant && typeof addParticipant === 'function')
-                addParticipant(participant.id);
+    if ((!hiddenInput || !hiddenInput.value) && activity.participantIds && activity.participantIds.length > 0 && typeof addParticipant === 'function') {
+        activity.participantIds.forEach(participantId => {
+            addParticipant(String(participantId));
         });
     }
 }

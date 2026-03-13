@@ -24,7 +24,22 @@
 
             <body>
 
-                <jsp:include page="/sales/sidebar.jsp" />
+                <c:catch var="sidebarRenderError">
+                    <c:choose>
+                        <c:when test="${sessionScope.userSession.admin}">
+                            <jsp:include page="/components/sidebar.jsp" />
+                        </c:when>
+                        <c:when test="${sessionScope.userSession.supportStaff}">
+                            <jsp:include page="/customerservice/sidebar.jsp" />
+                        </c:when>
+                        <c:when test="${sessionScope.userSession.marketingStaff}">
+                            <jsp:include page="/marketingg/sidebar.jsp" />
+                        </c:when>
+                        <c:otherwise>
+                            <jsp:include page="/sales/sidebar.jsp" />
+                        </c:otherwise>
+                    </c:choose>
+                </c:catch>
 
                 <div class="main-content fade-in">
                     <div class="container">
@@ -71,6 +86,27 @@
                                             <i class="fas fa-lock"></i>
                                             Bạn là người tham gia công việc này. Bạn chỉ có thể thay đổi <strong>Trạng
                                                 thái (Status)</strong>.
+                                        </div>
+                                    </c:if>
+
+                                    <c:if test="${canEdit == 'LIMITED'}">
+                                        <div style="padding: 16px 40px 0 40px;">
+                                            <label class="form-label" style="margin-bottom: 8px; display: block;">Trạng thái (Status):</label>
+                                            <c:choose>
+                                                <c:when test="${activity.status == 'Completed'}">
+                                                    <input type="text" class="form-control" value="Completed" readonly
+                                                        style="background-color: #e9ecef; color: #198754; font-weight: bold; border-color: #198754;">
+                                                    <input type="hidden" name="status" value="Completed">
+                                                </c:when>
+                                                <c:otherwise>
+                                                    <select name="status" class="form-control">
+                                                        <option value="Planned" ${activity.status=='Planned' ? 'selected' : '' }>Planned</option>
+                                                        <option value="In Progress" ${activity.status=='In Progress' ? 'selected' : '' }>In Progress</option>
+                                                        <option value="Completed" ${activity.status=='Completed' ? 'selected' : '' }>Completed</option>
+                                                        <option value="Cancelled" ${activity.status=='Cancelled' ? 'selected' : '' }>Cancelled</option>
+                                                    </select>
+                                                </c:otherwise>
+                                            </c:choose>
                                         </div>
                                     </c:if>
 
@@ -248,13 +284,14 @@
                                                             <option value="">-- Chọn người phụ trách --</option>
                                                             <c:forEach items="${staffList}" var="u">
                                                                 <option value="${u.id}"
-                                                                    ${sessionScope.userSession.staffInfo.id==u.id
+                                                                    ${(not empty activityOwnerId and activityOwnerId == u.id)
+                                                                    or (empty param.id and sessionScope.userSession.staff.id == u.id)
                                                                     ? 'selected' : '' }>${u.fullName}</option>
                                                             </c:forEach>
                                                         </select>
                                                         <c:if test="${canEdit == 'LIMITED'}">
                                                             <input type="hidden" name="owner"
-                                                                value="${sessionScope.userSession.staffInfo.id}">
+                                                                value="${not empty activityOwnerId ? activityOwnerId : sessionScope.userSession.staff.id}">
                                                         </c:if>
                                                     </div>
                                                 </div>
@@ -275,6 +312,7 @@
                                                 </div>
                                             </div>
 
+                                            <c:if test="${canEdit != 'LIMITED'}">
                                             <div class="form-group">
                                                 <label class="form-label">Trạng thái (Status):</label>
 
@@ -322,6 +360,7 @@
                                                                 </c:otherwise>
                                                 </c:choose>
                                             </div>
+                                            </c:if>
 
                                             <div class="form-row full-width">
                                                 <label class="form-label">Attachments:</label>
@@ -337,6 +376,25 @@
                                                         id="fileInput" multiple
                                                         accept=".pdf,.doc,.docx,.xls,.xlsx,.ppt,.pptx,.jpg,.jpeg,.png,.mp3,.wav"
                                                         style="display: none;">
+
+                                                    <c:if test="${not empty existingAttachments}">
+                                                        <div class="uploaded-files" id="existingAttachmentsList">
+                                                            <c:forEach items="${existingAttachments}" var="file">
+                                                                <div class="uploaded-file existing-file" data-attachment-id="${file.id}">
+                                                                    <input type="hidden" name="existingAttachmentIds" value="${file.id}">
+                                                                    <div class="file-info">
+                                                                        <div class="file-icon">📄</div>
+                                                                        <div class="file-details">
+                                                                            <span class="file-name">${file.fileName}</span>
+                                                                            <span class="file-size">Đã tải lên trước đó</span>
+                                                                        </div>
+                                                                    </div>
+                                                                    <button type="button" class="file-remove existing-file-remove" data-attachment-id="${file.id}">Bỏ file này</button>
+                                                                </div>
+                                                            </c:forEach>
+                                                        </div>
+                                                    </c:if>
+
                                                     <div class="uploaded-files" id="uploadedFiles"></div>
                                                 </div>
                                             </div>
@@ -349,16 +407,18 @@
                 </div>
 
                 <script>
-                    // Mảng danh sách nhân viên từ Server
-                    const allParticipantsData = [
-                        <c:forEach items="${staffList}" var="u" varStatus="loop">
-                            {
-                                id: '${u.id}',
-                            name: '${u.fullName}',
-                            role: '${u.department}'
-            }${!loop.last ? ',' : ''}
-                        </c:forEach>
-                    ];
+                    // Build staff list from owner dropdown to avoid JSP parser issues inside JS literals.
+                    const ownerOptions = document.querySelectorAll('select[name="owner"] option');
+                    const allParticipantsData = Array.from(ownerOptions)
+                        .filter(option => option.value)
+                        .map(option => ({
+                            id: option.value,
+                            name: option.textContent.trim(),
+                            role: ''
+                        }));
+
+                    // Participants sẽ được nạp từ API detail trong edit mode.
+                    const initialParticipantIds = [];
                 </script>
                 <script src="${pageContext.request.contextPath}/assets/js/activity-create.js"></script>
             </body>
