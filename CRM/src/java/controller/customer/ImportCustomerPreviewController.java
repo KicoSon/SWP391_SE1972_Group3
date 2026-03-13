@@ -14,12 +14,18 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
+import java.util.regex.Pattern;
 
 @WebServlet("/admin/customer-import-preview")
 @MultipartConfig
 public class ImportCustomerPreviewController extends HttpServlet {
+
+    Pattern phonePattern = Pattern.compile("^[0-9]{10,11}$");
+    Pattern emailPattern = Pattern.compile("^[A-Za-z0-9+_.-]+@[A-Za-z0-9.-]+$");
 
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
@@ -28,6 +34,8 @@ public class ImportCustomerPreviewController extends HttpServlet {
         AdminDAO adDao = new AdminDAO();
 
         List<Customer> previewList = new ArrayList<>();
+
+        Map<Integer, List<String>> errorMap = new HashMap<>();
 
         if (filePart == null || filePart.getSize() == 0) {
             request.setAttribute("previewCustomers", previewList);
@@ -43,6 +51,8 @@ public class ImportCustomerPreviewController extends HttpServlet {
             DataFormatter formatter = new DataFormatter();
 
             Map<Integer, String> tierMap = new HashMap<>();
+            Set<String> emailSet = new HashSet<>();
+            Set<String> phoneSet = new HashSet<>();
 
             tierMap.put(1, "Bronze");
             tierMap.put(2, "Silver");
@@ -55,54 +65,166 @@ public class ImportCustomerPreviewController extends HttpServlet {
                 if (row == null) {
                     continue;
                 }
-
-                String name = formatter.formatCellValue(row.getCell(1));
-
-                if (name == null || name.trim().isEmpty()) {
-                    continue;
-                }
-
                 Customer c = new Customer();
 
-                String idStr = formatter.formatCellValue(row.getCell(0));
-                if (!idStr.isEmpty()) {
-                    c.setId(Integer.parseInt(idStr));
+                List<String> errors = new ArrayList<>();
+
+                //NAME----------------------------------------------------------
+                String name = formatter.formatCellValue(row.getCell(1)).trim();
+                if (name.isEmpty()) {
+                    errors.add("Full name is required");
                 }
 
+                if (name.length() > 150) {
+                    errors.add("Full name max 150 characters");
+                }
                 c.setFullName(name);
-                c.setEmail(formatter.formatCellValue(row.getCell(2)));
-                c.setPhone(formatter.formatCellValue(row.getCell(3)));
-                c.setPassword(formatter.formatCellValue(row.getCell(4)));
-                c.setAddress(formatter.formatCellValue(row.getCell(5)));
 
-                String tierStr = formatter.formatCellValue(row.getCell(6));
+                //EMAIL---------------------------------------------------------
+                String email = formatter.formatCellValue(row.getCell(2)).trim();
 
-                if (!tierStr.isEmpty()) {
+                if (email.isEmpty()) {
+                    errors.add("Email cannot be empty");
+                }
+
+                if (email.length() > 150) {
+                    errors.add("Email max 150 characters");
+                }
+
+                if (!emailPattern.matcher(email).matches()) {
+                    errors.add("Invalid email format");
+                }
+
+                if (emailSet.contains(email)) {
+                    errors.add("Duplicate email in file");
+                }
+
+                if (adDao.isEmailExist(email)) {
+                    errors.add("Email already exists in DB");
+                }
+                emailSet.add(email);
+                c.setEmail(email);
+
+                //PHONE---------------------------------------------------------
+                String phone = formatter.formatCellValue(row.getCell(3)).trim();
+
+                if (phone.isEmpty()) {
+                    errors.add("Phone cannot be empty");
+                }
+
+                if (!phonePattern.matcher(phone).matches()) {
+                    errors.add("Phone must be 10-11 digits");
+                }
+
+                if (phone.length() > 20) {
+                    errors.add("Phone max 20 characters");
+                }
+
+                if (phoneSet.contains(phone)) {
+                    errors.add("Duplicate phone in file");
+                }
+
+                if (adDao.isPhoneExist(phone)) {
+                    errors.add("Phone already exists in DB");
+                }
+                phoneSet.add(phone);
+                c.setPhone(phone);
+
+                //PASSWORD------------------------------------------------------
+                String password = formatter.formatCellValue(row.getCell(4)).trim();
+
+                if (password.isEmpty()) {
+                    errors.add("Password required");
+                }
+
+                if (password.length() < 6) {
+                    errors.add("Password must be at least 6 characters");
+                }
+
+                if (password.length() > 25) {
+                    errors.add("Password max 25 characters");
+                }
+
+                if (password.contains(" ")) {
+                    errors.add("Password cannot contain spaces");
+                }
+
+                c.setPassword(password);
+
+                //ADDRESS-------------------------------------------------------
+                String address = formatter.formatCellValue(row.getCell(5)).trim();
+
+                if (address.isEmpty()) {
+                    errors.add("Address cannot be empty");
+                }
+
+                c.setAddress(address);
+
+                //TIER----------------------------------------------------------
+                String tierStr = formatter.formatCellValue(row.getCell(6)).trim();
+
+                try {
 
                     int tierId = Integer.parseInt(tierStr);
 
-                    c.setTierId(tierId);
+                    if (!adDao.isTierExist(tierId)) {
+                        errors.add("Tier ID not found");
+                    }
 
+                    c.setTierId(tierId);
                     String tierName = tierMap.getOrDefault(tierId, "Default");
 
                     c.setTierName(tierName);
+
+                } catch (Exception e) {
+
+                    errors.add("Tier must be a number");
+
                 }
 
-                c.setStatus(formatter.formatCellValue(row.getCell(7)));
+                //STATUS--------------------------------------------------------
+                String status = formatter.formatCellValue(row.getCell(7)).trim();
 
-                String ownerStr = formatter.formatCellValue(row.getCell(8));
+                if (status.isEmpty()) {
+                    errors.add("Status cannot be empty");
+                }
 
-                if (!ownerStr.equals("")) {
-                    try {
-                        int ownerId = Integer.parseInt(ownerStr);
-                        c.setOwnerId(ownerId);
-                        String ownerName = adDao.getStaffNameById(ownerId);
-                        c.setOwnerName(ownerName);
-                    } catch (Exception e) {
-                        c.setOwnerId(-1);
+                if (status.length() > 10) {
+                    errors.add("Status max 10 characters");
+                }
+
+                if (!status.isEmpty() && !("active".equals(status.toLowerCase())
+                        || "inactive".equals(status.toLowerCase()))) {
+                    errors.add("Invalid status value");
+                }
+
+                c.setStatus(status);
+
+                //OWNER---------------------------------------------------------
+                String ownerStr = formatter.formatCellValue(row.getCell(8)).trim();
+
+                try {
+
+                    int ownerId = Integer.parseInt(ownerStr);
+
+                    if (!adDao.isOwnerExist(ownerId)) {
+                        errors.add("Owner ID not found");
                     }
+
+                    c.setOwnerId(ownerId);
+
+                } catch (Exception e) {
+
+                    errors.add("Owner must be a number");
+
                 }
 
+                //ADD ERROR TO MAP ---------------------------------------------
+                if (!errors.isEmpty()) {
+                    errorMap.put(i, errors);
+                }
+
+                //ADD-----------------------------------------------------------
                 previewList.add(c);
             }
 
@@ -113,6 +235,7 @@ public class ImportCustomerPreviewController extends HttpServlet {
         System.out.println("Preview size: " + previewList.size());
 
         request.setAttribute("previewCustomers", previewList);
+        request.setAttribute("errorMap", errorMap);
 
         request.getRequestDispatcher("/admin/customer-import-preview.jsp")
                 .forward(request, response);

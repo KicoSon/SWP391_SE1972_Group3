@@ -287,4 +287,79 @@ public class AdminDAO extends DBContext {
 //
 //        return list;
 //    }
+    public boolean isEmailExist(String email) {
+
+        String sql = "SELECT 1 FROM customers WHERE email = ?";
+
+        try (PreparedStatement ps = connection.prepareStatement(sql)) {
+
+            ps.setString(1, email);
+
+            ResultSet rs = ps.executeQuery();
+
+            return rs.next();
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        return false;
+    }
+
+    public boolean isPhoneExist(String phone) {
+
+        String sql = "SELECT 1 FROM customers WHERE phone = ?";
+
+        try (PreparedStatement ps = connection.prepareStatement(sql)) {
+
+            ps.setString(1, phone);
+
+            ResultSet rs = ps.executeQuery();
+
+            return rs.next();
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        return false;
+    }
+
+    public boolean isTierExist(int tierId) {
+
+        String sql = "SELECT 1 FROM tiers WHERE id = ?";
+
+        try (PreparedStatement ps = connection.prepareStatement(sql)) {
+
+            ps.setInt(1, tierId);
+
+            ResultSet rs = ps.executeQuery();
+
+            return rs.next();
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        return false;
+    }
+
+    public boolean isOwnerExist(int ownerId) {
+
+    String sql = "SELECT 1 FROM users WHERE id = ?";
+
+    try (PreparedStatement ps = connection.prepareStatement(sql)) {
+
+        ps.setInt(1, ownerId);
+
+        ResultSet rs = ps.executeQuery();
+
+        return rs.next();
+
+    } catch (Exception e) {
+        e.printStackTrace();
+    }
+
+    return false;
+}
 }

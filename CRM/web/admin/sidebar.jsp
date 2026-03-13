@@ -176,7 +176,7 @@
 
                     <i class="fas fa-bullhorn"></i>
 
-                    Quản lý chiến dịch
+                    Quản lý Staff
 
                 </a>
 
@@ -198,7 +198,7 @@
 
                     <i class="fas fa-user-check"></i>
 
-                    Assign Lead to Sales
+                    Reports
 
                 </a>
             </div> 

@@ -84,15 +84,16 @@
                                             <th>Tier</th>
                                             <th>Status</th>
                                             <th>Owner</th>
+                                            <th>Note</th>
                                         </tr>
 
                                     </thead>
 
                                     <tbody>
 
-                                        <c:forEach var="c" items="${previewCustomers}">
+                                        <c:forEach var="c" items="${previewCustomers}" varStatus="s">
 
-                                            <tr>
+                                            <tr class="${errorMap[s.index + 1] != null ? 'table-danger' : ''}">
 
                                                 <td>#${c.id}</td>
 
@@ -157,6 +158,26 @@
                                                 </td>
 
                                                 <td>${c.ownerName}</td>
+                                                <td>
+
+                                                    <c:if test="${errorMap[s.index + 1] != null}">
+
+                                                        <div style="color:red; font-size:13px;">
+
+                                                            <c:forEach var="err" items="${errorMap[s.index + 1]}">
+
+                                                                <div>
+                                                                    <i class="fas fa-exclamation-circle"></i>
+                                                                    ${err}
+                                                                </div>
+
+                                                            </c:forEach>
+
+                                                        </div>
+
+                                                    </c:if>
+
+                                                </td>
 
                                             </tr>
 
