@@ -28,7 +28,7 @@ if (participantInput) {
                         <div class="suggestion-avatar">${p.name.charAt(0).toUpperCase()}</div>
                         <div>
                             <div style="font-weight: 600;">${p.name}</div>
-                            <div style="font-size: 12px; color: #666;">${p.role}</div>
+                            <div style="font-size: 12px; color: #666;">${p.role || 'Staff'}</div>
                         </div>
                     </div>
                 `).join('');
@@ -76,8 +76,9 @@ function addParticipant(id) {
 
     const tag = document.createElement('div');
     tag.className = 'tag';
+    const roleText = participant.role && participant.role.trim() ? participant.role.trim() : 'Staff';
     tag.innerHTML = `
-        <span>${participant.name} (${participant.role})</span>
+        <span>${participant.name} (${roleText})</span>
         <span class="tag-remove" data-id="${id}">×</span>
     `;
     tagsContainer.insertBefore(tag, participantInput);

@@ -158,7 +158,6 @@
                 <div class="section">
                     <h2 class="section-title">
                         <i class="fas fa-users"></i> Nhân sự tham gia
-                        <a href="${pageContext.request.contextPath}/activities/create?id=${activity.id}" style="margin-left: 10px; font-size: 14px;"><i class="fas fa-pen"></i></a>
                     </h2>
                     <div class="field-group">
                         <c:forEach items="${participants}" var="person">
