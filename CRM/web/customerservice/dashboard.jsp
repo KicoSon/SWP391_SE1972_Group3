@@ -487,7 +487,7 @@
                 </div>
             </div>
 
-            <!-- ===== KPI — FEEDBACK ===== -->
+            <!-- ===== KPI — FEEDBACK (phân biệt 2 nguồn) ===== -->
             <div class="section-title">⭐ Thống Kê Phản Hồi</div>
             <div class="kpi-grid">
                 <div class="kpi-card">
@@ -498,6 +498,24 @@
                     </div>
                 </div>
                 <div class="kpi-card">
+                    <div class="kpi-icon bg-blue" style="background:linear-gradient(135deg,#667eea,#764ba2)">
+                        <i class="fas fa-user"></i>
+                    </div>
+                    <div class="kpi-info">
+                        <p>Customer Feedback</p>
+                        <h3>${feedbackStats['totalCustomer']}</h3>
+                    </div>
+                </div>
+                <div class="kpi-card">
+                    <div class="kpi-icon bg-teal" style="background:linear-gradient(135deg,#20c997,#0fb8ad)">
+                        <i class="fas fa-ticket-alt"></i>
+                    </div>
+                    <div class="kpi-info">
+                        <p>Ticket Feedback</p>
+                        <h3>${feedbackStats['totalTicket']}</h3>
+                    </div>
+                </div>
+                <div class="kpi-card">
                     <div class="kpi-icon bg-gold"><i class="fas fa-star"></i></div>
                     <div class="kpi-info">
                         <p>Rating Trung Bình</p>
@@ -505,7 +523,7 @@
                     </div>
                 </div>
                 <div class="kpi-card">
-                    <div class="kpi-icon bg-teal"><i class="fas fa-smile"></i></div>
+                    <div class="kpi-icon bg-green"><i class="fas fa-smile"></i></div>
                     <div class="kpi-info">
                         <p>Hài Lòng (4–5★)</p>
                         <h3>${feedbackStats['count4'] + feedbackStats['count5']}</h3>
@@ -698,12 +716,30 @@
                                             ${fb['customerName']}
                                         </td>
                                         <td>
+                                            <%-- Badge phân biệt nguồn --%>
+                                            <c:choose>
+                                                <c:when test="${fb['source'] == 'ticket'}">
+                                                    <span style="background:#e8f4f8;color:#0fb8ad;
+                                                          padding:2px 7px;border-radius:8px;
+                                                          font-size:10px;font-weight:600;margin-right:4px">
+                                                        Ticket
+                                                    </span>
+                                                </c:when>
+                                                <c:otherwise>
+                                                    <span style="background:#f0eeff;color:#667eea;
+                                                          padding:2px 7px;border-radius:8px;
+                                                          font-size:10px;font-weight:600;margin-right:4px">
+                                                        Customer
+                                                    </span>
+                                                </c:otherwise>
+                                            </c:choose>
                                             <span class="rating-badge rating-${fb['rating']}">
                                                 ${fb['rating']}
                                                 <i class="fas fa-star" style="font-size:9px"></i>
                                             </span>
                                         </td>
-                                        <td style="max-width:160px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-style:italic;color:#666;font-size:12px;">
+                                        <td style="max-width:160px;overflow:hidden;text-overflow:ellipsis;
+                                            white-space:nowrap;font-style:italic;color:#666;font-size:12px;">
                                             <c:choose>
                                                 <c:when test="${not empty fb['comments']}">${fb['comments']}</c:when>
                                                 <c:otherwise><span style="color:#ccc">—</span></c:otherwise>

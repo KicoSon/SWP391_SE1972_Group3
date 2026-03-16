@@ -1,6 +1,8 @@
 package controller.customerservice;
 
+import dal.CustomerFeedbackDAO;
 import dal.TicketFeedbackDAO;
+import model.CustomerFeedback;
 import model.TicketFeedback;
 import model.UserSession;
 
@@ -13,17 +15,24 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * Staff xem danh sách feedback từ bảng ticket_feedback.
- * URL: /customerservice/feedbackmanagement
+ * FeedbackManagementServlet — tách riêng 2 section:
+ *   Section 1: customer_feedback  (feedback chung)
+ *   Section 2: ticket_feedback    (feedback theo ticket)
+ *
+ * Cả 2 section đều hỗ trợ filter theo rating độc lập qua query param:
+ *   ?ratingCf=1..5  → filter customer_feedback
+ *   ?ratingTf=1..5  → filter ticket_feedback
  */
 @WebServlet("/customerservice/feedbackmanagement")
 public class FeedbackManagementServlet extends HttpServlet {
 
-    private TicketFeedbackDAO feedbackDAO;
+    private CustomerFeedbackDAO customerFeedbackDAO;
+    private TicketFeedbackDAO   ticketFeedbackDAO;
 
     @Override
     public void init() {
-        feedbackDAO = new TicketFeedbackDAO();
+        customerFeedbackDAO = new CustomerFeedbackDAO();
+        ticketFeedbackDAO   = new TicketFeedbackDAO();
     }
 
     @Override
@@ -35,33 +44,49 @@ public class FeedbackManagementServlet extends HttpServlet {
             resp.sendRedirect(req.getContextPath() + "/login");
             return;
         }
-
         UserSession user = (UserSession) session.getAttribute("userSession");
         if (!user.isStaff()) {
             resp.sendRedirect(req.getContextPath() + "/customerservice/ticketlist");
             return;
         }
 
-        // Đọc filter rating
-        int ratingFilter = 0;
-        String ratingParam = req.getParameter("rating");
-        if (ratingParam != null && !ratingParam.isEmpty()) {
-            try {
-                ratingFilter = Integer.parseInt(ratingParam);
-                if (ratingFilter < 1 || ratingFilter > 5) ratingFilter = 0;
-            } catch (NumberFormatException e) {
-                ratingFilter = 0;
-            }
-        }
+        // ── Filter rating độc lập cho từng section ────────────
+        int ratingCf = parseRating(req.getParameter("ratingCf")); // customer_feedback
+        int ratingTf = parseRating(req.getParameter("ratingTf")); // ticket_feedback
 
-        List<TicketFeedback> feedbackList = feedbackDAO.getFeedbacksByRating(ratingFilter);
-        Map<String, Object>  stats        = feedbackDAO.getFeedbackStats();
+        // ── Section 1: Customer feedback ──────────────────────
+        List<CustomerFeedback> customerFeedbackList =
+                customerFeedbackDAO.getFeedbacksByRating(ratingCf);
+        Map<String, Object> customerStats =
+                customerFeedbackDAO.getFeedbackStats();
 
-        req.setAttribute("feedbackList",  feedbackList);
-        req.setAttribute("stats",         stats);
-        req.setAttribute("ratingFilter",  ratingFilter);
+        // ── Section 2: Ticket feedback ────────────────────────
+        List<TicketFeedback> ticketFeedbackList =
+                ticketFeedbackDAO.getFeedbacksByRating(ratingTf);
+        Map<String, Object> ticketStats =
+                ticketFeedbackDAO.getFeedbackStats();
+
+        // ── Đẩy vào request scope ─────────────────────────────
+        req.setAttribute("customerFeedbackList", customerFeedbackList);
+        req.setAttribute("customerStats",        customerStats);
+        req.setAttribute("ratingCf",             ratingCf);
+
+        req.setAttribute("ticketFeedbackList",   ticketFeedbackList);
+        req.setAttribute("ticketStats",          ticketStats);
+        req.setAttribute("ratingTf",             ratingTf);
 
         req.getRequestDispatcher("/customerservice/feedbackManagement.jsp")
            .forward(req, resp);
+    }
+
+    // ── Helper: parse và validate rating param ────────────────
+    private int parseRating(String param) {
+        if (param == null || param.isEmpty()) return 0;
+        try {
+            int r = Integer.parseInt(param);
+            return (r >= 1 && r <= 5) ? r : 0;
+        } catch (NumberFormatException e) {
+            return 0;
+        }
     }
 }

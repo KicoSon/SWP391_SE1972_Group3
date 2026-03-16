@@ -4,13 +4,13 @@ import java.sql.*;
 import java.util.*;
 
 /**
- * DAO tổng hợp số liệu cho Dashboard.
- * getFeedbackStats() đã cập nhật dùng bảng ticket_feedback.
+ * DashboardDAO - getFeedbackStats() gộp chung
+ * customer_feedback + ticket_feedback bằng UNION ALL.
  */
 public class CSDashboardDAO extends DBContext {
 
     // =========================================================
-    // TICKET STATS — từ bảng support_tickets
+    // TICKET STATS — không thay đổi
     // =========================================================
     public Map<String, Object> getTicketStats() {
         Map<String, Object> stats = new HashMap<>();
@@ -47,7 +47,6 @@ public class CSDashboardDAO extends DBContext {
                     stats.put("resolved",   rs.getInt("resolved"));
                 }
             }
-
             try (PreparedStatement ps = connection.prepareStatement(sqlPriority);
                  ResultSet rs = ps.executeQuery()) {
                 if (rs.next()) {
@@ -57,7 +56,6 @@ public class CSDashboardDAO extends DBContext {
                     stats.put("urgent", rs.getInt("urgent_count"));
                 }
             }
-
             List<Map<String, String>> recent = new ArrayList<>();
             try (PreparedStatement ps = connection.prepareStatement(sqlRecent);
                  ResultSet rs = ps.executeQuery()) {
@@ -73,45 +71,85 @@ public class CSDashboardDAO extends DBContext {
                 }
             }
             stats.put("recentTickets", recent);
-
         } catch (SQLException e) {
             e.printStackTrace();
-            stats.putIfAbsent("total",         0); stats.putIfAbsent("open",    0);
-            stats.putIfAbsent("inProgress",    0); stats.putIfAbsent("resolved",0);
-            stats.putIfAbsent("low",           0); stats.putIfAbsent("medium",  0);
-            stats.putIfAbsent("high",          0); stats.putIfAbsent("urgent",  0);
+            stats.putIfAbsent("total",         0); stats.putIfAbsent("open",     0);
+            stats.putIfAbsent("inProgress",    0); stats.putIfAbsent("resolved", 0);
+            stats.putIfAbsent("low",           0); stats.putIfAbsent("medium",   0);
+            stats.putIfAbsent("high",          0); stats.putIfAbsent("urgent",   0);
             stats.putIfAbsent("recentTickets", new ArrayList<>());
         }
         return stats;
     }
 
     // =========================================================
-    // FEEDBACK STATS — từ bảng ticket_feedback (đã cập nhật)
+    // FEEDBACK STATS — gộp customer_feedback + ticket_feedback
+    //
+    // Keys trả về:
+    //   "total"            → tổng gộp cả 2 bảng     (int)
+    //   "totalCustomer"    → chỉ customer_feedback   (int)
+    //   "totalTicket"      → chỉ ticket_feedback     (int)
+    //   "avgRating"        → trung bình gộp          (double)
+    //   "count1"~"count5"  → số lượng từng mức gộp  (int)
+    //   "pct1"~"pct5"      → % từng mức gộp          (double)
+    //   "recentFeedbacks"  → 5 gần nhất từ cả 2      (List<Map>)
+    //                        Map có thêm key "source" = "customer"|"ticket"
     // =========================================================
     public Map<String, Object> getFeedbackStats() {
         Map<String, Object> stats = new HashMap<>();
 
-        // Dùng ticket_feedback thay vì customer_feedback
+        // Đếm riêng từng bảng để hiển thị phân biệt trên Dashboard
+        String sqlCount =
+            "SELECT " +
+            "  (SELECT COUNT(1) FROM customer_feedback) AS cnt_customer, " +
+            "  (SELECT COUNT(1) FROM ticket_feedback)   AS cnt_ticket";
+
+        // Tổng gộp + trung bình
         String sqlSummary =
             "SELECT COUNT(1) AS total, AVG(CAST(rating AS FLOAT)) AS avg_rating " +
-            "FROM ticket_feedback";
+            "FROM ( " +
+            "  SELECT rating FROM customer_feedback " +
+            "  UNION ALL " +
+            "  SELECT rating FROM ticket_feedback " +
+            ") combined";
 
+        // Phân bổ từng mức gộp
         String sqlDist =
-            "SELECT rating, COUNT(1) AS cnt FROM ticket_feedback " +
+            "SELECT rating, COUNT(1) AS cnt " +
+            "FROM ( " +
+            "  SELECT rating FROM customer_feedback " +
+            "  UNION ALL " +
+            "  SELECT rating FROM ticket_feedback " +
+            ") combined " +
             "GROUP BY rating ORDER BY rating";
 
-        // JOIN thêm support_tickets để có tiêu đề ticket
+        // 5 feedback mới nhất từ cả 2 bảng, kèm cột source để JSP phân biệt
         String sqlRecent =
-            "SELECT TOP 5 " +
-            "  tf.rating, tf.comments, tf.created_at, " +
-            "  c.full_name AS customer_name, " +
-            "  t.title     AS ticket_title " +
-            "FROM ticket_feedback tf " +
-            "LEFT JOIN customers      c ON c.id = tf.customer_id " +
-            "LEFT JOIN support_tickets t ON t.id = tf.ticket_id " +
-            "ORDER BY tf.created_at DESC";
+            "SELECT TOP 5 rating, comments, created_at, customer_name, source " +
+            "FROM ( " +
+            "  SELECT cf.rating, cf.comments, cf.created_at, " +
+            "         c.full_name AS customer_name, 'customer' AS source " +
+            "  FROM customer_feedback cf " +
+            "  LEFT JOIN customers c ON c.id = cf.customer_id " +
+            "  UNION ALL " +
+            "  SELECT tf.rating, tf.comments, tf.created_at, " +
+            "         c.full_name AS customer_name, 'ticket' AS source " +
+            "  FROM ticket_feedback tf " +
+            "  LEFT JOIN customers c ON c.id = tf.customer_id " +
+            ") combined " +
+            "ORDER BY created_at DESC";
 
         try {
+            // Đếm riêng
+            try (PreparedStatement ps = connection.prepareStatement(sqlCount);
+                 ResultSet rs = ps.executeQuery()) {
+                if (rs.next()) {
+                    stats.put("totalCustomer", rs.getInt("cnt_customer"));
+                    stats.put("totalTicket",   rs.getInt("cnt_ticket"));
+                }
+            }
+
+            // Tổng gộp + avg
             try (PreparedStatement ps = connection.prepareStatement(sqlSummary);
                  ResultSet rs = ps.executeQuery()) {
                 if (rs.next()) {
@@ -122,6 +160,7 @@ public class CSDashboardDAO extends DBContext {
                 }
             }
 
+            // Phân bổ
             int total = (Integer) stats.getOrDefault("total", 0);
             int[] counts = new int[6];
             try (PreparedStatement ps = connection.prepareStatement(sqlDist);
@@ -137,6 +176,7 @@ public class CSDashboardDAO extends DBContext {
                 stats.put("pct" + i, pct);
             }
 
+            // Recent gộp
             List<Map<String, String>> recent = new ArrayList<>();
             try (PreparedStatement ps = connection.prepareStatement(sqlRecent);
                  ResultSet rs = ps.executeQuery()) {
@@ -146,7 +186,7 @@ public class CSDashboardDAO extends DBContext {
                     row.put("comments",     rs.getString("comments") != null ? rs.getString("comments") : "");
                     row.put("createdAt",    rs.getString("created_at"));
                     row.put("customerName", rs.getString("customer_name"));
-                    row.put("ticketTitle",  rs.getString("ticket_title")); // thêm mới
+                    row.put("source",       rs.getString("source")); // "customer" | "ticket"
                     recent.add(row);
                 }
             }
@@ -155,6 +195,8 @@ public class CSDashboardDAO extends DBContext {
         } catch (SQLException e) {
             e.printStackTrace();
             stats.putIfAbsent("total",           0);
+            stats.putIfAbsent("totalCustomer",   0);
+            stats.putIfAbsent("totalTicket",     0);
             stats.putIfAbsent("avgRating",       0.0);
             for (int i = 1; i <= 5; i++) {
                 stats.putIfAbsent("count" + i,   0);
