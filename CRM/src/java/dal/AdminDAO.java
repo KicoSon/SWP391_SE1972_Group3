@@ -346,7 +346,7 @@ public class AdminDAO extends DBContext {
 
     public boolean isOwnerExist(int ownerId) {
 
-    String sql = "SELECT 1 FROM users WHERE id = ?";
+    String sql = "SELECT 1 FROM users WHERE id = ? and role_id = 2";
 
     try (PreparedStatement ps = connection.prepareStatement(sql)) {
 

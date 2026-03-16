@@ -1,6 +1,8 @@
 package controller.customer;
 
 import dal.AdminDAO;
+import dal.StaffDAO;
+import dal.TierDAO;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.MultipartConfig;
 import jakarta.servlet.annotation.WebServlet;
@@ -19,6 +21,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.regex.Pattern;
+import model.Staff;
 
 @WebServlet("/admin/customer-import-preview")
 @MultipartConfig
@@ -32,8 +35,11 @@ public class ImportCustomerPreviewController extends HttpServlet {
 
         Part filePart = request.getPart("excelFile");
         AdminDAO adDao = new AdminDAO();
+        TierDAO tierDAO = new TierDAO();
+        StaffDAO staffDAO = new StaffDAO();
 
         List<Customer> previewList = new ArrayList<>();
+        List<Staff> saleList = staffDAO.getAllSales();
 
         Map<Integer, List<String>> errorMap = new HashMap<>();
 
@@ -50,14 +56,8 @@ public class ImportCustomerPreviewController extends HttpServlet {
 
             DataFormatter formatter = new DataFormatter();
 
-            Map<Integer, String> tierMap = new HashMap<>();
             Set<String> emailSet = new HashSet<>();
             Set<String> phoneSet = new HashSet<>();
-
-            tierMap.put(1, "Bronze");
-            tierMap.put(2, "Silver");
-            tierMap.put(3, "Gold");
-            tierMap.put(4, "Platinum");
 
             for (int i = 1; i <= sheet.getLastRowNum(); i++) { // bỏ header
                 Row row = sheet.getRow(i);
@@ -172,7 +172,7 @@ public class ImportCustomerPreviewController extends HttpServlet {
                     }
 
                     c.setTierId(tierId);
-                    String tierName = tierMap.getOrDefault(tierId, "Default");
+                    String tierName = tierDAO.getTierNameById(tierId);
 
                     c.setTierName(tierName);
 
@@ -207,11 +207,24 @@ public class ImportCustomerPreviewController extends HttpServlet {
 
                     int ownerId = Integer.parseInt(ownerStr);
 
-                    if (!adDao.isOwnerExist(ownerId)) {
-                        errors.add("Owner ID not found");
+                    boolean found = false;
+
+                    for (Staff s : saleList) {
+
+                        if (s.getId() == ownerId) {
+
+                            c.setOwnerId(ownerId);
+                            c.setOwnerName(s.getFullName());
+
+                            found = true;
+                            break;
+                        }
+
                     }
 
-                    c.setOwnerId(ownerId);
+                    if (!found) {
+                        errors.add("Owner ID not found or inactive sale");
+                    }
 
                 } catch (Exception e) {
 
@@ -221,7 +234,7 @@ public class ImportCustomerPreviewController extends HttpServlet {
 
                 //ADD ERROR TO MAP ---------------------------------------------
                 if (!errors.isEmpty()) {
-                    errorMap.put(i, errors);
+                    errorMap.put(i-1, errors);
                 }
 
                 //ADD-----------------------------------------------------------

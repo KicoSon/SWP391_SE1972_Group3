@@ -76,7 +76,6 @@
                                     <thead>
 
                                         <tr>
-                                            <th>ID</th>
                                             <th>Email</th>
                                             <th>Họ tên</th>
                                             <th>Số điện thoại</th>
@@ -94,8 +93,6 @@
                                         <c:forEach var="c" items="${previewCustomers}" varStatus="s">
 
                                             <tr class="${errorMap[s.index + 1] != null ? 'table-danger' : ''}">
-
-                                                <td>#${c.id}</td>
 
                                                 <td>
                                                     <div class="customer-email">
@@ -160,17 +157,12 @@
                                                 <td>${c.ownerName}</td>
                                                 <td>
 
-                                                    <c:if test="${errorMap[s.index + 1] != null}">
+                                                    <c:if test="${errorMap[s.index] != null}">
 
-                                                        <div style="color:red; font-size:13px;">
+                                                        <div style="color:red">
 
-                                                            <c:forEach var="err" items="${errorMap[s.index + 1]}">
-
-                                                                <div>
-                                                                    <i class="fas fa-exclamation-circle"></i>
-                                                                    ${err}
-                                                                </div>
-
+                                                            <c:forEach var="err" items="${errorMap[s.index]}">
+                                                                ${err}<br>
                                                             </c:forEach>
 
                                                         </div>
@@ -210,7 +202,10 @@
 
                                     <input type="hidden" name="size" value="${previewCustomers.size()}">
 
-                                    <button class="btn btn-primary">
+                                    <c:set var="hasError" value="${not empty errorMap}" />
+
+                                    <button class="btn btn-primary"
+                                            ${hasError ? "disabled style='opacity:0.5;cursor:not-allowed'" : ""}>
                                         <i class="fas fa-check"></i>
                                         Import
                                     </button>
