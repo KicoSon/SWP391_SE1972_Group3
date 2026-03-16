@@ -44,7 +44,6 @@
                                 <label class="form-label">Người nhận:</label>
 
                                 <c:choose>
-                                    <%-- TRƯỜNG HỢP 1: Có khách hàng từ Activity (Khóa, không cho chọn) --%>
                                     <c:when test="${not empty fixedCustomer}">
                                         <div class="form-control" style="background: #f3f4f6; font-weight: 600; border-color: #10b981; display: flex; align-items: center; gap: 10px;">
                                             <i class="fas fa-user-check" style="color: #10b981;"></i> 
@@ -53,7 +52,6 @@
                                         <input type="hidden" name="recipientId" value="customer_${fixedCustomer.id}">
                                     </c:when>
                                     
-                                    <%-- TRƯỜNG HỢP 1.5: Có tiềm năng (Lead) từ Activity --%>
                                     <c:when test="${not empty fixedLead}">
                                         <div class="form-control" style="background: #f3f4f6; font-weight: 600; border-color: #10b981; display: flex; align-items: center; gap: 10px;">
                                             <i class="fas fa-user-check" style="color: #10b981;"></i> 
@@ -62,7 +60,6 @@
                                         <input type="hidden" name="recipientId" value="lead_${fixedLead.id}">
                                     </c:when>
 
-                                    <%-- TRƯỜNG HỢP 2: Soạn mail trực tiếp (Hiện danh sách chọn) --%>
                                     <c:otherwise>
                                         <select name="recipientId" class="form-control" required style="width: 100%;">
                                             <option value="">-- Chọn Người nhận --</option>
@@ -122,7 +119,6 @@
                                 });
 
                                 function prepareSubmit() {
-                                    // Copy nội dung từ editor vào hidden input trước khi submit
                                     document.getElementById('contentInput').value = quill.root.innerHTML;
                                     document.getElementById('emailForm').submit();
                                 }

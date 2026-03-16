@@ -79,45 +79,13 @@
                             </div>
                         </c:if>
 
-                        <%-- Banner cảnh báo khi quyền hạn chế --%>
-                        <c:if test="${canEdit == 'LIMITED'}">
-                            <div
-                                style="padding: 10px 40px; color: #856404; background: #fff3cd; border-left: 4px solid #ffc107; font-weight: 500; display: flex; align-items: center; gap: 8px;">
-                                <i class="fas fa-lock"></i>
-                                Bạn là người tham gia công việc này. Bạn chỉ có thể thay đổi <strong>Trạng
-                                    thái (Status)</strong>.
-                            </div>
-                        </c:if>
-
-                        <c:if test="${canEdit == 'LIMITED'}">
-                            <div style="padding: 16px 40px 0 40px;">
-                                <label class="form-label" style="margin-bottom: 8px; display: block;">Trạng thái (Status):</label>
-                                <c:choose>
-                                    <c:when test="${activity.status == 'Completed'}">
-                                        <input type="text" class="form-control" value="Completed" readonly
-                                               style="background-color: #e9ecef; color: #198754; font-weight: bold; border-color: #198754;">
-                                        <input type="hidden" name="status" value="Completed">
-                                    </c:when>
-                                    <c:otherwise>
-                                        <select name="status" class="form-control">
-                                            <option value="Planned" ${activity.status=='Planned' ? 'selected' : '' }>Planned</option>
-                                            <option value="In Progress" ${activity.status=='In Progress' ? 'selected' : '' }>In Progress</option>
-                                            <option value="Completed" ${activity.status=='Completed' ? 'selected' : '' }>Completed</option>
-                                            <option value="Cancelled" ${activity.status=='Cancelled' ? 'selected' : '' }>Cancelled</option>
-                                        </select>
-                                    </c:otherwise>
-                                </c:choose>
-                            </div>
-                        </c:if>
-
                         <div class="form-body">
                             <div class="form-grid">
 
                                 <div class="form-row">
                                     <label class="form-label">Type:</label>
                                     <div>
-                                        <select class="form-control" name="type" ${canEdit=='LIMITED'
-                                                                                   ? 'disabled' : 'required' }>
+                                        <select class="form-control" name="type" required>
                                             <option value="Call" ${act.type=='Call' ? 'selected' : '' }>Call
                                             </option>
                                             <option value="Meeting" ${act.type=='Meeting' ? 'selected' : ''
@@ -129,11 +97,6 @@
                                             <option value="Note" ${act.type=='Note' ? 'selected' : '' }>Note
                                             </option>
                                         </select>
-                                        <%-- Gửi hidden value khi bị disabled (disabled field không submit)
-                                        --%>
-                                        <c:if test="${canEdit == 'LIMITED'}">
-                                            <input type="hidden" name="type" value="${act.type}">
-                                        </c:if>
                                     </div>
                                 </div>
 
@@ -142,8 +105,7 @@
                                     <div>
                                         <input type="text" class="form-control" name="title"
                                                placeholder="Nhập tiêu đề công việc..." required
-                                               value="${act.title}" ${canEdit=='LIMITED'
-                                                        ? 'readonly style="background:#f0f0f0;"' : '' }>
+                                                 value="${act.title}">
                                     </div>
                                 </div>
 
@@ -151,9 +113,7 @@
                                     <label class="form-label">Description:</label>
                                     <div>
                                         <textarea class="form-control" name="description"
-                                                  placeholder="Mô tả chi tiết..." ${canEdit=='LIMITED'
-                                                                                    ? 'readonly style="background:#f0f0f0;"' : ''
-                                                                                    }>${act.description}</textarea>
+                                                  placeholder="Mô tả chi tiết...">${act.description}</textarea>
                                     </div>
                                 </div>
 
@@ -163,14 +123,12 @@
                                     <div class="input-group">
                                         <div class="input-with-icon">
                                             <input type="date" class="form-control" name="date"
-                                                   ${canEdit=='LIMITED'
-                                                     ? 'disabled style="background:#f0f0f0;"' : 'required' }>
+                                                   required>
                                             <span class="input-icon">📅</span>
                                         </div>
                                         <div class="input-with-icon">
                                             <input type="time" class="form-control" name="time"
-                                                   ${canEdit=='LIMITED'
-                                                     ? 'disabled style="background:#f0f0f0;"' : 'required' }>
+                                                   required>
                                             <span class="input-icon">🕐</span>
                                         </div>
                                     </div>
@@ -182,7 +140,7 @@
                                         <div class="priority-option">
                                             <input type="radio" id="p-high" name="priority" value="High"
                                                    class="priority-radio" ${act.priority=='High' ? 'checked'
-                                                                            : '' } ${canEdit=='LIMITED' ? 'disabled' : '' }>
+                                                                            : '' }>
                                             <label for="p-high" class="priority-label priority-high">
                                                 <span class="priority-icon">🔴</span> High
                                             </label>
@@ -191,7 +149,7 @@
                                             <input type="radio" id="p-medium" name="priority" value="Medium"
                                                    class="priority-radio" ${empty act.priority ||
                                                                             act.priority=='Medium' ? 'checked' : '' }
-                                                                            ${canEdit=='LIMITED' ? 'disabled' : '' }>
+                                                                            >
                                                    <label for="p-medium" class="priority-label priority-medium">
                                                        <span class="priority-icon">🟡</span> Medium
                                                    </label>
@@ -199,14 +157,11 @@
                                             <div class="priority-option">
                                                 <input type="radio" id="p-low" name="priority" value="Low"
                                                        class="priority-radio" ${act.priority=='Low' ? 'checked'
-                                                                                : '' } ${canEdit=='LIMITED' ? 'disabled' : '' }>
+                                                                                : '' }>
                                                 <label for="p-low" class="priority-label priority-low">
                                                     <span class="priority-icon">🟢</span> Low
                                                 </label>
                                             </div>
-                                            <c:if test="${canEdit == 'LIMITED'}">
-                                                <input type="hidden" name="priority" value="${act.priority}">
-                                            </c:if>
                                         </div>
                                     </div>
 
@@ -218,19 +173,12 @@
                                             <div class="select-with-icon">
                                                 <span class="select-icon">👤</span>
                                                 <select class="form-control" name="customer"
-                                                        id="customerSelect" onchange="filterRelatedTo()"
-                                                        ${canEdit=='LIMITED' ? 'disabled style="background:#f0f0f0;"' : '' }>
+                                                        id="customerSelect" onchange="filterRelatedTo()">
                                                     <option value="">-- Chọn Khách Hàng --</option>
                                                     <c:forEach items="${customerList}" var="c">
                                                         <option value="${c.id}">${c.fullName}</option>
                                                     </c:forEach>
                                                 </select>
-                                                <%-- Giữ giá trị khi bị disabled --%>
-                                                <c:if
-                                                    test="${canEdit == 'LIMITED' && not empty activity.customerId}">
-                                                    <input type="hidden" name="customer"
-                                                           value="${activity.customerId}">
-                                                </c:if>
                                             </div>
                                         </div>
                                     </div>
@@ -238,9 +186,7 @@
                                     <div class="form-row">
                                         <label class="form-label">Related To:</label>
                                         <div>
-                                            <select class="form-control" name="related_to" id="relatedSelect"
-                                                    ${canEdit=='LIMITED' ? 'disabled style="background:#f0f0f0;"'
-                                                      : '' }>
+                                            <select class="form-control" name="related_to" id="relatedSelect">
                                                 <option value="">-- Không liên kết --</option>
                                                 <c:if test="${not empty oppList}">
                                                     <optgroup label="Opportunities">
@@ -266,11 +212,6 @@
                                                     </optgroup>
                                                 </c:if>
                                             </select>
-                                            <c:if
-                                                test="${canEdit == 'LIMITED' && not empty activity.relatedTo}">
-                                                <input type="hidden" name="related_to"
-                                                       value="${activity.relatedTo}">
-                                            </c:if>
                                         </div>
                                     </div>
 
@@ -279,8 +220,7 @@
                                         <div>
                                             <div class="select-with-icon">
                                                 <span class="select-icon">⭐</span>
-                                                <select class="form-control" name="owner" ${canEdit=='LIMITED'
-                                                                                            ? 'disabled style="background:#f0f0f0;"' : 'required' }>
+                                                <select class="form-control" name="owner" required>
                                                     <option value="">-- Chọn người phụ trách --</option>
                                                     <c:forEach items="${staffList}" var="u">
                                                         <option value="${u.id}" data-role="${not empty u.department ? u.department : 'Staff'}"
@@ -289,10 +229,6 @@
                                                                   ? 'selected' : '' }>${u.fullName}</option>
                                                     </c:forEach>
                                                 </select>
-                                                <c:if test="${canEdit == 'LIMITED'}">
-                                                    <input type="hidden" name="owner"
-                                                           value="${not empty activityOwnerId ? activityOwnerId : sessionScope.userSession.userId}">
-                                                </c:if>
                                             </div>
                                         </div>
                                     </div>
@@ -312,55 +248,46 @@
                                         </div>
                                     </div>
 
-                                    <c:if test="${canEdit != 'LIMITED'}">
-                                        <div class="form-group">
-                                            <label class="form-label">Trạng thái (Status):</label>
+                                    <div class="form-group">
+                                        <label class="form-label">Trạng thái (Status):</label>
 
-                                            <c:choose>
-                                                <%-- TRƯỜNG HỢP 1: Đã hoàn thành -> Hiện ô input chết (Không cho
-                                                    bấm) --%>
-                                                <%-- Lưu ý: Kiểm tra kỹ tên biến là 'activity' hay 'act' nhé
-                                                --%>
-                                                <c:when test="${activity.status == 'Completed'}">
-                                                    <div style="position: relative;">
-                                                        <input type="text" class="form-control"
-                                                               value="Completed" readonly
-                                                               style="background-color: #e9ecef; color: #198754; font-weight: bold; border-color: #198754;">
-                                                        <i class="fas fa-check-circle"
-                                                           style="position: absolute; right: 10px; top: 10px; color: #198754;"></i>
-                                                    </div>
+                                        <c:choose>
+                                            <c:when test="${activity.status == 'Completed'}">
+                                                <div style="position: relative;">
+                                                    <input type="text" class="form-control"
+                                                           value="Completed" readonly
+                                                           style="background-color: #e9ecef; color: #198754; font-weight: bold; border-color: #198754;">
+                                                    <i class="fas fa-check-circle"
+                                                       style="position: absolute; right: 10px; top: 10px; color: #198754;"></i>
+                                                </div>
 
-                                                    <%-- Vẫn phải gửi hidden để Server không bị null --%>
-                                                    <input type="hidden" name="status"
-                                                           value="Completed">
-                                                    <small class="text-danger"
-                                                           style="margin-top: 5px; display: block;">
-                                                        <i class="fas fa-lock"></i> Công việc đã hoàn
-                                                        thành, không thể thay đổi.
-                                                    </small>
-                                                </c:when>
+                                                <input type="hidden" name="status"
+                                                       value="Completed">
+                                                <small class="text-danger"
+                                                       style="margin-top: 5px; display: block;">
+                                                    <i class="fas fa-lock"></i> Công việc đã hoàn
+                                                    thành, không thể thay đổi.
+                                                </small>
+                                            </c:when>
 
-                                                <%-- TRƯỜNG HỢP 2: Chưa hoàn thành -> Hiện Dropdown bình
-                                                    thường --%>
-                                                <c:otherwise>
-                                                    <select name="status" class="form-control">
-                                                        <option value="Planned"
-                                                                ${activity.status=='Planned' ? 'selected'
-                                                                  : '' }>Planned</option>
-                                                        <option value="In Progress"
-                                                                ${activity.status=='In Progress'
-                                                                  ? 'selected' : '' }>In Progress</option>
-                                                        <option value="Completed"
-                                                                ${activity.status=='Completed' ? 'selected'
-                                                                  : '' }>Completed</option>
-                                                        <option value="Cancelled"
-                                                                ${activity.status=='Cancelled' ? 'selected'
-                                                                  : '' }>Cancelled</option>
-                                                    </select>
-                                                </c:otherwise>
-                                            </c:choose>
-                                        </div>
-                                    </c:if>
+                                            <c:otherwise>
+                                                <select name="status" class="form-control">
+                                                    <option value="Planned"
+                                                            ${activity.status=='Planned' ? 'selected'
+                                                              : '' }>Planned</option>
+                                                    <option value="In Progress"
+                                                            ${activity.status=='In Progress'
+                                                              ? 'selected' : '' }>In Progress</option>
+                                                    <option value="Completed"
+                                                            ${activity.status=='Completed' ? 'selected'
+                                                              : '' }>Completed</option>
+                                                    <option value="Cancelled"
+                                                            ${activity.status=='Cancelled' ? 'selected'
+                                                              : '' }>Cancelled</option>
+                                                </select>
+                                            </c:otherwise>
+                                        </c:choose>
+                                    </div>
 
                                     <div class="form-row full-width">
                                         <label class="form-label">Attachments:</label>
@@ -407,7 +334,6 @@
             </div>
 
             <script>
-                // Build staff list from owner dropdown to avoid JSP parser issues inside JS literals.
                 const ownerOptions = document.querySelectorAll('select[name="owner"] option');
                 const allParticipantsData = Array.from(ownerOptions)
                         .filter(option => option.value)
@@ -417,7 +343,6 @@
                                 role: (option.dataset.role || 'Staff').trim()
                             }));
 
-                // Participants sẽ được nạp từ API detail trong edit mode.
                 const initialParticipantIds = [];
             </script>
             <script src="${pageContext.request.contextPath}/assets/js/activity-create.js"></script>

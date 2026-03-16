@@ -1,7 +1,3 @@
-/*
- * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
- * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
- */
 package util;
 
 import jakarta.activation.DataSource;
@@ -19,21 +15,16 @@ import jakarta.mail.internet.MimeMultipart;
 import jakarta.servlet.http.Part;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.UnsupportedEncodingException;
 import java.util.Date;
 import java.util.Collection;
 
 public class EmailService {
     public static String lastError = "";
 
-    // CẤU HÌNH GMAIL (Thay bằng email và app password của bạn)
-    private static final String SENDER_EMAIL = "haicvhe181052@fpt.edu.vn"; // <--- THAY CÁI NÀY
-    private static final String APP_PASSWORD = "celo ljup vjqa plzx";     // <--- THAY CÁI 16 KÝ TỰ VÀO ĐÂY
+    private static final String SENDER_EMAIL = "haicvhe181052@fpt.edu.vn";
+    private static final String APP_PASSWORD = "celo ljup vjqa plzx";
 
-    // HÀM GỬI MAIL TỔNG QUÁT (Có file hoặc không đều OK)
     public static boolean sendEmail(String toEmail, String subject, String bodyHTML, Collection<Part> fileParts) {
-
-        // 1. Cấu hình SMTP
         Properties props = new Properties();
         props.put("mail.smtp.host", "smtp.gmail.com");
         props.put("mail.smtp.port", "587");
@@ -54,7 +45,6 @@ public class EmailService {
             msg.setSubject(subject, "UTF-8");
             msg.setSentDate(new Date());
 
-            // Kiểm tra xem có file đính kèm hay không
             boolean hasAttachments = false;
             if (fileParts != null) {
                 for (Part part : fileParts) {
@@ -66,15 +56,10 @@ public class EmailService {
             }
 
             if (hasAttachments) {
-                // TẠO MULTIPART (Chứa cả nội dung và file)
                 Multipart multipart = new MimeMultipart();
-
-                // --- PHẦN 1: NỘI DUNG TEXT (Luôn có) ---
                 MimeBodyPart textPart = new MimeBodyPart();
                 textPart.setContent(bodyHTML, "text/html; charset=UTF-8");
                 multipart.addBodyPart(textPart);
-
-                // --- PHẦN 2: FILE ĐÍNH KÈM ---
                 for (Part part : fileParts) {
                     if (part.getSize() > 0 && part.getSubmittedFileName() != null && !part.getSubmittedFileName().isEmpty()) {
 

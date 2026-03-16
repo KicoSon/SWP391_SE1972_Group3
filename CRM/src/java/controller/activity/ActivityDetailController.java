@@ -17,6 +17,17 @@ import jakarta.servlet.http.HttpSession;
 @WebServlet(name = "ActivityDetailController", urlPatterns = {"/activities/detail"})
 public class ActivityDetailController extends HttpServlet {
 
+    private boolean canAccessActivity(UserSession userSession, Activity activity, ActivityDAO dao) {
+        if (userSession == null || userSession.getStaff() == null || activity == null) {
+            return false;
+        }
+
+        int currentUserId = userSession.getStaff().getId();
+        return userSession.isAdmin()
+                || activity.getCreatedBy() == currentUserId
+                || dao.isUserInvolvedInActivity(activity.getId(), currentUserId);
+    }
+
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
@@ -31,43 +42,45 @@ public class ActivityDetailController extends HttpServlet {
 
             ActivityDAO dao = new ActivityDAO();
 
-            // 1. Lấy thông tin chính
             Activity activity = dao.getActivityById(activityId);
             if (activity == null) {
                 response.sendRedirect(request.getContextPath() + "/sale/dashboard?error=notfound");
                 return;
             }
 
-            // 2. Tính toán quyền canEdit theo 4 cấp ưu tiên
             HttpSession session = request.getSession();
             UserSession userSession = (UserSession) session.getAttribute("userSession");
 
-            String canEdit = "NONE"; // Mặc định: Chỉ xem + Bình luận
+            if (userSession == null || userSession.getStaff() == null) {
+                response.sendRedirect(request.getContextPath() + "/login");
+                return;
+            }
+
+            if (!canAccessActivity(userSession, activity, dao)) {
+                response.sendRedirect(request.getContextPath() + "/sale/dashboard?error=nopermission");
+                return;
+            }
+
+            String canEdit = "NONE";
 
             if (userSession != null && userSession.getStaff() != null) {
                 int currentUserId = userSession.getStaff().getId();
 
-                // Ưu tiên 1: Manager/Admin hoặc Creator -> Full quyền
                 if (userSession.isAdmin() || activity.getCreatedBy() == currentUserId) {
                     canEdit = "FULL";
                 }
-                // Ưu tiên 2: PIC/Participant -> Không được sửa
                 else if (dao.isUserInvolvedInActivity(activityId, currentUserId)) {
                     canEdit = "NONE";
                 }
-                // Ưu tiên 3: Còn lại -> Chỉ xem + Bình luận (NONE)
             }
 
             request.setAttribute("canEdit", canEdit);
 
-            // 3. Lấy danh sách người tham gia & File đính kèm
             List<String> participants = dao.getParticipantsFullInfo(activityId);
             List<ActivityAttachment> attachments = dao.getAttachmentsByActivityId(activityId);
 
-            // 4. Lấy danh sách COMMENT
             List<ActivityComment> comments = dao.getCommentsByActivityId(activityId);
 
-            // Gắn vào request
             request.setAttribute("activity", activity);
             request.setAttribute("participants", participants);
             request.setAttribute("attachments", attachments);
@@ -80,30 +93,31 @@ public class ActivityDetailController extends HttpServlet {
         }
     }
 
-    // Xử lý khi bấm nút "Gửi bình luận" — Ai thấy được activity đều được comment
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
         request.setCharacterEncoding("UTF-8");
 
         try {
-            // Lấy dữ liệu từ Form
             int activityId = Integer.parseInt(request.getParameter("activityId"));
             String content = request.getParameter("content");
 
-            // Lấy ID người đang đăng nhập
             HttpSession session = request.getSession();
             UserSession userSession = (UserSession) session.getAttribute("userSession");
 
             if (userSession != null && userSession.getStaff() != null) {
                 int userId = userSession.getStaff().getId();
 
-                // Gọi DAO lưu vào DB
                 ActivityDAO dao = new ActivityDAO();
+                Activity activity = dao.getActivityById(activityId);
+                if (activity == null || !canAccessActivity(userSession, activity, dao)) {
+                    response.sendRedirect(request.getContextPath() + "/sale/dashboard?error=nopermission");
+                    return;
+                }
+
                 dao.insertComment(activityId, userId, content);
             }
 
-            // Load lại trang chi tiết để thấy comment mới
             response.sendRedirect(request.getContextPath() + "/activities/detail?id=" + activityId);
 
         } catch (Exception e) {

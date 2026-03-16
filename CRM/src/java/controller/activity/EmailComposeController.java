@@ -1,6 +1,6 @@
 package controller.activity;
 
-import dal.ActivityDAO; // Import thêm DAO để xử lý trạng thái Activity
+import dal.ActivityDAO;
 import dal.CustomerDAO;
 import dal.LeadDAO;
 import dal.EmailDAO;
@@ -23,10 +23,10 @@ import java.nio.file.Paths;
 import java.util.ArrayList;
 
 @WebServlet(name = "EmailComposeController", urlPatterns = {"/emails/compose"})
-@MultipartConfig( // BẮT BUỘC PHẢI CÓ
-        fileSizeThreshold = 1024 * 1024 * 2, // 2MB
-        maxFileSize = 1024 * 1024 * 10, // 10MB
-        maxRequestSize = 1024 * 1024 * 50 // 50MB
+@MultipartConfig(
+    fileSizeThreshold = 1024 * 1024 * 2,
+    maxFileSize = 1024 * 1024 * 10,
+    maxRequestSize = 1024 * 1024 * 50
 )
 public class EmailComposeController extends HttpServlet {
 
@@ -41,7 +41,6 @@ public class EmailComposeController extends HttpServlet {
             return;
         }
 
-        // Marketing bị chặn hoàn toàn - không được vào trang soạn mail
         if (userSession.isMarketingStaff()) {
             response.sendRedirect(request.getContextPath() + "/sale/dashboard?error=nopermission");
             return;
@@ -49,7 +48,6 @@ public class EmailComposeController extends HttpServlet {
 
         String activityIdParam = request.getParameter("activityId");
 
-        // Nếu đi từ Activity (có ID hoạt động)
         if (activityIdParam != null && !activityIdParam.trim().isEmpty()) {
             int activityId = Integer.parseInt(activityIdParam);
             ActivityDAO actDAO = new ActivityDAO();
@@ -59,7 +57,6 @@ public class EmailComposeController extends HttpServlet {
                 if (act.getCustomerId() != null && act.getCustomerId() > 0) {
                     CustomerDAO custDAO = new CustomerDAO();
                     model.Customer fixedCustomer = custDAO.getCustomerById(act.getCustomerId());
-                    // Gửi đối tượng khách hàng cố định này sang JSP
                     request.setAttribute("fixedCustomer", fixedCustomer);
                     request.setAttribute("sourceActivityId", activityId);
                 } else if (act.getLeadId() != null && act.getLeadId() > 0) {
@@ -76,16 +73,11 @@ public class EmailComposeController extends HttpServlet {
         LeadDAO leadDAO = new LeadDAO();
         List<Lead> leads;
 
-        // Kiểm tra quyền: Nếu là Sale và KHÔNG PHẢI Admin -> Chỉ lấy khách của mình
         if (userSession.isSaleStaff() && !userSession.isAdmin()) {
-            // Lấy ID của nhân viên đang đăng nhập
             int currentStaffId = userSession.getStaff().getId();
-
-            // Gọi hàm lấy khách theo Owner ID (Hàm này bạn đã có trong CustomerDAO)
             customers = customerDAO.getCustomersByOwnerId(currentStaffId);
             leads = leadDAO.getLeadsBySaleId((long) currentStaffId);
         } else {
-            // Nếu là Admin hoặc Manager -> Lấy tất cả để họ hỗ trợ bất kỳ ai
             customers = customerDAO.getAllActiveCustomers();
             leads = leadDAO.getLeadsBySaleId(null);
         }
@@ -102,7 +94,6 @@ public class EmailComposeController extends HttpServlet {
         request.setCharacterEncoding("UTF-8");
 
         try {
-            // 1. Lấy thông tin cơ bản từ Form
             String recipientRaw = request.getParameter("recipientId");
             int customerId = 0;
             Long leadId = null;
@@ -121,7 +112,7 @@ public class EmailComposeController extends HttpServlet {
                         LeadDAO leadDAO = new LeadDAO();
                         Lead receiver = leadDAO.getLeadById(leadId);
                         if (receiver != null) receiverEmail = receiver.getEmail();
-                        customerId = 0; // Để null cho db
+                        customerId = 0;
                     }
                 }
             }
@@ -130,11 +121,9 @@ public class EmailComposeController extends HttpServlet {
             String subject = request.getParameter("subject");
             String content = request.getParameter("content");
 
-            // 2. LẤY FILE TỪ FORM (Chỉ để gửi mail, không lưu)
             List<Part> fileParts = new ArrayList<>();
             if (request.getParts() != null) {
                 for (Part part : request.getParts()) {
-                    // Lọc lấy các file đính kèm có dung lượng > 0
                     if ("attachments".equals(part.getName()) && part.getSize() > 0 && part.getSubmittedFileName() != null) {
                         fileParts.add(part);
                     }
@@ -145,25 +134,18 @@ public class EmailComposeController extends HttpServlet {
             UserSession userSession = (UserSession) session.getAttribute("userSession");
             int fromUserId = userSession.getStaff().getId();
 
-            // 3. GỬI MAIL (File sẽ được stream trực tiếp lên Gmail server)
             boolean sendSuccess = EmailService.sendEmail(receiverEmail, subject, content, fileParts);
 
-            // 4. LƯU LOG VÀO DATABASE
-            // a. Lưu vào bảng lịch sử Email (emails table)
             EmailDAO emailDAO = new EmailDAO();
-            // Nếu là lead, truyền 0 cho toCustomerId (EmailDAO sẽ lưu là null hoặc 0)
             emailDAO.insertEmailLog(fromUserId, customerId, receiverEmail, subject, content, sendSuccess ? "Sent" : "Failed");
 
             if (sendSuccess) {
                 ActivityDAO activityDAO = new ActivityDAO();
 
-                // b. Cập nhật hoặc Tạo mới Activity (Để hiện lên Dashboard)
                 if (activityIdRaw != null && !activityIdRaw.trim().isEmpty()) {
-                    // TRƯỜNG HỢP 1: Gửi từ Activity có sẵn -> Update trạng thái thành Completed
                     int actId = Integer.parseInt(activityIdRaw);
                     activityDAO.updateActivityStatus(actId, "Completed", "Đã gửi email: " + subject);
                 } else {
-                    // TRƯỜNG HỢP 2: Soạn mail mới -> Tự tạo Activity mới ghi nhận việc này
                     model.activity.Activity newAct = new model.activity.Activity();
                     newAct.setTitle("Gửi Email: " + subject);
                     newAct.setType("Email");
@@ -171,7 +153,7 @@ public class EmailComposeController extends HttpServlet {
                     if (customerId > 0) newAct.setCustomerId(customerId);
                     if (leadId != null) newAct.setLeadId(leadId);
                     newAct.setCreatedBy(fromUserId);
-                    newAct.setStatus("Completed"); // Xong luôn
+                    newAct.setStatus("Completed");
                     newAct.setPriority("Medium");
 
                     java.sql.Timestamp now = new java.sql.Timestamp(System.currentTimeMillis());
@@ -184,10 +166,8 @@ public class EmailComposeController extends HttpServlet {
                     activityDAO.insertActivity(newAct, participants);
                 }
 
-                // Xong việc -> Quay về Dashboard
                 response.sendRedirect(request.getContextPath() + "/sale/dashboard?msg=emailsent");
             } else {
-                // Gửi thất bại
                 request.setAttribute("error", "Gửi mail thất bại. Vui lòng kiểm tra lại đường truyền.");
                 doGet(request, response);
             }

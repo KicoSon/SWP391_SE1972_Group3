@@ -82,7 +82,6 @@
             <c:remove var="success" scope="session" />
         </c:if>
 
-        <%-- Load sidebar đúng theo vai trò --%>
         <c:choose>
             <c:when test="${sessionScope.userSession.admin}">
                 <jsp:include page="/components/sidebar.jsp" />
@@ -94,11 +93,9 @@
                 <jsp:include page="/marketingg/sidebar.jsp" />
             </c:when>
             <c:otherwise>
-                <%-- Sale (và mặc định) --%>
                 <jsp:include page="/sales/sidebar.jsp" />
             </c:otherwise>
         </c:choose>
-        <!-- Header riêng cho Admin -->
         <div class="admin-header fade-in">
             <div class="admin-info">
                 <div class="admin-welcome">
@@ -128,7 +125,6 @@
                     <i class="fas fa-chart-line"></i>
                     Activity Dashboard
                 </h2>
-                <%-- Chỉ Manager, Sale, Support mới được tạo Activity --%>
                 <c:if test="${!sessionScope.userSession.marketingStaff}">
                     <a href="${pageContext.request.contextPath}/activities/create"
                        class="btn btn-primary">
@@ -378,7 +374,6 @@
                                         </td>
 
                                         <td class="action-cell">
-                                            <%-- Nút 👁️ Xem: Tất cả đều thấy --%>
                                             <a href="javascript:void(0)"
                                                onclick="openDetailModal(${act.id})"
                                                class="action-btn view-btn" title="Xem chi tiết"><i
@@ -386,7 +381,6 @@
 
 
 
-                                            <%-- Nút 🗑️ Xóa: Chỉ Manager --%>
                                             <c:if test="${sessionScope.userSession.admin}">
                                                 <a href="javascript:void(0);" class="action-btn delete-btn"
                                                    title="Xóa" style="color: #EF4444;"
@@ -394,8 +388,6 @@
                                                         class="fas fa-trash"></i></a>
                                                 </c:if>
 
-                                            <%-- Nút ✉️ Email: Chỉ hiện với Email-type, chưa
-                                                Completed, không phải Marketing --%>
                                             <c:if test="${act.type == 'Email' && act.status != 'Completed'
                                                           && !sessionScope.userSession.marketingStaff}">
                                                   <a href="${pageContext.request.contextPath}/emails/compose?customerId=${act.customerId}&activityId=${act.id}"
@@ -468,12 +460,9 @@
                         .then(response => response.json())
                         .then(data => {
                             if (data.success) {
-                                // Tìm tr <td> bọc cái nút này và xóa đi
                                 var row = btnElement.closest('tr');
                                 row.style.animation = 'fadeOut 0.3s ease';
                                 setTimeout(() => row.remove(), 300);
-
-                                // Tạo toast thông báo thành công (nếu cần, có thể dùng thư viện toast sẵn có)
                                 alert(data.message);
                             } else {
                                 alert('Lỗi: ' + data.message);
@@ -486,7 +475,6 @@
             }
         }
 
-        // ====== LOGIC CALENDAR VIEW ======
         let calendarLoaded = false;
         let calendarInstance = null;
 
@@ -507,12 +495,11 @@
                 btnCal.classList.add('active');
                 btnList.classList.remove('active');
 
-                // Chỉ khởi tạo Lịch 1 lần khi User bấm sang
                 if (!calendarLoaded) {
                     initCalendar();
                     calendarLoaded = true;
                 } else {
-                    calendarInstance.render(); // Vẽ lại để fix lỗi kích thước khi đổi từ display:none sang block
+                    calendarInstance.render();
                 }
             }
         }
@@ -526,17 +513,15 @@
                     center: 'title',
                     right: 'dayGridMonth,timeGridWeek,timeGridDay'
                 },
-                locale: 'vi', // Tiếng Việt
+                locale: 'vi',
                 buttonText: {
                     today: 'Hôm nay',
                     month: 'Tháng',
                     week: 'Tuần',
                     day: 'Ngày'
                 },
-                events: '${pageContext.request.contextPath}/api/activities/calendar', // Nguồn dữ liệu
+                events: '${pageContext.request.contextPath}/api/activities/calendar',
                 eventContent: function (arg) {
-                    // Cho phép render HTML (Icon & Thẻ <del>) và Chủ động phủ màu nền (Background)
-                    // Vì FullCalendar v6 khi xài html đôi khi sẽ lột sạch class CSS có sẵn của nó
                     let bgColor = arg.event.backgroundColor || '#007bff';
                     return {
                         html: '<div style="background-color: ' + bgColor + '; color: white; padding: 2px 4px; border-radius: 3px; width: 100%; height: 100%; overflow: hidden; white-space: nowrap; text-overflow: ellipsis; font-size: 0.85em;">'
@@ -545,8 +530,7 @@
                     };
                 },
                 eventClick: function (info) {
-                    info.jsEvent.preventDefault(); // Tránh bị nhảy URL nếu có URL rác
-                    // Mở đúng cái Modal Detail đang dùng ở Giao diện bảng
+                    info.jsEvent.preventDefault();
                     openDetailModal(info.event.id);
                 }
             });

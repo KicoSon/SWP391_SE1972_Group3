@@ -26,7 +26,6 @@ public class ExportActivityExcelController extends HttpServlet {
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
 
-        // 1. Kiểm tra đăng nhập (Tái sử dụng logic của Dashboard)
         HttpSession session = request.getSession();
         UserSession userSession = (UserSession) session.getAttribute("userSession");
 
@@ -42,19 +41,15 @@ public class ExportActivityExcelController extends HttpServlet {
             filterUserId = userSession.getStaff().getId();
         }
 
-        // 3. Lấy dữ liệu từ DB
         ActivityDAO dao = new ActivityDAO();
         List<Activity> activityList = dao.getActivitiesForDashboard(filterUserId);
 
-        // 4. Cấu hình HTTP Response để trình duyệt tải file Excel về
         response.setContentType("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet");
         response.setHeader("Content-Disposition", "attachment; filename=\"activity_list.xlsx\"");
 
-        // 5. Tạo file Excel bằng Apache POI
         try (Workbook workbook = new XSSFWorkbook()) {
             Sheet sheet = workbook.createSheet("Activities");
 
-            // Tạo Header Row
             String[] headers = {"ID", "Title", "Type", "Status", "Priority", "Due Date", "Customer/Lead Name", "Creator", "Assignee"};
             Row headerRow = sheet.createRow(0);
             for (int i = 0; i < headers.length; i++) {
@@ -62,7 +57,6 @@ public class ExportActivityExcelController extends HttpServlet {
                 cell.setCellValue(headers[i]);
             }
 
-            // Đổ dữ liệu vào các Row tiếp theo
             int rowNum = 1;
             for (Activity act : activityList) {
                 Row row = sheet.createRow(rowNum++);
@@ -73,11 +67,9 @@ public class ExportActivityExcelController extends HttpServlet {
                 row.createCell(3).setCellValue(act.getStatus() != null ? act.getStatus() : "");
                 row.createCell(4).setCellValue(act.getPriority() != null ? act.getPriority() : "");
                 
-                // Xử lý Ngày tháng (DueDate có thể null)
                 String dueDateStr = (act.getDueDate() != null) ? act.getDueDate().toString() : "";
                 row.createCell(5).setCellValue(dueDateStr);
 
-                // Gộp hiển thị Customer hoặc Lead (dựa vào code DAO của bạn)
                 String contactName = "";
                 if (act.getCustomerName() != null) {
                     contactName = act.getCustomerName() + " (Customer)";
@@ -90,17 +82,15 @@ public class ExportActivityExcelController extends HttpServlet {
                 row.createCell(8).setCellValue(act.getAssigneeName() != null ? act.getAssigneeName() : "");
             }
 
-            // Auto-size các cột cho đẹp
             for (int i = 0; i < headers.length; i++) {
                 sheet.autoSizeColumn(i);
             }
 
-            // 6. Ghi Workbook vào Response Output Stream
             workbook.write(response.getOutputStream());
 
         } catch (Exception e) {
             e.printStackTrace();
-            response.reset(); // Reset response nếu có lỗi
+            response.reset();
             response.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR, "Lỗi khi xuất file Excel");
         }
     }

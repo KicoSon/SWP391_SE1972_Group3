@@ -17,7 +17,6 @@ public class FileDownloadController extends HttpServlet {
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
 
-        // Nhận tên file từ URL (Ví dụ: /download?file=uploads/170810293_BaoGia.pdf)
         String filePath = request.getParameter("file");
 
         if (filePath == null || filePath.isEmpty()) {
@@ -25,19 +24,16 @@ public class FileDownloadController extends HttpServlet {
             return;
         }
 
-        // Lấy upload directory từ context parameter
         String uploadDir = getServletContext().getInitParameter("uploadDirectory");
         if (uploadDir == null || uploadDir.isEmpty()) {
-            uploadDir = "D:/uploads"; // Default fallback
+            uploadDir = "D:/uploads";
         }
 
-        // Xử lý path - trích tên file từ filePath (uploads/timestamp_filename.pdf -> timestamp_filename.pdf)
         String fileName = filePath;
         if (filePath.contains("/")) {
             fileName = filePath.substring(filePath.lastIndexOf("/") + 1);
         }
 
-        // Tìm file trên ổ cứng
         File downloadFile = new File(uploadDir + File.separator + fileName);
 
         if (!downloadFile.exists()) {
@@ -45,10 +41,7 @@ public class FileDownloadController extends HttpServlet {
             return;
         }
 
-        // Mở luồng đọc file từ ổ đĩa
         try (FileInputStream inStream = new FileInputStream(downloadFile); OutputStream outStream = response.getOutputStream()) {
-
-            // 1. Xác định loại file (MIME Type)
             String mimeType = getServletContext().getMimeType(downloadFile.getAbsolutePath());
             if (mimeType == null) {
                 mimeType = "application/octet-stream";
@@ -56,29 +49,19 @@ public class FileDownloadController extends HttpServlet {
             response.setContentType(mimeType);
             response.setContentLength((int) downloadFile.length());
 
-            // 2. Xử lý tên file (Cắt bỏ timestamp để hiển thị tên gốc đẹp hơn)
-            // Ví dụ: 172663_avatar.png -> avatar.png
             String originalName = fileName.contains("_") ? fileName.substring(fileName.indexOf("_") + 1) : fileName;
 
-            // 3. QUAN TRỌNG: Điều chỉnh Content-Disposition
-            // Nếu là ảnh (image/png, image/jpeg...) -> Dùng 'inline' để hiện preview
-            // Các file khác -> Dùng 'attachment' để ép tải về
-            String disposition = "attachment"; // Mặc định là TẢI VỀ
-            String mode = request.getParameter("mode"); // Lấy tham số từ URL
+            String disposition = "attachment";
+            String mode = request.getParameter("mode");
 
-            // Chỉ bật chế độ "Xem ngay" (inline) nếu:
-            // 1. Là file ảnh
-            // 2. VÀ KHÔNG CÓ yêu cầu tải về (mode != download)
             if (mimeType.startsWith("image/") && !"download".equals(mode)) {
                 disposition = "inline";
             }
-            // --------------------
 
             String headerKey = "Content-Disposition";
             String headerValue = String.format("%s; filename=\"%s\"", disposition, originalName);
             response.setHeader(headerKey, headerValue);
 
-            // 4. Bơm dữ liệu ra
             byte[] buffer = new byte[4096];
             int bytesRead = -1;
             while ((bytesRead = inStream.read(buffer)) != -1) {

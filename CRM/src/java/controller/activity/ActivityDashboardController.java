@@ -13,7 +13,6 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
 
-// Map đường dẫn này bắt đầu bằng /sale/ để tận dụng AuthorizationFilter có sẵn
 @WebServlet(name = "ActivityDashboardController", urlPatterns = {"/sale/dashboard"})
 public class ActivityDashboardController extends HttpServlet {
 
@@ -30,14 +29,13 @@ public class ActivityDashboardController extends HttpServlet {
             return;
         }
 
-        // 1. LẤY THAM SỐ TỪ URL (Search, Type, Page...)
         String keyword = request.getParameter("search");
         String type = request.getParameter("type");
         String fromDate = request.getParameter("from");
         String toDate = request.getParameter("to");
 
         int pageIndex = 1;
-        int pageSize = 10; // Số dòng mỗi trang
+        int pageSize = 10;
         try {
             if (request.getParameter("page") != null) {
                 pageIndex = Integer.parseInt(request.getParameter("page"));
@@ -46,10 +44,6 @@ public class ActivityDashboardController extends HttpServlet {
             pageIndex = 1;
         }
 
-        // 2. PHÂN QUYỀN
-        // Manager/Admin thấy TẤT CẢ activity trong hệ thống.
-        // Còn lại (Sale, Support, Marketing) chỉ thấy activity mà mình là
-        // người tạo (created_by) HOẶC là Participant/PIC (activity_participants).
         Integer filterUserId = null;
         if (!userSession.isAdmin()) {
             filterUserId = userSession.getStaff().getId();
@@ -57,27 +51,23 @@ public class ActivityDashboardController extends HttpServlet {
 
         ActivityDAO dao = new ActivityDAO();
 
-        // 3. GỌI DB ĐỂ LẤY DỮ LIỆU
         List<Activity> list = dao.searchActivities(filterUserId, keyword, type, fromDate, toDate, pageIndex, pageSize);
         int totalRecords = dao.countActivities(filterUserId, keyword, type, fromDate, toDate);
         int totalPages = (int) Math.ceil((double) totalRecords / pageSize);
 
         int[] stats = dao.getActivityStats(filterUserId);
 
-        //THỐNG KÊ SUMMARY
         request.setAttribute("statTotal", stats[0]);
-        request.setAttribute("statPlanned", stats[1]);      // <--- MỚI THÊM
+        request.setAttribute("statPlanned", stats[1]);
         request.setAttribute("statInProgress", stats[2]);
         request.setAttribute("statCompleted", stats[3]);
         request.setAttribute("statOverdue", stats[4]);
 
-        // 4. GỬI DỮ LIỆU SANG JSP
         request.setAttribute("activities", list);
         request.setAttribute("totalRecords", totalRecords);
         request.setAttribute("totalPages", totalPages);
         request.setAttribute("currentPage", pageIndex);
         
-        // Gửi lại các tham số tìm kiếm để Phân trang (Pagination) nhớ được trạng thái
         request.setAttribute("searchMsg", keyword != null ? keyword : "");
         request.setAttribute("typeMsg", type != null ? type : "All");
         request.setAttribute("fromMsg", fromDate != null ? fromDate : "");

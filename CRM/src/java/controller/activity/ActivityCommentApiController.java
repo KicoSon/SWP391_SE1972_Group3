@@ -17,7 +17,17 @@ import java.util.List;
 @WebServlet(name = "ActivityCommentApiController", urlPatterns = {"/api/comments"})
 public class ActivityCommentApiController extends HttpServlet {
 
-    // 1. DO_GET: Lấy danh sách comment về (để tự động cập nhật)
+    private boolean canAccessActivity(UserSession userSession, model.activity.Activity activity, ActivityDAO dao) {
+        if (userSession == null || userSession.getStaff() == null || activity == null) {
+            return false;
+        }
+
+        int currentUserId = userSession.getStaff().getId();
+        return userSession.isAdmin()
+                || activity.getCreatedBy() == currentUserId
+                || dao.isUserInvolvedInActivity(activity.getId(), currentUserId);
+    }
+
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
@@ -25,10 +35,23 @@ public class ActivityCommentApiController extends HttpServlet {
         
         try {
             int activityId = Integer.parseInt(request.getParameter("activityId"));
+
+            HttpSession session = request.getSession(false);
+            UserSession userSession = session != null
+                    ? (UserSession) session.getAttribute("userSession")
+                    : null;
+
             ActivityDAO dao = new ActivityDAO();
+            model.activity.Activity activity = dao.getActivityById(activityId);
+
+            if (!canAccessActivity(userSession, activity, dao)) {
+                response.setStatus(HttpServletResponse.SC_FORBIDDEN);
+                response.getWriter().write("{\"error\": \"Forbidden\"}");
+                return;
+            }
+
             List<ActivityComment> comments = dao.getCommentsByActivityId(activityId);
             
-            // Chuyển List Java thành chuỗi JSON thủ công (Vì chưa dùng thư viện Gson/Jackson)
             StringBuilder json = new StringBuilder();
             json.append("[");
             for (int i = 0; i < comments.size(); i++) {
@@ -36,12 +59,11 @@ public class ActivityCommentApiController extends HttpServlet {
                 json.append("{");
                 json.append("\"commenterName\": \"").append(escapeJson(c.getCommenterName())).append("\",");
                 json.append("\"content\": \"").append(escapeJson(c.getContent())).append("\",");
-                // Format ngày tháng đẹp
                 String dateStr = new SimpleDateFormat("dd/MM/yyyy 'lúc' HH:mm").format(c.getCreatedAt());
                 json.append("\"createdAt\": \"").append(dateStr).append("\"");
                 json.append("}");
                 
-                if (i < comments.size() - 1) json.append(","); // Dấu phẩy giữa các phần tử
+                if (i < comments.size() - 1) json.append(",");
             }
             json.append("]");
             
@@ -53,7 +75,6 @@ public class ActivityCommentApiController extends HttpServlet {
         }
     }
 
-    // 2. DO_POST: Nhận comment mới (Gửi ngầm)
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
@@ -71,12 +92,19 @@ public class ActivityCommentApiController extends HttpServlet {
                 int userId = userSession.getStaff().getId();
                 
                 ActivityDAO dao = new ActivityDAO();
+                model.activity.Activity activity = dao.getActivityById(activityId);
+
+                if (!canAccessActivity(userSession, activity, dao)) {
+                    response.setStatus(HttpServletResponse.SC_FORBIDDEN);
+                    response.getWriter().write("{\"error\": \"Forbidden\"}");
+                    return;
+                }
+
                 dao.insertComment(activityId, userId, content);
                 
-                // Trả về thành công
                 response.getWriter().write("{\"status\": \"success\"}");
             } else {
-                response.setStatus(401); // Lỗi chưa đăng nhập
+                response.setStatus(401);
             }
         } catch (Exception e) {
             e.printStackTrace();
@@ -84,14 +112,13 @@ public class ActivityCommentApiController extends HttpServlet {
         }
     }
     
-    // Hàm phụ để xử lý ký tự đặc biệt trong JSON
     private String escapeJson(String text) {
         if (text == null) return "";
         return text
             .replace("\\", "\\\\")
             .replace("\"", "\\\"")
-            .replace("\n", "\\n")   // newline - nguyên nhân chính
-            .replace("\r", "\\r")   // carriage return
-            .replace("\t", "\\t");  // tab
+            .replace("\n", "\\n")
+            .replace("\r", "\\r")
+            .replace("\t", "\\t");
     }
 }

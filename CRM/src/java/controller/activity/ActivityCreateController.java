@@ -33,15 +33,12 @@ import jakarta.servlet.http.Part;
 
 @WebServlet(name = "ActivityCreateController", urlPatterns = {"/activities/create"})
 @MultipartConfig(
-        fileSizeThreshold = 1024 * 1024 * 2, // 2MB đệm
-        maxFileSize = 1024 * 1024 * 10,       // Tối đa 10MB / 1 file
-        maxRequestSize = 1024 * 1024 * 50     // Tối đa 50MB toàn form
+    fileSizeThreshold = 1024 * 1024 * 2,
+    maxFileSize = 1024 * 1024 * 10,
+    maxRequestSize = 1024 * 1024 * 50
 )
 public class ActivityCreateController extends HttpServlet {
 
-    // =========================================================================
-    // HELPER: Tính quyền canEdit cho một activity cụ thể
-    // =========================================================================
     private String resolveCanEdit(Activity activity, UserSession userSession) {
         if (activity == null || userSession == null || userSession.getStaff() == null) {
             return "NONE";
@@ -50,23 +47,17 @@ public class ActivityCreateController extends HttpServlet {
         int currentUserId = userSession.getStaff().getId();
         ActivityDAO dao = new ActivityDAO();
 
-        // Ưu tiên 1: Manager/Admin hoặc Creator -> Full quyền
         if (userSession.isAdmin() || activity.getCreatedBy() == currentUserId) {
             return "FULL";
         }
 
-        // Ưu tiên 2: PIC/Participant -> Không được sửa
         if (dao.isUserInvolvedInActivity(activity.getId(), currentUserId)) {
             return "NONE";
         }
 
-        // Ưu tiên 3: Còn lại -> Không được sửa
         return "NONE";
     }
 
-    // =========================================================================
-    // DO_GET: Chuẩn bị dữ liệu để hiển thị Form
-    // =========================================================================
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
@@ -79,40 +70,34 @@ public class ActivityCreateController extends HttpServlet {
             return;
         }
 
-        // Marketing không được vào trang Create
         if (userSession.isMarketingStaff()) {
             response.sendRedirect(request.getContextPath() + "/sale/dashboard?error=nopermission");
             return;
         }
 
-        // --- Load Customer list theo vai trò ---
         CustomerDAO customerDAO = new CustomerDAO();
         List<Customer> customerList;
         if (userSession.isSaleStaff() && !userSession.isAdmin()) {
-            // Sale: Chỉ hiện khách của mình (lọc theo owner_id)
             if (userSession.getStaff() != null) {
                 customerList = customerDAO.getCustomersByOwnerId(userSession.getStaff().getId());
             } else {
                 customerList = customerDAO.getAllActiveCustomers();
             }
         } else {
-            // Manager, Support: Hiện TẤT CẢ
             customerList = customerDAO.getAllActiveCustomers();
         }
         request.setAttribute("customerList", customerList);
 
-        // --- Load Lead list theo vai trò ---
         LeadDAO leadDAO = new LeadDAO();
         List<Lead> leadList;
         if (userSession.isSaleStaff() && !userSession.isAdmin()) {
             long currentStaffId = (long) userSession.getStaff().getId();
             leadList = leadDAO.getLeadsBySaleId(currentStaffId);
         } else {
-            leadList = leadDAO.getLeadsBySaleId(null); // Tất cả
+            leadList = leadDAO.getLeadsBySaleId(null);
         }
         request.setAttribute("leads", leadList);
 
-        // --- Load Opportunity list theo vai trò ---
         OpportunityDAO oppDAO = new OpportunityDAO();
         List<model.sales.Opportunity> oppList;
         if (userSession.isSaleStaff() && !userSession.isAdmin() && userSession.getStaff() != null) {
@@ -123,11 +108,9 @@ public class ActivityCreateController extends HttpServlet {
         }
         request.setAttribute("oppList", oppList);
 
-        // --- Load Staff list ---
         StaffDAO staffDAO = new StaffDAO();
         request.setAttribute("staffList", staffDAO.getAllActiveStaff());
 
-        // --- Nếu là Edit mode, load activity và tính canEdit ---
         String idParam = request.getParameter("id");
         if (idParam != null && !idParam.isEmpty()) {
             try {
@@ -138,7 +121,6 @@ public class ActivityCreateController extends HttpServlet {
                 if (existingActivity != null) {
                     String canEdit = resolveCanEdit(existingActivity, userSession);
 
-                    // Nếu không có quyền gì → redirect về dashboard
                     if ("NONE".equals(canEdit)) {
                         response.sendRedirect(request.getContextPath() + "/sale/dashboard?error=nopermission");
                         return;
@@ -165,16 +147,12 @@ public class ActivityCreateController extends HttpServlet {
                 System.out.println("ID không hợp lệ: " + e.getMessage());
             }
         } else {
-            // Create mode: Người tạo sẽ có FULL quyền với activity mới của mình
             request.setAttribute("canEdit", "FULL");
         }
 
         request.getRequestDispatcher("/activities/activity-create.jsp").forward(request, response);
     }
 
-    // =========================================================================
-    // DO_POST: Xử lý lưu dữ liệu từ Form
-    // =========================================================================
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
@@ -193,7 +171,6 @@ public class ActivityCreateController extends HttpServlet {
                 return;
             }
 
-            // --- Kiểm tra Edit mode hay Create mode ---
             String idParam = request.getParameter("id");
             int activityId = -1;
             boolean isEditMode = false;
@@ -203,15 +180,11 @@ public class ActivityCreateController extends HttpServlet {
                     activityId = Integer.parseInt(idParam);
                     isEditMode = true;
                 } catch (NumberFormatException e) {
-                    // ID không hợp lệ → coi là Create mới
                 }
             }
 
             ActivityDAO dao = new ActivityDAO();
 
-            // =====================================================================
-            // EDIT MODE: Kiểm tra quyền server-side trước khi làm bất cứ điều gì
-            // =====================================================================
             if (isEditMode) {
                 Activity existingActivity = dao.getActivityById(activityId);
                 if (existingActivity == null) {
@@ -222,22 +195,10 @@ public class ActivityCreateController extends HttpServlet {
                 String canEdit = resolveCanEdit(existingActivity, userSession);
 
                 if ("NONE".equals(canEdit)) {
-                    // Không có quyền → từ chối
                     response.sendRedirect(request.getContextPath() + "/sale/dashboard?error=nopermission");
                     return;
                 }
 
-                if ("LIMITED".equals(canEdit)) {
-                    // Quyền hạn chế: CHỈ cập nhật Status
-                    String newStatus = request.getParameter("status");
-                    if (newStatus != null && !newStatus.isEmpty()) {
-                        dao.updateActivityStatusOnly(activityId, newStatus);
-                    }
-                    response.sendRedirect(request.getContextPath() + "/sale/dashboard?msg=updated");
-                    return;
-                }
-
-                // canEdit == "FULL" → Tiếp tục update đầy đủ bên dưới
                 Activity act = new Activity();
                 act.setId(activityId);
                 act.setTitle(request.getParameter("title"));
@@ -248,7 +209,6 @@ public class ActivityCreateController extends HttpServlet {
                 act.setPriority((priority != null && !priority.isEmpty()) ? priority : "Medium");
                 act.setCreatedBy(userSession.getStaff().getId());
 
-                // Thời gian
                 String dateStr = request.getParameter("date");
                 String timeStr = request.getParameter("time");
                 if (dateStr != null && !dateStr.isEmpty() && timeStr != null && !timeStr.isEmpty()) {
@@ -258,7 +218,6 @@ public class ActivityCreateController extends HttpServlet {
                 }
                 act.setReminderAt(null);
 
-                // Related To
                 String relatedTo = request.getParameter("related_to");
                 if (relatedTo != null && !relatedTo.isEmpty()) {
                     String[] parts = relatedTo.split("-");
@@ -266,25 +225,23 @@ public class ActivityCreateController extends HttpServlet {
                         try {
                             if ("opp".equals(parts[0])) act.setOpportunityId(Integer.parseInt(parts[1]));
                             else if ("lead".equals(parts[0])) act.setLeadId(Long.parseLong(parts[1]));
-                        } catch (NumberFormatException ex) { /* bỏ qua */ }
+                        } catch (NumberFormatException ex) { }
                     }
                 }
 
-                // Customer
                 String customerVal = request.getParameter("customer");
                 if (customerVal != null && !customerVal.isEmpty()) {
                     try { act.setCustomerId(Integer.parseInt(customerVal)); }
-                    catch (NumberFormatException ex) { /* bỏ qua */ }
+                    catch (NumberFormatException ex) { }
                 }
 
                 boolean updateSuccess = dao.updateActivity(act);
                 if (updateSuccess) {
-                    // Participants
                     List<Integer> participantIds = new ArrayList<>();
                     String ownerIdRaw = request.getParameter("owner");
                     if (ownerIdRaw != null && !ownerIdRaw.isEmpty()) {
                         try { participantIds.add(Integer.parseInt(ownerIdRaw)); }
-                        catch (NumberFormatException ex) { /* bỏ qua */ }
+                        catch (NumberFormatException ex) { }
                     }
                     String otherParticipants = request.getParameter("participantIds");
                     if (otherParticipants != null && !otherParticipants.isEmpty()) {
@@ -292,18 +249,16 @@ public class ActivityCreateController extends HttpServlet {
                             try {
                                 int id = Integer.parseInt(pId.trim());
                                 if (!participantIds.contains(id)) participantIds.add(id);
-                            } catch (NumberFormatException ex) { /* bỏ qua */ }
+                            } catch (NumberFormatException ex) { }
                         }
                     }
                     if (!participantIds.isEmpty()) {
                         dao.updateActivityParticipants(activityId, participantIds);
                     }
 
-                    // Dùng DAO mới cho attachment để tránh connection đã bị đóng
                     ActivityDAO attachmentDao = new ActivityDAO();
                     deleteRemovedAttachments(request, activityId, attachmentDao);
 
-                    // Xử lý upload file mới nếu có
                     handleAttachmentUpload(request, activityId, attachmentDao);
                     response.sendRedirect(request.getContextPath() + "/sale/dashboard?msg=updated");
                 } else {
@@ -313,9 +268,6 @@ public class ActivityCreateController extends HttpServlet {
                 return;
             }
 
-            // =====================================================================
-            // CREATE MODE: Tạo mới activity
-            // =====================================================================
             Activity act = new Activity();
             act.setTitle(request.getParameter("title"));
             act.setDescription(request.getParameter("description"));
@@ -325,7 +277,6 @@ public class ActivityCreateController extends HttpServlet {
             act.setPriority((priority != null && !priority.isEmpty()) ? priority : "Medium");
             act.setCreatedBy(userSession.getStaff().getId());
 
-            // Thời gian
             String dateStr = request.getParameter("date");
             String timeStr = request.getParameter("time");
             if (dateStr != null && !dateStr.isEmpty() && timeStr != null && !timeStr.isEmpty()) {
@@ -335,7 +286,6 @@ public class ActivityCreateController extends HttpServlet {
             }
             act.setReminderAt(null);
 
-            // Related To
             String relatedTo = request.getParameter("related_to");
             if (relatedTo != null && !relatedTo.isEmpty()) {
                 String[] parts = relatedTo.split("-");
@@ -343,23 +293,21 @@ public class ActivityCreateController extends HttpServlet {
                     try {
                         if ("opp".equals(parts[0])) act.setOpportunityId(Integer.parseInt(parts[1]));
                         else if ("lead".equals(parts[0])) act.setLeadId(Long.parseLong(parts[1]));
-                    } catch (NumberFormatException ex) { /* bỏ qua */ }
+                    } catch (NumberFormatException ex) { }
                 }
             }
 
-            // Customer
             String customerVal = request.getParameter("customer");
             if (customerVal != null && !customerVal.isEmpty()) {
                 try { act.setCustomerId(Integer.parseInt(customerVal)); }
-                catch (NumberFormatException ex) { /* bỏ qua */ }
+                catch (NumberFormatException ex) { }
             }
 
-            // Participants
             List<Integer> participantIds = new ArrayList<>();
             String ownerIdRaw = request.getParameter("owner");
             if (ownerIdRaw != null && !ownerIdRaw.isEmpty()) {
                 try { participantIds.add(Integer.parseInt(ownerIdRaw)); }
-                catch (NumberFormatException ex) { /* bỏ qua */ }
+                catch (NumberFormatException ex) { }
             }
             String otherParticipants = request.getParameter("participantIds");
             if (otherParticipants != null && !otherParticipants.isEmpty()) {
@@ -367,7 +315,7 @@ public class ActivityCreateController extends HttpServlet {
                     try {
                         int id = Integer.parseInt(pId.trim());
                         if (!participantIds.contains(id)) participantIds.add(id);
-                    } catch (NumberFormatException ex) { /* bỏ qua */ }
+                    } catch (NumberFormatException ex) { }
                 }
             }
 
@@ -387,9 +335,6 @@ public class ActivityCreateController extends HttpServlet {
         }
     }
 
-    // =========================================================================
-    // HELPER: Xử lý upload file đính kèm
-    // =========================================================================
     private void handleAttachmentUpload(HttpServletRequest request, int activityId, ActivityDAO attachmentDao)
             throws Exception {
         String uploadPath = getServletContext().getInitParameter("uploadDirectory");
@@ -417,7 +362,6 @@ public class ActivityCreateController extends HttpServlet {
                 try {
                     keptIds.add(Integer.parseInt(rawId.trim()));
                 } catch (NumberFormatException ex) {
-                    // Bỏ qua ID không hợp lệ
                 }
             }
         }
@@ -429,7 +373,6 @@ public class ActivityCreateController extends HttpServlet {
                 try {
                     removedIds.add(Integer.parseInt(rawId.trim()));
                 } catch (NumberFormatException ex) {
-                    // Bỏ qua ID không hợp lệ
                 }
             }
         }
@@ -441,7 +384,6 @@ public class ActivityCreateController extends HttpServlet {
                     removedIds.add(attachment.getId());
                 }
             } else if (existingAttachmentIds.isEmpty()) {
-                // Không có input nào còn lại nghĩa là người dùng đã bỏ hết file cũ.
                 removedIds.add(attachment.getId());
             }
         }

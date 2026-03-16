@@ -172,12 +172,10 @@
 
                     <div class="attachments-grid" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 15px;">
                         <c:forEach items="${attachments}" var="file">
-                            <%-- Tạo biến tên file chữ thường để check đuôi cho dễ --%>
                             <c:set var="fname" value="${fn:toLowerCase(file.fileName)}" />
 
                             <div class="attachment-item" style="border: 1px solid #eee; padding: 10px; border-radius: 8px; background: #fff;">
 
-                                <%-- TRƯỜNG HỢP 1: NẾU LÀ ẢNH -> HIỆN PREVIEW --%>
                                 <c:choose>
                                     <c:when test="${fn:endsWith(fname, '.jpg') || fn:endsWith(fname, '.jpeg') || fn:endsWith(fname, '.png') || fn:endsWith(fname, '.gif')}">
                                         <div style="margin-bottom: 10px; text-align: center; background: #f9f9f9; border-radius: 4px; overflow: hidden;">
@@ -191,7 +189,6 @@
                                         </div>
                                     </c:when>
 
-                                    <%-- TRƯỜNG HỢP 2: KHÔNG PHẢI ẢNH -> HIỆN ICON VÀ NÚT TẢI --%>
                                     <c:otherwise>
                                         <div style="display: flex; align-items: center; gap: 15px; margin-bottom: 10px;">
                                             <c:choose>
@@ -221,7 +218,6 @@
                                     </c:otherwise>
                                 </c:choose>
 
-                                <%-- Nút tải về (Luôn hiện cho cả ảnh và file thường) --%>
                                 <a href="${pageContext.request.contextPath}/download?file=${file.filePath}&mode=download" class="btn-download" style="width: 100%; text-align: center; display: block; padding: 6px; background: #f3f4f6; border-radius: 4px; text-decoration: none; color: #374151; font-size: 13px;">
                                     <i class="fas fa-download"></i> Tải về
                                 </a>
@@ -279,7 +275,6 @@
                 </div>
 
                 <script>
-                    // 1. Hàm gửi comment (Không reload trang)
                     function sendComment() {
                         var actId = document.getElementById("cmtActivityId").value;
                         var content = document.getElementById("cmtContent").value;
@@ -290,11 +285,9 @@
                             return;
                         }
 
-                        // Disable nút để tránh bấm nhiều lần
                         btn.disabled = true;
                         btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Đang gửi...';
 
-                        // Gọi API POST
                         fetch('${pageContext.request.contextPath}/api/comments', {
                             method: 'POST',
                             headers: {
@@ -305,19 +298,17 @@
                                 .then(response => response.json())
                                 .then(data => {
                                     if (data.status === 'success') {
-                                        document.getElementById("cmtContent").value = ""; // Xóa ô nhập
-                                        loadComments(); // Tải lại danh sách ngay lập tức
+                                        document.getElementById("cmtContent").value = "";
+                                        loadComments();
                                     }
                                 })
                                 .catch(error => console.error('Error:', error))
                                 .finally(() => {
-                                    // Mở lại nút
                                     btn.disabled = false;
                                     btn.innerHTML = '<i class="fas fa-paper-plane"></i> Gửi bình luận';
                                 });
                     }
 
-                    // 2. Hàm tải danh sách comment (Cập nhật giao diện)
                     function loadComments() {
                         var actId = document.getElementById("cmtActivityId").value;
                         var listArea = document.getElementById("commentListArea");
@@ -330,10 +321,8 @@
                                         return;
                                     }
 
-                                    // Vẽ lại HTML từ dữ liệu JSON
                                     var html = '';
                                     data.forEach(cmt => {
-                                        // Lấy chữ cái đầu của tên
                                         var firstLetter = cmt.commenterName.charAt(0).toUpperCase();
 
                                         html += `
@@ -359,10 +348,9 @@
                                 });
                     }
 
-                    // 3. Tự động chạy khi vào trang
                     document.addEventListener("DOMContentLoaded", function () {
-                        loadComments(); // Gọi lần đầu
-                        setInterval(loadComments, 3000); // Cứ 3 giây gọi lại 1 lần (Real-time giả lập)
+                        loadComments();
+                        setInterval(loadComments, 3000);
                     });
                 </script>
             </div>

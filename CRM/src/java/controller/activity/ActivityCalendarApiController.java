@@ -29,7 +29,6 @@ public class ActivityCalendarApiController extends HttpServlet {
         HttpSession session = request.getSession();
         UserSession userSession = (UserSession) session.getAttribute("userSession");
 
-        // 1. Kiểm tra đăng nhập
         if (userSession == null || userSession.getStaff() == null) {
             response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
             out.print("{\"error\": \"Unauthorized\"}");
@@ -37,19 +36,14 @@ public class ActivityCalendarApiController extends HttpServlet {
             return;
         }
 
-        // 2. Logic phân quyền giống hệt ActivityDashboardController
         Integer filterUserId = null;
         if (!userSession.isAdmin()) {
             filterUserId = userSession.getStaff().getId();
         }
 
-        // 3. Lấy dữ liệu từ DAO
         ActivityDAO dao = new ActivityDAO();
-        // Dùng hàm getActivitiesForDashboard (hàm lấy tất cả không phân trang) 
-        // để vẽ lên lịch. Hoặc có thể viết hàm mới lấy theo (start, end) của thư viện truyền vào.
         List<Activity> activities = dao.getActivitiesForDashboard(filterUserId);
 
-        // 4. Chuyển đổi dữ liệu sang định dạng JSON thủ công bằng StringBuilder
         StringBuilder json = new StringBuilder();
         json.append("[");
         
@@ -64,24 +58,21 @@ public class ActivityCalendarApiController extends HttpServlet {
             }
             first = false;
 
-            // Xử lý chuỗi để tránh lỗi JSON (giữ an toàn)
             String title = act.getTitle() != null ? act.getTitle().replace("\"", "\\\"").replace("\n", " ").replace("\r", "") : "";
             String start = act.getDueDate().toString().split("\\.")[0].replace(" ", "T");
             
             String type = act.getType() != null ? act.getType() : "";
             String status = act.getStatus() != null ? act.getStatus() : "";
 
-            // 1. Phân tách logic: Màu sắc (Color) đồng bộ với thanh Overview Progress Bar
-            String color = "#3B82F6"; // Mặc định là Planned (Xanh dương)
+            String color = "#3B82F6";
             if ("In Progress".equals(status)) {
-                color = "#F59E0B"; // Đang tiến hành (Cam/Vàng)
+                color = "#F59E0B";
             } else if ("Completed".equals(status)) {
-                color = "#10B981"; // Hoàn thành (Xanh lá)
+                color = "#10B981";
             } else if ("Overdue".equals(status)) {
-                color = "#EF4444"; // Quá hạn (Đỏ)
+                color = "#EF4444";
             }
 
-            // 2. Phân tách logic: Icon (Biểu tượng) dành riêng cho Loại (Type)
             String icon = "";
             if ("Call".equals(type)) icon = "<i class=\\\"fas fa-phone-alt me-1\\\"></i>";
             else if ("Email".equals(type)) icon = "<i class=\\\"fas fa-envelope me-1\\\"></i>";
@@ -89,7 +80,6 @@ public class ActivityCalendarApiController extends HttpServlet {
             else if ("Task".equals(type)) icon = "<i class=\\\"fas fa-tasks me-1\\\"></i>";
             else if ("Note".equals(type)) icon = "<i class=\\\"fas fa-sticky-note me-1\\\"></i>";
 
-            // Gộp Icon và Tựa đề
             String formattedTitle = icon + " " + title;
 
             json.append("{");
@@ -97,14 +87,12 @@ public class ActivityCalendarApiController extends HttpServlet {
             json.append("\"title\":\"").append(formattedTitle).append("\",");
             json.append("\"start\":\"").append(start).append("\",");
             json.append("\"backgroundColor\":\"").append(color).append("\",");
-            // Thêm className để FullCalendar không tự động escape HTML
             json.append("\"className\":\"fc-event-custom\"");
             json.append("}");
         }
 
         json.append("]");
 
-        // 5. Trả về JSON
         out.print(json.toString());
         out.flush();
     }

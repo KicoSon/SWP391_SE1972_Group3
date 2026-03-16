@@ -41,7 +41,6 @@ public class ActivityDetailApiController extends HttpServlet {
                 return;
             }
             
-            // Convert Activity to JSON (Manual)
             String json = buildActivityJson(activity, dao);
             
             PrintWriter out = response.getWriter();
@@ -58,7 +57,6 @@ public class ActivityDetailApiController extends HttpServlet {
         }
     }
 
-    // Method để build JSON string từ Activity object
     private String buildActivityJson(Activity activity, ActivityDAO dao) {
         StringBuilder json = new StringBuilder();
         java.util.List<ActivityParticipant> participantRows = dao.getParticipantsByActivityId(activity.getId());
@@ -79,7 +77,6 @@ public class ActivityDetailApiController extends HttpServlet {
         json.append("\"status\": \"").append(activity.getStatus()).append("\",");
         json.append("\"priority\": \"").append(activity.getPriority()).append("\",");
         
-        // Handle null values for optional fields
         if (activity.getCustomerId() != null) {
             json.append("\"customerId\": ").append(activity.getCustomerId()).append(",");
         }
@@ -110,12 +107,10 @@ public class ActivityDetailApiController extends HttpServlet {
         }
         json.append("],");
         
-        // Thêm danh sách participants
         java.util.List<String> participants = dao.getParticipantsFullInfo(activity.getId());
         json.append("\"participants\": [");
         for (int i = 0; i < participants.size(); i++) {
             String participant = participants.get(i);
-            // Nếu JSON không hợp lệ, chỉ lấy tên
             String[] parts = participant.split(" - ");
             json.append("\"").append(escapeJson(parts[0])).append("\"");
             if (i < participants.size() - 1) {
@@ -129,7 +124,6 @@ public class ActivityDetailApiController extends HttpServlet {
         return json.toString();
     }
 
-    // Helper method để escape JSON string (xử lý quote, backslash, newline, etc.)
     private String escapeJson(String text) {
         if (text == null) {
             return "";
