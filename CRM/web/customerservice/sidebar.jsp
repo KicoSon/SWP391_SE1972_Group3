@@ -187,6 +187,13 @@
             </div>
 
             <div class="nav-item">
+                <a href="${pageContext.request.contextPath}/customerservice/feedbackmanagement"
+                   class="nav-link">
+                    <i class="fas fa-star"></i> Quản lý phản hồi
+                </a>
+            </div>
+
+            <div class="nav-item">
                 <a href="${pageContext.request.contextPath}/customerservice/profile"
                    class="nav-link">
                     <i class="fas fa-user"></i> Thông tin cá nhân

@@ -1,19 +1,18 @@
 package controller.customerservice;
 
-import jakarta.servlet.ServletException;
-import jakarta.servlet.annotation.WebServlet;
-import jakarta.servlet.http.*;
-
 import dal.TicketDAO;
 import model.SupportTicket;
 import model.UserSession;
 
+import jakarta.servlet.ServletException;
+import jakarta.servlet.annotation.WebServlet;
+import jakarta.servlet.http.*;
+
 import java.io.IOException;
+import java.util.List;
 
 @WebServlet("/customerservice/addticket")
 public class AddTicketServlet extends HttpServlet {
-
-    private static final long serialVersionUID = 1L;
 
     private TicketDAO ticketDAO;
 
@@ -22,96 +21,88 @@ public class AddTicketServlet extends HttpServlet {
         ticketDAO = new TicketDAO();
     }
 
-    // ======================
-    // LOAD ADD PAGE
-    // ======================
+    // ── GET: Load trang tạo ticket ───────────────────────────
     @Override
     protected void doGet(HttpServletRequest request,
-            HttpServletResponse response)
+                         HttpServletResponse response)
             throws ServletException, IOException {
 
-        request.setCharacterEncoding("UTF-8");
-        response.setCharacterEncoding("UTF-8");
-
-        try {
-
-            UserSession userSession =
-                    (UserSession) request.getSession()
-                            .getAttribute("userSession");
-
-            if (userSession == null || !userSession.isStaff()) {
-                response.sendRedirect(request.getContextPath()
-                        + "/customerservice/ticketlist");
-                return;
-            }
-
-            request.getRequestDispatcher(
-                    "/customerservice/addticket.jsp")
-                    .forward(request, response);
-
-        } catch (Exception e) {
-
-            e.printStackTrace();
-
-            request.setAttribute("errorMessage",
-                    "Không thể mở trang tạo ticket!");
-
-            request.getRequestDispatcher("/error.jsp")
-                    .forward(request, response);
+        HttpSession session = request.getSession(false);
+        if (session == null || session.getAttribute("userSession") == null) {
+            response.sendRedirect(request.getContextPath() + "/login");
+            return;
         }
+
+        UserSession userSession = (UserSession) session.getAttribute("userSession");
+        if (!userSession.isStaff()) {
+            response.sendRedirect(
+                request.getContextPath() + "/customerservice/ticketlist");
+            return;
+        }
+
+        // FIX: Load danh sách customers + staffs cho dropdown
+        // Version cũ không load → JSP phải nhập Customer ID thô
+        List<String[]> customerList = ticketDAO.getCustomerList();
+        List<String[]> staffList    = ticketDAO.getStaffList();
+
+        request.setAttribute("customerList", customerList);
+        request.setAttribute("staffList",    staffList);
+
+        request.getRequestDispatcher("/customerservice/addticket.jsp")
+               .forward(request, response);
     }
 
-    // ======================
-    // CREATE TICKET
-    // ======================
+    // ── POST: Tạo ticket mới ─────────────────────────────────
     @Override
     protected void doPost(HttpServletRequest request,
-            HttpServletResponse response)
+                          HttpServletResponse response)
             throws ServletException, IOException {
 
         request.setCharacterEncoding("UTF-8");
 
+        HttpSession session = request.getSession(false);
+        if (session == null || session.getAttribute("userSession") == null) {
+            response.sendRedirect(request.getContextPath() + "/login");
+            return;
+        }
+
+        UserSession userSession = (UserSession) session.getAttribute("userSession");
+        if (!userSession.isStaff()) {
+            response.sendRedirect(
+                request.getContextPath() + "/customerservice/ticketlist");
+            return;
+        }
+
         try {
+            int    customerId   = Integer.parseInt(request.getParameter("customerId"));
+            int    assignedTo   = Integer.parseInt(request.getParameter("assignedTo"));
+            String title        = request.getParameter("title");
+            String description  = request.getParameter("description");
+            String priority     = request.getParameter("priority");
 
-            UserSession userSession =
-                    (UserSession) request.getSession()
-                            .getAttribute("userSession");
-
-            if (userSession == null || !userSession.isStaff()) {
-                response.sendRedirect("ticketlist");
+            // Validate bắt buộc
+            if (title == null || title.trim().isEmpty()) {
+                request.setAttribute("errorMsg", "Tiêu đề không được để trống.");
+                doGet(request, response); // reload form
                 return;
             }
-
-            int customerId =
-                    Integer.parseInt(request.getParameter("customerId"));
-
-            String title = request.getParameter("title");
-            String description = request.getParameter("description");
-            String priority = request.getParameter("priority");
 
             SupportTicket t = new SupportTicket();
             t.setCustomerId(customerId);
-            t.setTitle(title);
-            t.setDescription(description);
+            t.setTitle(title.trim());
+            t.setDescription(description != null ? description.trim() : "");
             t.setPriority(priority);
             t.setStatus("Open");
-            t.setAssignedTo(userSession.getStaff().getId());
+            t.setAssignedTo(assignedTo);
 
             ticketDAO.insertTicket(t);
 
             response.sendRedirect(
-                request.getContextPath()
-                + "/customerservice/ticketlist");
+                request.getContextPath() + "/customerservice/ticketlist");
 
-        } catch (Exception e) {
-
-            e.printStackTrace();
-
-            request.setAttribute("errorMessage",
-                    "Lỗi khi tạo ticket!");
-
-            request.getRequestDispatcher("/error.jsp")
-                    .forward(request, response);
+        } catch (NumberFormatException e) {
+            request.setAttribute("errorMsg", "Dữ liệu không hợp lệ, vui lòng thử lại.");
+            doGet(request, response);
         }
     }
 }
