@@ -45,37 +45,38 @@ public class AddCampaignServlet extends HttpServlet {
 
             String name = request.getParameter("name");
 
-            String description =
-                    request.getParameter("description");
+            String description
+                    = request.getParameter("description");
 
-            String start =
-                    request.getParameter("startDate");
+            String start
+                    = request.getParameter("startDate");
 
-            String end =
-                    request.getParameter("endDate");
+            String end
+                    = request.getParameter("endDate");
 
-            String status =
-                    request.getParameter("status");
+            String status
+                    = request.getParameter("status");
+            request.setAttribute("name", name);
+            request.setAttribute("description", description);
+            request.setAttribute("startDate", start);
+            request.setAttribute("endDate", end);
+            request.setAttribute("status", status);
+            SimpleDateFormat sdf
+                    = new SimpleDateFormat("yyyy-MM-dd");
 
-            SimpleDateFormat sdf =
-                    new SimpleDateFormat("yyyy-MM-dd");
-
-            Date today =
-                    sdf.parse(sdf.format(new Date()));
+            Date today
+                    = sdf.parse(sdf.format(new Date()));
 
             Date startDate = null;
 
             Date endDate = null;
 
-
-            CampaignDAO dao =
-                    new CampaignDAO();
-
+            CampaignDAO dao
+                    = new CampaignDAO();
 
             // =========================
             // VALIDATE NAME
             // =========================
-
             if (name == null || name.trim().isEmpty()) {
 
                 request.setAttribute("error",
@@ -88,11 +89,9 @@ public class AddCampaignServlet extends HttpServlet {
                 return;
             }
 
-
             // =========================
             // VALIDATE TRÙNG TÊN
             // =========================
-
             if (dao.isCampaignNameExist(name)) {
 
                 request.setAttribute("error",
@@ -105,11 +104,9 @@ public class AddCampaignServlet extends HttpServlet {
                 return;
             }
 
-
             // =========================
             // VALIDATE START DATE
             // =========================
-
             if (start == null || start.isEmpty()) {
 
                 request.setAttribute("error",
@@ -124,7 +121,6 @@ public class AddCampaignServlet extends HttpServlet {
 
             startDate = sdf.parse(start);
 
-
             if (startDate.before(today)) {
 
                 request.setAttribute("error",
@@ -137,12 +133,9 @@ public class AddCampaignServlet extends HttpServlet {
                 return;
             }
 
-
-
             // =========================
             // VALIDATE END DATE
             // =========================
-
             if (end != null && !end.isEmpty()) {
 
                 endDate = sdf.parse(end);
@@ -161,64 +154,53 @@ public class AddCampaignServlet extends HttpServlet {
 
             }
 
-
-
             // =========================
             // HANDLE FILE
             // =========================
+            Part filePart
+                    = request.getPart("banner");
 
-            Part filePart =
-                    request.getPart("banner");
-
-            String fileName =
-                    System.currentTimeMillis()
+            String fileName
+                    = System.currentTimeMillis()
                     + "_"
                     + filePart.getSubmittedFileName();
 
-            String uploadPath =
-                    getServletContext().getRealPath("")
+            String uploadPath
+                    = getServletContext().getRealPath("")
                     + UPLOAD_DIR;
 
-            java.io.File uploadDir =
-                    new java.io.File(uploadPath);
+            java.io.File uploadDir
+                    = new java.io.File(uploadPath);
 
-            if (!uploadDir.exists())
+            if (!uploadDir.exists()) {
                 uploadDir.mkdir();
-
+            }
 
             filePart.write(uploadPath
                     + java.io.File.separator
                     + fileName);
 
-
-            String bannerUrl =
-                    "/images/" + fileName;
-
-
+            String bannerUrl
+                    = "/images/" + fileName;
 
             // =========================
             // GET STAFF
             // =========================
+            HttpSession session
+                    = request.getSession(false);
 
-            HttpSession session =
-                    request.getSession(false);
+            UserSession userSession
+                    = (UserSession) session.getAttribute(
+                            "userSession");
 
-            UserSession userSession =
-                    (UserSession)
-                            session.getAttribute(
-                                    "userSession");
-
-            long staffId =
-                    userSession.getUserId();
-
-
+            long staffId
+                    = userSession.getUserId();
 
             // =========================
             // SAVE
             // =========================
-
-            Campaign c =
-                    new Campaign();
+            Campaign c
+                    = new Campaign();
 
             c.setName(name);
 
@@ -234,24 +216,17 @@ public class AddCampaignServlet extends HttpServlet {
 
             c.setCreatedBy(staffId);
 
-
             dao.insertCampaign(c);
-
-
 
             // =========================
             // SUCCESS
             // =========================
-
-
             session.setAttribute("success",
                     "Thêm Campaign thành công");
 
             response.sendRedirect(
                     request.getContextPath()
                     + "/marketing/campaignmanagement");
-
-
 
         } catch (Exception e) {
 

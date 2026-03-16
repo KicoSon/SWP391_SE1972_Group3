@@ -191,6 +191,7 @@
                         <input type="text"
                                class="form-control"
                                name="fullName"
+                               value="${fullName}"
                                required>
 
                     </div>
@@ -209,7 +210,8 @@
 
                         <input type="text"
                                class="form-control"
-                               name="phone">
+                               name="phone"
+                               value="${phone}">
 
                     </div>
 
@@ -227,7 +229,8 @@
 
                         <input type="email"
                                class="form-control"
-                               name="email">
+                               name="email"
+                               value="${email}">
 
                     </div>
 
@@ -242,10 +245,10 @@
                             Địa chỉ
 
                         </label>
-
                         <input type="text"
                                class="form-control"
-                               name="address">
+                               name="address"
+                               value="${address}">
 
                     </div>
 
@@ -260,10 +263,10 @@
                             Sản phẩm quan tâm
 
                         </label>
-
                         <input type="text"
                                class="form-control"
-                               name="productInterest">
+                               name="productInterest"
+                               value="${productInterest}">
 
                     </div>
 
@@ -291,10 +294,9 @@
 
                             <c:forEach var="c" items="${campaignList}">
 
-                                <option value="${c.id}">
-
+                                <option value="${c.id}"
+                                        ${campaignId == c.id ? 'selected' : ''}>
                                     ${c.name}
-
                                 </option>
 
                             </c:forEach>

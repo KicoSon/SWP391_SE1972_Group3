@@ -73,7 +73,7 @@
 <div class="main-content">
 
     <div style="margin-bottom:16px;">
-        <a href="${pageContext.request.contextPath}/sales/opportunity-detail?id=${opportunityId}"
+        <a href="${pageContext.request.contextPath}/sales/opportunity-detail?id=${not empty opportunityId ? opportunityId : quotation.opportunityId}"
            style="color:rgba(255,255,255,0.85);text-decoration:none;font-size:13px;">
             <i class="fas fa-arrow-left"></i> Quay lại Opportunity
         </a>
@@ -98,7 +98,7 @@
         <form method="post"
               action="${pageContext.request.contextPath}/sales/${mode == 'edit' ? 'quotation-edit' : 'quotation-create'}"
               id="quoteForm">
-            <input type="hidden" name="opportunityId" value="${opportunityId}">
+            <input type="hidden" name="opportunityId" value="${not empty opportunityId ? opportunityId : quotation.opportunityId}">
             <c:if test="${mode == 'edit'}">
                 <input type="hidden" name="id" value="${quotation.id}">
             </c:if>
@@ -151,11 +151,11 @@
                 </thead>
                 <tbody id="itemsBody">
                     <c:choose>
-                        <c:when test="${not empty quotationItems}">
-                            <c:forEach var="item" items="${quotationItems}">
+                        <c:when test="${not empty items}">
+                            <c:forEach var="item" items="${items}">
                                 <tr class="item-row">
                                     <td>
-                                        <select name="productId[]" onchange="loadPrice(this)">
+                                        <select name="productId" onchange="loadPrice(this)">
                                             <option value="">-- Chọn SP --</option>
                                             <c:forEach var="p" items="${products}">
                                                 <option value="${p.id}" data-price="${p.basePrice}"
@@ -163,10 +163,10 @@
                                             </c:forEach>
                                         </select>
                                     </td>
-                                    <td><input type="number" name="quantity[]" min="1" value="${item.quantity}" class="qty-input" oninput="calcRow(this)"></td>
-                                    <td><input type="number" name="unitPrice[]" min="0" step="1000" value="${item.unitPrice}" class="price-input" oninput="calcRow(this)"></td>
-                                    <td><input type="number" name="discount[]" min="0" max="100" step="0.5" value="${item.discount}" class="disc-input" oninput="calcRow(this)"></td>
-                                    <td><input type="number" name="taxRate[]" min="0" max="30" step="0.5" value="${item.taxRate}" class="tax-input" oninput="calcRow(this)"></td>
+                                    <td><input type="number" name="quantity" min="1" value="${item.quantity}" class="qty-input" oninput="calcRow(this)"></td>
+                                    <td><input type="number" name="unitPrice" min="0" step="1000" value="${item.unitPrice}" class="price-input" oninput="calcRow(this)"></td>
+                                    <td><input type="number" name="discount" min="0" max="100" step="0.5" value="${item.discount}" class="disc-input" oninput="calcRow(this)"></td>
+                                    <td><input type="number" name="taxRate" min="0" max="30" step="0.5" value="${item.taxRate}" class="tax-input" oninput="calcRow(this)"></td>
                                     <td><input type="text" class="line-total" readonly style="background:#f8fff8;font-weight:700;color:#2e7d32;"></td>
                                     <td><button type="button" class="btn btn-danger btn-sm" onclick="removeRow(this)"><i class="fas fa-trash"></i></button></td>
                                 </tr>
@@ -283,14 +283,14 @@ function buildProductOptions() {
 function addRow() {
     const tr = document.createElement('tr');
     tr.className = 'item-row';
-    tr.innerHTML = `
-        <td><select name="productId[]" onchange="loadPrice(this)">${buildProductOptions()}</select></td>
-        <td><input type="number" name="quantity[]" min="1" value="1" class="qty-input" oninput="calcRow(this)"></td>
-        <td><input type="number" name="unitPrice[]" min="0" step="1000" value="0" class="price-input" oninput="calcRow(this)"></td>
-        <td><input type="number" name="discount[]" min="0" max="100" step="0.5" value="0" class="disc-input" oninput="calcRow(this)"></td>
-        <td><input type="number" name="taxRate[]" min="0" max="30" step="0.5" value="10" class="tax-input" oninput="calcRow(this)"></td>
-        <td><input type="text" class="line-total" readonly style="background:#f8fff8;font-weight:700;color:#2e7d32;" value="0"></td>
-        <td><button type="button" class="btn btn-danger btn-sm" onclick="removeRow(this)"><i class="fas fa-trash"></i></button></td>`;
+    tr.innerHTML =
+        '<td><select name="productId" onchange="loadPrice(this)">' + buildProductOptions() + '</select></td>' +
+        '<td><input type="number" name="quantity" min="1" value="1" class="qty-input" oninput="calcRow(this)"></td>' +
+        '<td><input type="number" name="unitPrice" min="0" step="1000" value="0" class="price-input" oninput="calcRow(this)"></td>' +
+        '<td><input type="number" name="discount" min="0" max="100" step="0.5" value="0" class="disc-input" oninput="calcRow(this)"></td>' +
+        '<td><input type="number" name="taxRate" min="0" max="30" step="0.5" value="10" class="tax-input" oninput="calcRow(this)"></td>' +
+        '<td><input type="text" class="line-total" readonly style="background:#f8fff8;font-weight:700;color:#2e7d32;" value="0"></td>' +
+        '<td><button type="button" class="btn btn-danger btn-sm" onclick="removeRow(this)"><i class="fas fa-trash"></i></button></td>';
     document.getElementById('itemsBody').appendChild(tr);
     recalcTotals();
 }
@@ -392,11 +392,11 @@ function selectProduct(id, name, price) {
     var opts = buildProductOptions();
     opts = opts.replace('value="' + id + '"', 'value="' + id + '" selected');
     tr.innerHTML =
-        '<td><select name="productId[]" onchange="loadPrice(this)">' + opts + '</select></td>' +
-        '<td><input type="number" name="quantity[]" min="1" value="1" class="qty-input" oninput="calcRow(this)"></td>' +
-        '<td><input type="number" name="unitPrice[]" min="0" step="1000" value="' + price + '" class="price-input" oninput="calcRow(this)"></td>' +
-        '<td><input type="number" name="discount[]" min="0" max="100" step="0.5" value="0" class="disc-input" oninput="calcRow(this)"></td>' +
-        '<td><input type="number" name="taxRate[]" min="0" max="30" step="0.5" value="10" class="tax-input" oninput="calcRow(this)"></td>' +
+        '<td><select name="productId" onchange="loadPrice(this)">' + opts + '</select></td>' +
+        '<td><input type="number" name="quantity" min="1" value="1" class="qty-input" oninput="calcRow(this)"></td>' +
+        '<td><input type="number" name="unitPrice" min="0" step="1000" value="' + price + '" class="price-input" oninput="calcRow(this)"></td>' +
+        '<td><input type="number" name="discount" min="0" max="100" step="0.5" value="0" class="disc-input" oninput="calcRow(this)"></td>' +
+        '<td><input type="number" name="taxRate" min="0" max="30" step="0.5" value="10" class="tax-input" oninput="calcRow(this)"></td>' +
         '<td><input type="text" class="line-total" readonly style="background:#f8fff8;font-weight:700;color:#2e7d32;"></td>' +
         '<td><button type="button" class="btn btn-danger btn-sm" onclick="removeRow(this)"><i class="fas fa-trash"></i></button></td>';
     tbody.appendChild(tr);

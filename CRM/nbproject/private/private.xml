@@ -3,14 +3,14 @@
     <editor-bookmarks xmlns="http://www.netbeans.org/ns/editor-bookmarks/2" lastBookmarkId="0"/>
     <open-files xmlns="http://www.netbeans.org/ns/projectui-open-files/2">
         <group>
-            <file>file:/C:/Users/PC/OneDrive/Documents/GitHub/SWP391_SE1972_Group3/CRM/web/admin/assets/css/customer-management.css</file>
-            <file>file:/C:/Users/PC/OneDrive/Documents/GitHub/SWP391_SE1972_Group3/CRM/src/java/dal/AdminDAO.java</file>
-            <file>file:/C:/Users/PC/OneDrive/Documents/GitHub/SWP391_SE1972_Group3/CRM/web/admin/sidebar.jsp</file>
-            <file>file:/C:/Users/PC/OneDrive/Documents/GitHub/SWP391_SE1972_Group3/CRM/web/admin/customers.jsp</file>
-            <file>file:/C:/Users/PC/OneDrive/Documents/GitHub/SWP391_SE1972_Group3/CRM/src/java/controller/ManageCustomer.java</file>
-            <file>file:/C:/Users/PC/OneDrive/Documents/GitHub/SWP391_SE1972_Group3/CRM/src/java/controller/customer/ImportCustomerPreviewController.java</file>
-            <file>file:/C:/Users/PC/OneDrive/Documents/GitHub/SWP391_SE1972_Group3/CRM/web/admin/customer-form.jsp</file>
-            <file>file:/C:/Users/PC/OneDrive/Documents/GitHub/SWP391_SE1972_Group3/CRM/web/admin/customer-import-preview.jsp</file>
+            <file>file:/C:/Users/DELL/Desktop/SWP391_SE1972_Group3/CRM/src/java/dal/OpportunityDAO.java</file>
+            <file>file:/C:/Users/DELL/Desktop/SWP391_SE1972_Group3/CRM/src/java/dal/UserDAO.java</file>
+            <file>file:/C:/Users/DELL/Desktop/SWP391_SE1972_Group3/CRM/nbproject/build-impl.xml</file>
+            <file>file:/C:/Users/DELL/Desktop/SWP391_SE1972_Group3/CRM/src/java/dal/LeadDAO.java</file>
+            <file>file:/C:/Users/DELL/Desktop/SWP391_SE1972_Group3/CRM/src/java/dal/ActivityDAO.java</file>
+            <file>file:/C:/Users/DELL/Desktop/SWP391_SE1972_Group3/CRM/src/java/controller/MarketingDashboardController.java</file>
+            <file>file:/C:/Users/DELL/Desktop/SWP391_SE1972_Group3/CRM/src/java/dal/AuthDAO.java</file>
+            <file>file:/C:/Users/DELL/Desktop/SWP391_SE1972_Group3/CRM/src/java/controller/Logout.java</file>
         </group>
     </open-files>
 </project-private>

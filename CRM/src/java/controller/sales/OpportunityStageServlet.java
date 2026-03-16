@@ -26,8 +26,8 @@ public class OpportunityStageServlet extends HttpServlet {
         response.setCharacterEncoding("UTF-8");
 
         UserSession userSession = (UserSession) request.getSession().getAttribute("userSession");
-        if (userSession == null || !userSession.isSaleStaff()) {
-            response.sendRedirect(request.getContextPath() + "/login");
+        if (userSession == null || (!userSession.isSaleStaff() && !userSession.isAdmin())) {
+            response.sendError(401, "Unauthorized");
             return;
         }
 
@@ -38,13 +38,16 @@ public class OpportunityStageServlet extends HttpServlet {
             Opportunity opp = opportunityDAO.getById(id);
             if (opp == null) { response.sendError(404); return; }
 
-            if (userSession.isSaleStaff() && opp.getAssignedSalesId() != userSession.getStaff().getId()) {
+            // Only check ownership for non-manager sales staff
+            if (!userSession.isAdmin() && userSession.isSaleStaff()
+                    && opp.getAssignedSalesId() != userSession.getStaff().getId()) {
                 response.sendError(403, "Access Denied");
                 return;
             }
 
             opportunityDAO.updateStage(id, newStage);
-            response.sendRedirect(request.getContextPath() + "/sales/opportunity-detail?id=" + id);
+            response.setStatus(200);
+            response.getWriter().write("OK");
         } catch (Exception e) {
             e.printStackTrace();
             response.sendError(500, "Internal Server Error");

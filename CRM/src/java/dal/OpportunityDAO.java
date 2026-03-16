@@ -363,4 +363,129 @@ public class OpportunityDAO extends DBContext {
         }
         return list;
     }
+
+    // ================================================================== NEW MODULE 2 METHODS
+
+    public void addOpportunityProduct(model.sales.OpportunityProduct op) {
+        String sql = "INSERT INTO opportunity_products (opportunity_id, product_id, quantity, unit_price, discount) VALUES (?, ?, ?, ?, ?)";
+        try (PreparedStatement ps = connection.prepareStatement(sql)) {
+            ps.setInt(1, op.getOpportunityId());
+            ps.setInt(2, op.getProductId());
+            ps.setInt(3, op.getQuantity());
+            ps.setBigDecimal(4, op.getUnitPrice());
+            ps.setBigDecimal(5, op.getDiscount());
+            ps.executeUpdate();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    public List<model.sales.OpportunityProduct> getOpportunityProducts(int opportunityId) {
+        List<model.sales.OpportunityProduct> list = new ArrayList<>();
+        String sql = "SELECT op.*, p.name AS product_name FROM opportunity_products op JOIN products p ON op.product_id = p.id WHERE op.opportunity_id = ?";
+        try (PreparedStatement ps = connection.prepareStatement(sql)) {
+            ps.setInt(1, opportunityId);
+            ResultSet rs = ps.executeQuery();
+            while (rs.next()) {
+                model.sales.OpportunityProduct op = new model.sales.OpportunityProduct();
+                op.setId(rs.getInt("id"));
+                op.setOpportunityId(rs.getInt("opportunity_id"));
+                op.setProductId(rs.getInt("product_id"));
+                op.setQuantity(rs.getInt("quantity"));
+                op.setUnitPrice(rs.getBigDecimal("unit_price"));
+                op.setDiscount(rs.getBigDecimal("discount"));
+                try { op.setTotalPrice(rs.getBigDecimal("total_price")); } catch (Exception ignored) {
+                    // total_price column may not exist, calculate it
+                    java.math.BigDecimal price = op.getUnitPrice() != null ? op.getUnitPrice() : java.math.BigDecimal.ZERO;
+                    java.math.BigDecimal disc = op.getDiscount() != null ? op.getDiscount() : java.math.BigDecimal.ZERO;
+                    op.setTotalPrice(price.multiply(java.math.BigDecimal.valueOf(op.getQuantity())).subtract(disc));
+                }
+                try { op.setNotes(rs.getString("notes")); } catch (Exception ignored) {}
+                try { op.setCreatedAt(rs.getTimestamp("created_at")); } catch (Exception ignored) {}
+                op.setProductName(rs.getString("product_name"));
+                list.add(op);
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return list;
+    }
+
+    public List<model.sales.StageHistory> getOpportunityTimeline(int opportunityId) {
+        List<model.sales.StageHistory> list = new ArrayList<>();
+        String sql = "SELECT sh.*, u.full_name FROM stage_history sh LEFT JOIN users u ON sh.changed_by = u.id WHERE sh.opportunity_id = ? ORDER BY sh.changed_at DESC";
+        try (PreparedStatement ps = connection.prepareStatement(sql)) {
+            ps.setInt(1, opportunityId);
+            ResultSet rs = ps.executeQuery();
+            while (rs.next()) {
+                model.sales.StageHistory sh = new model.sales.StageHistory();
+                sh.setId(rs.getInt("id"));
+                sh.setOpportunityId(rs.getInt("opportunity_id"));
+                sh.setOldStage(rs.getString("old_stage"));
+                sh.setNewStage(rs.getString("new_stage"));
+                sh.setChangedBy(rs.getInt("changed_by"));
+                sh.setChangedAt(rs.getTimestamp("changed_at"));
+                sh.setNotes(rs.getString("notes"));
+                sh.setChangedByName(rs.getString("full_name"));
+                list.add(sh);
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return list;
+    }
+
+    public List<Opportunity> getOpportunitiesByStage(String stageName) {
+        return filterOpportunities(null, stageName, "Open", null);
+    }
+
+    public boolean convertLeadToOpportunity(long leadId, Opportunity opp) {
+        try {
+            connection.setAutoCommit(false);
+            
+            // 1. Insert Opportunity
+            insert(opp);
+            
+            // 2. Update Lead status
+            String updateLead = "UPDATE leads SET status = 'Converted' WHERE id = ?";
+            try(PreparedStatement ps = connection.prepareStatement(updateLead)) {
+                ps.setLong(1, leadId);
+                ps.executeUpdate();
+            }
+            
+            connection.commit();
+            return true;
+        } catch (Exception e) {
+            try { connection.rollback(); } catch (Exception ex) {}
+            e.printStackTrace();
+            return false;
+        } finally {
+            try { connection.setAutoCommit(true); } catch (Exception ex) {}
+        }
+    }
+    
+    // Additional metrics for Phase 12 Sales Dashboard
+    public BigDecimal getPipelineValue() {
+        String sql = "SELECT SUM(expected_value) AS total FROM opportunities WHERE status = 'Open'";
+        try (PreparedStatement ps = connection.prepareStatement(sql); ResultSet rs = ps.executeQuery()) {
+            if (rs.next()) return rs.getBigDecimal("total");
+        } catch (Exception e) { e.printStackTrace(); }
+        return BigDecimal.ZERO;
+    }
+
+    public double getWinRate() {
+        String sql = "SELECT CAST(COUNT(CASE WHEN status='Won' THEN 1 END) AS FLOAT) * 100.0 / NULLIF(COUNT(*), 0) AS win_rate FROM opportunities";
+        try (PreparedStatement ps = connection.prepareStatement(sql); ResultSet rs = ps.executeQuery()) {
+            if (rs.next()) return rs.getDouble("win_rate");
+        } catch (Exception e) { e.printStackTrace(); }
+        return 0.0;
+    }
+
+    public BigDecimal getForecastRevenue() {
+        String sql = "SELECT SUM(expected_value * (win_probability / 100.0)) AS forecast FROM opportunities WHERE status = 'Open'";
+        try (PreparedStatement ps = connection.prepareStatement(sql); ResultSet rs = ps.executeQuery()) {
+            if (rs.next()) return rs.getBigDecimal("forecast");
+        } catch (Exception e) { e.printStackTrace(); }
+        return BigDecimal.ZERO;
+    }
 }

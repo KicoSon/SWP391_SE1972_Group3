@@ -199,12 +199,10 @@
                         </label>
 
                         <input type="text"
-
-                               class="form-control"
-
-                               name="name"
-
-                               required>
+       class="form-control"
+       name="name"
+       value="${name}"
+       required>
 
                     </div>
 
@@ -220,11 +218,9 @@
 
                         </label>
 
-                        <textarea class="form-control"
-
-                                  name="description"
-
-                                  rows="3"></textarea>
+                      <textarea class="form-control"
+          name="description"
+          rows="3">${description}</textarea>
 
                     </div>
 
@@ -240,11 +236,18 @@
 
                         </label>
 
-                        <input type="file"
-                               class="form-control"
-                               name="banner"
-                               accept="image/*"
-                               required>
+                       <input type="file"
+       class="form-control"
+       name="banner"
+       accept="image/*"
+       required
+       onchange="previewBanner(event)">
+
+<img id="bannerPreview"
+     style="max-width:250px;
+     margin-top:10px;
+     border-radius:10px;
+     display:none;">
 
 
                     </div>
@@ -261,11 +264,10 @@
 
                         </label>
 
-                        <input type="date"
-
-                               class="form-control"
-
-                               name="startDate">
+                      <input type="date"
+       class="form-control"
+       name="startDate"
+       value="${startDate}">
 
                     </div>
 
@@ -281,12 +283,10 @@
 
                         </label>
 
-                        <input type="date"
-
-                               class="form-control"
-
-                               name="endDate">
-
+                       <input type="date"
+       class="form-control"
+       name="endDate"
+       value="${endDate}">
                     </div>
 
 
@@ -307,13 +307,10 @@
 
                             <div>
 
-                                <input type="radio"
-
-                                       name="status"
-
-                                       value="ACTIVE"
-
-                                       checked>
+                               <input type="radio"
+       name="status"
+       value="ACTIVE"
+       ${status == 'ACTIVE' ? 'checked' : ''}>
 
 
                                 Đang hoạt động
@@ -324,11 +321,10 @@
 
                             <div>
 
-                                <input type="radio"
-
-                                       name="status"
-
-                                       value="INACTIVE">
+                               <input type="radio"
+       name="status"
+       value="INACTIVE"
+       ${status == 'INACTIVE' ? 'checked' : ''}>
 
 
                                 Ngừng hoạt động
@@ -375,7 +371,30 @@
 
         </div>
 
+<script>
 
+function previewBanner(event) {
+
+    const file = event.target.files[0];
+
+    if (!file) return;
+
+    const reader = new FileReader();
+
+    reader.onload = function(e) {
+
+        const img = document.getElementById("bannerPreview");
+
+        img.src = e.target.result;
+
+        img.style.display = "block";
+
+    };
+
+    reader.readAsDataURL(file);
+}
+
+</script>
     </body>
 
 </html>

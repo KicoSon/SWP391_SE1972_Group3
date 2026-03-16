@@ -30,12 +30,16 @@ public class SalesActivityServlet extends HttpServlet {
         response.setCharacterEncoding("UTF-8");
 
         UserSession userSession = (UserSession) request.getSession().getAttribute("userSession");
-        if (userSession == null || !userSession.isSaleStaff()) {
+        if (userSession == null || (!userSession.isSaleStaff() && !userSession.isAdmin())) {
             response.sendRedirect(request.getContextPath() + "/login"); return;
         }
 
         try {
-            int oppId = Integer.parseInt(request.getParameter("opportunityId"));
+            String oppIdStr = request.getParameter("opportunityId");
+            if (oppIdStr == null || oppIdStr.trim().isEmpty()) {
+                response.sendError(400, "Missing opportunityId parameter"); return;
+            }
+            int oppId = Integer.parseInt(oppIdStr.trim());
             request.setAttribute("opportunity", opportunityDAO.getById(oppId));
             request.setAttribute("activities", activityDAO.getActivitiesByOpportunityId(oppId));
             request.getRequestDispatcher("/sales/sales-activity-form.jsp").forward(request, response);
@@ -53,12 +57,16 @@ public class SalesActivityServlet extends HttpServlet {
         response.setCharacterEncoding("UTF-8");
 
         UserSession userSession = (UserSession) request.getSession().getAttribute("userSession");
-        if (userSession == null || !userSession.isSaleStaff()) {
+        if (userSession == null || (!userSession.isSaleStaff() && !userSession.isAdmin())) {
             response.sendRedirect(request.getContextPath() + "/login"); return;
         }
 
         try {
-            int oppId = Integer.parseInt(request.getParameter("opportunityId"));
+            String oppIdStr = request.getParameter("opportunityId");
+            if (oppIdStr == null || oppIdStr.trim().isEmpty()) {
+                response.sendError(400, "Missing opportunityId parameter"); return;
+            }
+            int oppId = Integer.parseInt(oppIdStr.trim());
 
             Activity activity = new Activity();
             activity.setTitle(request.getParameter("title"));

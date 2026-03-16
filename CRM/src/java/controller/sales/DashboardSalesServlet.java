@@ -27,15 +27,15 @@ public class DashboardSalesServlet extends HttpServlet {
         response.setCharacterEncoding("UTF-8");
 
         UserSession userSession = (UserSession) request.getSession().getAttribute("userSession");
-        if (userSession == null || !userSession.isSaleStaff()) {
+        if (userSession == null || (!userSession.isSaleStaff() && !userSession.isAdmin())) {
             response.sendRedirect(request.getContextPath() + "/login"); return;
         }
 
-        boolean isManager = userSession.isAdmin() || userSession.hasRole("SALES_MANAGER");
+        boolean isManager = userSession.isAdmin();
         Integer salesId = isManager ? null : userSession.getStaff().getId();
 
         try {
-            // All open opportunities
+            // All opportunities
             List<model.sales.Opportunity> openOpps = opportunityDAO.filterOpportunities(null, null, "Open", salesId);
             List<model.sales.Opportunity> wonOpps  = opportunityDAO.filterOpportunities(null, null, "Won",  salesId);
             List<model.sales.Opportunity> lostOpps = opportunityDAO.filterOpportunities(null, null, "Lost", salesId);
@@ -46,26 +46,21 @@ public class DashboardSalesServlet extends HttpServlet {
             int totalLost = lostOpps.size();
             int total = totalOpen + totalWon + totalLost;
 
-            BigDecimal totalValue = openOpps.stream()
-                .map(o -> o.getExpectedValue() != null ? o.getExpectedValue() : BigDecimal.ZERO)
-                .reduce(BigDecimal.ZERO, BigDecimal::add);
-
             BigDecimal wonValue = wonOpps.stream()
                 .map(o -> o.getExpectedValue() != null ? o.getExpectedValue() : BigDecimal.ZERO)
                 .reduce(BigDecimal.ZERO, BigDecimal::add);
 
-            double winRate = total > 0 ? (totalWon * 100.0 / (totalWon + totalLost > 0 ? totalWon + totalLost : 1)) : 0;
-
-            BigDecimal avgDealSize = totalWon > 0 ?
-                wonValue.divide(new BigDecimal(totalWon), 2, BigDecimal.ROUND_HALF_UP) : BigDecimal.ZERO;
-
-            // Count by stage
-            Map<String, Integer> countByStage = isManager ?
+            // Count by stage – JSP reads "stageCount"
+            Map<String, Integer> stageCount = isManager ?
                 opportunityDAO.countByStage() : opportunityDAO.countByStageForSales(salesId);
 
-            // Revenue forecast by month (current year)
+            // Revenue forecast by month → convert List<Object[]> to LinkedHashMap<month,revenue>
             int year = java.util.Calendar.getInstance().get(java.util.Calendar.YEAR);
-            List<Object[]> monthlyRevenue = opportunityDAO.getMonthlyRevenue(year);
+            List<Object[]> rawRevenue = opportunityDAO.getMonthlyRevenue(year);
+            Map<Integer, BigDecimal> monthlyRevenue = new LinkedHashMap<>();
+            for (Object[] row : rawRevenue) {
+                monthlyRevenue.put((Integer) row[0], (BigDecimal) row[1]);
+            }
 
             // Top 5 closest to close date
             List<model.sales.Opportunity> topOpps = openOpps.stream()
@@ -74,24 +69,23 @@ public class DashboardSalesServlet extends HttpServlet {
                 .limit(5)
                 .collect(java.util.stream.Collectors.toList());
 
-            // Lost reason analysis
-            Map<String, Long> lostByReason = new LinkedHashMap<>();
+            // Lost reason analysis – JSP reads "lostReasonData"
+            Map<String, Long> lostReasonData = new LinkedHashMap<>();
             for (model.sales.Opportunity o : lostOpps) {
                 String r = o.getLostReason() != null ? o.getLostReason() : "Không rõ";
-                lostByReason.merge(r, 1L, Long::sum);
+                lostReasonData.merge(r, 1L, Long::sum);
             }
 
-            request.setAttribute("totalOpen", totalOpen);
-            request.setAttribute("totalWon", totalWon);
-            request.setAttribute("totalLost", totalLost);
-            request.setAttribute("totalValue", totalValue);
-            request.setAttribute("wonValue", wonValue);
-            request.setAttribute("winRate", String.format("%.1f", winRate));
-            request.setAttribute("avgDealSize", avgDealSize);
-            request.setAttribute("countByStage", countByStage);
+            // Set attributes matching JSP EL names
+            request.setAttribute("kpiTotalOpps", total);
+            request.setAttribute("kpiWon", totalWon);
+            request.setAttribute("kpiLost", totalLost);
+            request.setAttribute("kpiValueWon", wonValue);
+            request.setAttribute("kpiQuotations", 0);
+            request.setAttribute("stageCount", stageCount);
             request.setAttribute("monthlyRevenue", monthlyRevenue);
             request.setAttribute("topOpps", topOpps);
-            request.setAttribute("lostByReason", lostByReason);
+            request.setAttribute("lostReasonData", lostReasonData);
             request.setAttribute("isManager", isManager);
             request.getRequestDispatcher("/sales/sales-dashboard.jsp").forward(request, response);
         } catch (Exception e) {

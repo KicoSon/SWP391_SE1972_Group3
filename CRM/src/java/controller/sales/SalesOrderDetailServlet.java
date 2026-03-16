@@ -29,7 +29,7 @@ public class SalesOrderDetailServlet extends HttpServlet {
         response.setCharacterEncoding("UTF-8");
 
         UserSession userSession = (UserSession) request.getSession().getAttribute("userSession");
-        if (userSession == null || !userSession.isSaleStaff()) {
+        if (userSession == null || (!userSession.isSaleStaff() && !userSession.isAdmin())) {
             response.sendRedirect(request.getContextPath() + "/login"); return;
         }
 
@@ -41,7 +41,7 @@ public class SalesOrderDetailServlet extends HttpServlet {
             request.setAttribute("order", order);
             request.setAttribute("quotation", quotationDAO.getById(order.getQuotationId()));
             request.setAttribute("quotationItems", quotationDAO.getItemsByQuotationId(order.getQuotationId()));
-            request.setAttribute("isManager", userSession.isAdmin() || userSession.hasRole("SALES_MANAGER"));
+            request.setAttribute("isManager", userSession.isAdmin());
             request.getRequestDispatcher("/sales/order-detail.jsp").forward(request, response);
         } catch (Exception e) {
             e.printStackTrace();
@@ -57,7 +57,7 @@ public class SalesOrderDetailServlet extends HttpServlet {
         response.setCharacterEncoding("UTF-8");
 
         UserSession userSession = (UserSession) request.getSession().getAttribute("userSession");
-        if (userSession == null || !userSession.isSaleStaff()) {
+        if (userSession == null || (!userSession.isSaleStaff() && !userSession.isAdmin())) {
             response.sendRedirect(request.getContextPath() + "/login"); return;
         }
 

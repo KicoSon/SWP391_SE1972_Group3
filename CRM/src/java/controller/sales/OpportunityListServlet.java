@@ -28,7 +28,7 @@ public class OpportunityListServlet extends HttpServlet {
         response.setCharacterEncoding("UTF-8");
 
         UserSession userSession = (UserSession) request.getSession().getAttribute("userSession");
-        if (userSession == null || !userSession.isSaleStaff()) {
+        if (userSession == null || (!userSession.isSaleStaff() && !userSession.isAdmin())) {
             response.sendRedirect(request.getContextPath() + "/login");
             return;
         }
@@ -38,19 +38,17 @@ public class OpportunityListServlet extends HttpServlet {
         String status  = request.getParameter("status");
 
         Integer salesId = null;
-        if (userSession.isSaleStaff()) {
+        if (!userSession.isAdmin()) {
             salesId = userSession.getStaff().getId();
         }
 
         try {
             List<Opportunity> list = opportunityDAO.filterOpportunities(search, stage, status, salesId);
             request.setAttribute("opportunityList", list);
-            System.out.println("hehehe" + list.size());
             request.setAttribute("searchVal", search);
             request.setAttribute("stageVal", stage);
             request.setAttribute("statusVal", status);
-            request.setAttribute("isManager",
-                userSession.isAdmin() || userSession.hasRole("SALES_MANAGER"));
+            request.setAttribute("isManager", userSession.isAdmin());
             request.getRequestDispatcher("/sales/opportunity-list.jsp").forward(request, response);
         } catch (Exception e) {
             e.printStackTrace();
@@ -66,7 +64,7 @@ public class OpportunityListServlet extends HttpServlet {
         response.setCharacterEncoding("UTF-8");
 
         UserSession userSession = (UserSession) request.getSession().getAttribute("userSession");
-        if (userSession == null || !userSession.isSaleStaff()) {
+        if (userSession == null || (!userSession.isSaleStaff() && !userSession.isAdmin())) {
             response.sendRedirect(request.getContextPath() + "/login");
             return;
         }
@@ -77,7 +75,7 @@ public class OpportunityListServlet extends HttpServlet {
                 int id = Integer.parseInt(request.getParameter("id"));
                 Opportunity opp = opportunityDAO.getById(id);
                 if (opp != null) {
-                    if (userSession.isSaleStaff() && opp.getAssignedSalesId() != userSession.getStaff().getId()) {
+                    if (!userSession.isAdmin() && opp.getAssignedSalesId() != userSession.getStaff().getId()) {
                         response.sendError(403, "Access Denied");
                         return;
                     }
