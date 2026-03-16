@@ -171,7 +171,7 @@
 
             <div class="nav-item">
 
-                <a href="${pageContext.request.contextPath}/marketing/campaignmanagement"
+                <a href="${pageContext.request.contextPath}/managestaff"
                    class="nav-link">
 
                     <i class="fas fa-bullhorn"></i>
@@ -192,7 +192,7 @@
 
                 </a>
             </div>
-            <div class="nav-item">
+<!--            <div class="nav-item">
                 <a href="${pageContext.request.contextPath}/marketing/assignLead"
                    class="nav-link">
 
@@ -201,7 +201,7 @@
                     Reports
 
                 </a>
-            </div> 
+            </div> -->
 
 
             <div class="nav-item">

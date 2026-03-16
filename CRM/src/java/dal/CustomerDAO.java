@@ -121,7 +121,7 @@ public class CustomerDAO extends DBContext {
 
                 c.setStatus(rs.getString("status"));
 
-                c.setOwnerId(rs.getInt("owner_id"));        
+                c.setOwnerId(rs.getInt("owner_id"));
                 c.setOwnerName(rs.getString("owner_name"));
 
                 c.setCreatedAt(rs.getTimestamp("created_at").toLocalDateTime());
@@ -379,5 +379,29 @@ public class CustomerDAO extends DBContext {
         }
 
         return null;
+    }
+
+    public void updatePasswordByEmail(String email, String password) throws Exception {
+
+        String sql = "UPDATE customers SET password=? WHERE email=?";
+
+        PreparedStatement ps = connection.prepareStatement(sql);
+
+        ps.setString(1, password);
+        ps.setString(2, email);
+
+        ps.executeUpdate();
+    }
+
+    public boolean checkEmailExists(String email) throws Exception {
+
+        String sql = "SELECT 1 FROM customers WHERE email = ?";
+
+        PreparedStatement ps = connection.prepareStatement(sql);
+        ps.setString(1, email);
+
+        ResultSet rs = ps.executeQuery();
+
+        return rs.next();
     }
 }
