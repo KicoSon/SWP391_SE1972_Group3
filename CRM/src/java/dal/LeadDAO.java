@@ -205,7 +205,6 @@ public class LeadDAO extends DBContext {
         // 1. SELECT thêm assigned_sales_id theo ý bạn
         String sql = "SELECT id, full_name, email, assigned_sales_id FROM leads WHERE status != 'converted'";
 
-        // 2. Nếu truyền vào saleId (Tức là nhân viên thường) -> Cấp thêm điều kiện lọc
         if (saleId != null) {
             sql += " AND assigned_sales_id = ?";
         }
@@ -227,8 +226,6 @@ public class LeadDAO extends DBContext {
                 l.setFullName(rs.getString("full_name"));
                 l.setEmail(rs.getString("email"));
 
-                // 3. Lấy thêm assigned_sales_id gán vào model (Như bạn suy luận)
-                // Dùng getObject để tránh lỗi ClassCastException nếu nhỡ may bị NULL ở DB
                 Object assignedObj = rs.getObject("assigned_sales_id");
                 if (assignedObj != null) {
                     l.setAssignedSalesId(((Number) assignedObj).longValue());
@@ -495,4 +492,153 @@ public Lead getById(long id) {
         } catch (Exception e) { e.printStackTrace(); }
         return null;
     }
+// =============================
+// TOTAL LEADS
+// =============================
+public int getTotalLeads() {
+
+    int total = 0;
+
+    String sql = "SELECT COUNT(*) FROM leads";
+
+    try {
+
+        PreparedStatement ps
+                = connection.prepareStatement(sql);
+
+        ResultSet rs
+                = ps.executeQuery();
+
+        if (rs.next()) {
+
+            total = rs.getInt(1);
+
+        }
+
+    } catch (Exception e) {
+
+        e.printStackTrace();
+
+    }
+
+    return total;
+
+}
+// =============================
+// LEAD STATUS STATS
+// =============================
+public Map<String, Integer> getLeadStatusStats() {
+
+    Map<String, Integer> map = new LinkedHashMap<>();
+
+    String sql
+            = "SELECT status, COUNT(*) total "
+            + "FROM leads "
+            + "GROUP BY status";
+
+    try {
+
+        PreparedStatement ps
+                = connection.prepareStatement(sql);
+
+        ResultSet rs
+                = ps.executeQuery();
+
+        while (rs.next()) {
+
+            map.put(
+                    rs.getString("status"),
+                    rs.getInt("total")
+            );
+
+        }
+
+    } catch (Exception e) {
+
+        e.printStackTrace();
+
+    }
+
+    return map;
+
+}
+// =============================
+// LEAD SOURCE STATS
+// =============================
+public Map<String, Integer> getLeadSourceStats() {
+
+    Map<String, Integer> map = new LinkedHashMap<>();
+
+    String sql
+            = "SELECT source, COUNT(*) total "
+            + "FROM leads "
+            + "GROUP BY source";
+
+    try {
+
+        PreparedStatement ps
+                = connection.prepareStatement(sql);
+
+        ResultSet rs
+                = ps.executeQuery();
+
+        while (rs.next()) {
+
+            map.put(
+                    rs.getString("source"),
+                    rs.getInt("total")
+            );
+
+        }
+
+    } catch (Exception e) {
+
+        e.printStackTrace();
+
+    }
+
+    return map;
+
+}
+// =============================
+// TOP CAMPAIGNS
+// =============================
+public Map<String, Integer> getTopCampaignStats() {
+
+    Map<String, Integer> map = new LinkedHashMap<>();
+
+    String sql
+            = "SELECT c.name, COUNT(l.id) total "
+            + "FROM leads l "
+            + "LEFT JOIN campaigns c "
+            + "ON l.campaign_id = c.id "
+            + "GROUP BY c.name "
+            + "ORDER BY total DESC";
+
+    try {
+
+        PreparedStatement ps
+                = connection.prepareStatement(sql);
+
+        ResultSet rs
+                = ps.executeQuery();
+
+        while (rs.next()) {
+
+            map.put(
+                    rs.getString("name"),
+                    rs.getInt("total")
+            );
+
+        }
+
+    } catch (Exception e) {
+
+        e.printStackTrace();
+
+    }
+
+    return map;
+
+}
 }

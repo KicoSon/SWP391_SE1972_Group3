@@ -111,12 +111,12 @@
 
 
             <div class="form-card">
- <!-- ERROR MESSAGE -->
-    <c:if test="${not empty error}">
-        <div class="alert alert-danger">
-            ${error}
-        </div>
-    </c:if>
+                <!-- ERROR MESSAGE -->
+                <c:if test="${not empty error}">
+                    <div class="alert alert-danger">
+                        ${error}
+                    </div>
+                </c:if>
 
                 <div class="d-flex justify-content-between align-items-center mb-4">
 
@@ -199,10 +199,10 @@
                         </label>
 
                         <input type="text"
-       class="form-control"
-       name="name"
-       value="${name}"
-       required>
+                               class="form-control"
+                               name="name"
+                               value="${name}"
+                               required>
 
                     </div>
 
@@ -218,9 +218,9 @@
 
                         </label>
 
-                      <textarea class="form-control"
-          name="description"
-          rows="3">${description}</textarea>
+                        <textarea class="form-control"
+                                  name="description"
+                                  rows="3">${description}</textarea>
 
                     </div>
 
@@ -236,18 +236,18 @@
 
                         </label>
 
-                       <input type="file"
-       class="form-control"
-       name="banner"
-       accept="image/*"
-       required
-       onchange="previewBanner(event)">
+                        <input type="file"
+                               class="form-control"
+                               name="banner"
+                               accept="image/*"
+                               required
+                               onchange="previewBanner(event)">
 
-<img id="bannerPreview"
-     style="max-width:250px;
-     margin-top:10px;
-     border-radius:10px;
-     display:none;">
+                        <img id="bannerPreview"
+                             style="max-width:250px;
+                             margin-top:10px;
+                             border-radius:10px;
+                             display:none;">
 
 
                     </div>
@@ -264,10 +264,10 @@
 
                         </label>
 
-                      <input type="date"
-       class="form-control"
-       name="startDate"
-       value="${startDate}">
+                        <input type="date"
+                               class="form-control"
+                               name="startDate"
+                               value="${startDate}">
 
                     </div>
 
@@ -283,10 +283,10 @@
 
                         </label>
 
-                       <input type="date"
-       class="form-control"
-       name="endDate"
-       value="${endDate}">
+                        <input type="date"
+                               class="form-control"
+                               name="endDate"
+                               value="${endDate}">
                     </div>
 
 
@@ -307,10 +307,10 @@
 
                             <div>
 
-                               <input type="radio"
-       name="status"
-       value="ACTIVE"
-       ${status == 'ACTIVE' ? 'checked' : ''}>
+                                <input type="radio"
+                                       name="status"
+                                       value="ACTIVE"
+                                       ${status == 'ACTIVE' ? 'checked' : ''}>
 
 
                                 Đang hoạt động
@@ -321,10 +321,10 @@
 
                             <div>
 
-                               <input type="radio"
-       name="status"
-       value="INACTIVE"
-       ${status == 'INACTIVE' ? 'checked' : ''}>
+                                <input type="radio"
+                                       name="status"
+                                       value="INACTIVE"
+                                       ${status == 'INACTIVE' ? 'checked' : ''}>
 
 
                                 Ngừng hoạt động
@@ -371,30 +371,31 @@
 
         </div>
 
-<script>
+        <script>
 
-function previewBanner(event) {
+            function previewBanner(event) {
 
-    const file = event.target.files[0];
+                const file = event.target.files[0];
 
-    if (!file) return;
+                if (!file)
+                    return;
 
-    const reader = new FileReader();
+                const reader = new FileReader();
 
-    reader.onload = function(e) {
+                reader.onload = function (e) {
 
-        const img = document.getElementById("bannerPreview");
+                    const img = document.getElementById("bannerPreview");
 
-        img.src = e.target.result;
+                    img.src = e.target.result;
 
-        img.style.display = "block";
+                    img.style.display = "block";
 
-    };
+                };
 
-    reader.readAsDataURL(file);
-}
+                reader.readAsDataURL(file);
+            }
 
-</script>
+        </script>
     </body>
 
 </html>
