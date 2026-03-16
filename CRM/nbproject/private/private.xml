@@ -3,15 +3,14 @@
     <editor-bookmarks xmlns="http://www.netbeans.org/ns/editor-bookmarks/2" lastBookmarkId="0"/>
     <open-files xmlns="http://www.netbeans.org/ns/projectui-open-files/2">
         <group>
-            <file>file:/C:/Users/Huynguyen/Downloads/uuuu/SWP391_SE1972_Group3/CRM/src/java/dal/ActivityDAO.java</file>
-            <file>file:/C:/Users/Huynguyen/Downloads/uuuu/SWP391_SE1972_Group3/CRM/src/java/dal/AuthDAO.java</file>
-            <file>file:/C:/Users/Huynguyen/Downloads/uuuu/SWP391_SE1972_Group3/CRM/web/WEB-INF/web.xml</file>
-            <file>file:/C:/Users/Huynguyen/Downloads/uuuu/SWP391_SE1972_Group3/CRM/src/java/controller/sales/ProductServlet.java</file>
-            <file>file:/C:/Users/Huynguyen/Downloads/uuuu/SWP391_SE1972_Group3/CRM/src/java/controller/marketing/AddCampaignServlet.java</file>
-            <file>file:/C:/Users/Huynguyen/Downloads/uuuu/SWP391_SE1972_Group3/CRM/src/java/controller/marketing/AddLeadServlet.java</file>
-            <file>file:/C:/Users/Huynguyen/Downloads/uuuu/SWP391_SE1972_Group3/CRM/web/marketingg/addCampaign.jsp</file>
-            <file>file:/C:/Users/Huynguyen/Downloads/uuuu/SWP391_SE1972_Group3/CRM/web/marketingg/addLead.jsp</file>
-            <file>file:/C:/Users/Huynguyen/Downloads/uuuu/SWP391_SE1972_Group3/CRM/web/login.jsp</file>
+            <file>file:/C:/Users/DELL/Desktop/SWP391_SE1972_Group3/CRM/src/java/dal/OpportunityDAO.java</file>
+            <file>file:/C:/Users/DELL/Desktop/SWP391_SE1972_Group3/CRM/src/java/dal/UserDAO.java</file>
+            <file>file:/C:/Users/DELL/Desktop/SWP391_SE1972_Group3/CRM/nbproject/build-impl.xml</file>
+            <file>file:/C:/Users/DELL/Desktop/SWP391_SE1972_Group3/CRM/src/java/dal/LeadDAO.java</file>
+            <file>file:/C:/Users/DELL/Desktop/SWP391_SE1972_Group3/CRM/src/java/dal/ActivityDAO.java</file>
+            <file>file:/C:/Users/DELL/Desktop/SWP391_SE1972_Group3/CRM/src/java/controller/MarketingDashboardController.java</file>
+            <file>file:/C:/Users/DELL/Desktop/SWP391_SE1972_Group3/CRM/src/java/dal/AuthDAO.java</file>
+            <file>file:/C:/Users/DELL/Desktop/SWP391_SE1972_Group3/CRM/src/java/controller/Logout.java</file>
         </group>
     </open-files>
 </project-private>

@@ -32,7 +32,7 @@
 <jsp:include page="/sales/sidebar.jsp"/>
 <div class="main-content">
     <div style="margin-bottom:16px;">
-        <a href="${pageContext.request.contextPath}/sales/opportunity-detail?id=${opportunityId}" style="color:rgba(255,255,255,0.8);text-decoration:none;font-size:13px;">
+        <a href="${pageContext.request.contextPath}/sales/opportunity-detail?id=${opportunity.id}" style="color:rgba(255,255,255,0.8);text-decoration:none;font-size:13px;">
             <i class="fas fa-arrow-left"></i> Quay lại Opportunity
         </a>
     </div>
@@ -48,7 +48,7 @@
         <c:if test="${not empty error}"><div class="alert-error"><i class="fas fa-exclamation-circle"></i> ${error}</div></c:if>
 
         <form method="post" action="${pageContext.request.contextPath}/sales/activity-create">
-            <input type="hidden" name="opportunityId" value="${opportunityId}">
+            <input type="hidden" name="opportunityId" value="${opportunity.id}">
 
             <!-- Activity Type -->
             <div class="form-group">

@@ -115,6 +115,38 @@
         </c:if>
     </div>
 
+    <!-- Products -->
+    <div class="card">
+        <div class="section-title" style="justify-content:space-between;">
+            <span><i class="fas fa-box" style="color:#667eea"></i> Sản phẩm Opportunity</span>
+            <button class="btn btn-primary" style="font-size:12px;padding:7px 12px" onclick="document.getElementById('productModal').style.display='flex'">
+                <i class="fas fa-plus"></i> Thêm sản phẩm
+            </button>
+        </div>
+        <c:choose>
+            <c:when test="${empty products}">
+                <p style="color:#aaa;text-align:center;">Chưa có sản phẩm nào. Hãy thêm sản phẩm để tính doanh thu ước tính.</p>
+            </c:when>
+            <c:otherwise>
+                <table>
+                    <thead><tr><th>Sản phẩm</th><th>Đơn giá</th><th>Số lượng</th><th>Chiết khấu</th><th>Thành tiền</th><th>Ghi chú</th></tr></thead>
+                    <tbody>
+                        <c:forEach var="p" items="${products}">
+                            <tr>
+                                <td><strong>${p.productName}</strong></td>
+                                <td><fmt:formatNumber value="${p.unitPrice}" type="number" groupingUsed="true"/> đ</td>
+                                <td>${p.quantity}</td>
+                                <td><fmt:formatNumber value="${p.discount}" type="number" groupingUsed="true"/> đ</td>
+                                <td><strong style="color:#2e7d32"><fmt:formatNumber value="${p.totalPrice}" type="number" groupingUsed="true"/> đ</strong></td>
+                                <td style="color:#666;font-size:12px;">${p.notes}</td>
+                            </tr>
+                        </c:forEach>
+                    </tbody>
+                </table>
+            </c:otherwise>
+        </c:choose>
+    </div>
+
     <!-- Quotations -->
     <div class="card">
         <div class="section-title"><i class="fas fa-file-invoice-dollar" style="color:#667eea"></i> Báo giá liên quan</div>
@@ -249,5 +281,44 @@
     </div>
 </div>
 </c:if>
+
+<!-- Add Product Modal -->
+<div id="productModal" class="modal-overlay" onclick="this.style.display='none'">
+    <div class="modal-box" onclick="event.stopPropagation()">
+        <h4><i class="fas fa-box"></i> Thêm Sản Phẩm </h4>
+        <form method="post" action="${pageContext.request.contextPath}/sales/opportunity-product-add">
+            <input type="hidden" name="opportunityId" value="${opportunity.id}">
+            <div class="form-group">
+                <label>Sản phẩm</label>
+                <select name="productId" required>
+                    <c:forEach var="p" items="${catalogProducts}">
+                        <option value="${p.id}">${p.name} - <fmt:formatNumber value="${p.basePrice}" type="number" groupingUsed="true"/> đ</option>
+                    </c:forEach>
+                </select>
+            </div>
+            <div class="form-group">
+                <label>Số lượng</label>
+                <input type="number" name="quantity" style="width:100%;padding:9px;border:1px solid #ddd;border-radius:8px;font-size:14px;" value="1" min="1" required>
+            </div>
+            <div class="form-group">
+                <label>Đơn giá</label>
+                <input type="number" name="unitPrice" style="width:100%;padding:9px;border:1px solid #ddd;border-radius:8px;font-size:14px;" placeholder="ví dụ: 500000" required>
+            </div>
+            <div class="form-group">
+                <label>Chiết khấu (Lượng tiền)</label>
+                <input type="number" name="discount" style="width:100%;padding:9px;border:1px solid #ddd;border-radius:8px;font-size:14px;" value="0">
+            </div>
+            <div class="form-group">
+                <label>Ghi chú</label>
+                <textarea name="notes" rows="2" style="width:100%;padding:9px;border:1px solid #ddd;border-radius:8px;font-size:14px;"></textarea>
+            </div>
+            <div style="display:flex;gap:10px;justify-content:flex-end;margin-top:15px;">
+                <button type="button" class="btn btn-warning" onclick="document.getElementById('productModal').style.display='none'">Hủy</button>
+                <button type="submit" class="btn btn-primary">Thêm</button>
+            </div>
+        </form>
+    </div>
+</div>
+
 </body>
 </html>

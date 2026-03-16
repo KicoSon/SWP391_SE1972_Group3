@@ -106,8 +106,8 @@ public class ProductDAO extends DBContext {
         p.setSku(rs.getString("sku"));
         p.setBasePrice(rs.getBigDecimal("base_price"));
         p.setActive(rs.getBoolean("is_active"));
-        p.setDescription(rs.getString("description"));
-        p.setImageUrl(rs.getString("image_url"));
+        try { p.setDescription(rs.getString("description")); } catch (Exception ignored) {}
+        try { p.setImageUrl(rs.getString("image_url")); } catch (Exception ignored) {}
         return p;
     }
 }

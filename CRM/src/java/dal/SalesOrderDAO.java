@@ -11,7 +11,7 @@ public class SalesOrderDAO extends DBContext {
     // GET BY ID
     // ============================================================
     public SalesOrder getById(int id) {
-        String sql = "SELECT so.*, c.full_name AS customer_name, q.quotation_code " +
+        String sql = "SELECT so.*, c.full_name AS customer_name " +
                      "FROM sales_orders so " +
                      "LEFT JOIN opportunities o ON so.opportunity_id = o.id " +
                      "LEFT JOIN customers c ON o.customer_id = c.id " +
@@ -30,7 +30,7 @@ public class SalesOrderDAO extends DBContext {
     // GET BY QUOTATION ID
     // ============================================================
     public SalesOrder getByQuotationId(int quotationId) {
-        String sql = "SELECT so.*, c.full_name AS customer_name, q.quotation_code " +
+        String sql = "SELECT so.*, c.full_name AS customer_name " +
                      "FROM sales_orders so " +
                      "LEFT JOIN opportunities o ON so.opportunity_id = o.id " +
                      "LEFT JOIN customers c ON o.customer_id = c.id " +
@@ -50,7 +50,7 @@ public class SalesOrderDAO extends DBContext {
     // ============================================================
     public List<SalesOrder> getBySalesId(int salesId) {
         List<SalesOrder> list = new ArrayList<>();
-        String sql = "SELECT so.*, c.full_name AS customer_name, q.quotation_code " +
+        String sql = "SELECT so.*, c.full_name AS customer_name " +
                      "FROM sales_orders so " +
                      "LEFT JOIN opportunities o ON so.opportunity_id = o.id " +
                      "LEFT JOIN customers c ON o.customer_id = c.id " +
@@ -174,7 +174,7 @@ public class SalesOrderDAO extends DBContext {
         o.setCreatedAt(rs.getTimestamp("created_at"));
         o.setUpdatedAt(rs.getTimestamp("updated_at"));
         try { o.setCustomerName(rs.getString("customer_name")); } catch (Exception ignored) {}
-        try { o.setQuotationCode(rs.getString("quotation_code")); } catch (Exception ignored) {}
+        try { o.setQuotationCode("QUO-" + String.format("%05d", o.getQuotationId())); } catch (Exception ignored) {}
         return o;
     }
 }

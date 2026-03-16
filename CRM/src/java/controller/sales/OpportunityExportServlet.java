@@ -27,7 +27,7 @@ public class OpportunityExportServlet extends HttpServlet {
         request.setCharacterEncoding("UTF-8");
 
         UserSession userSession = (UserSession) request.getSession().getAttribute("userSession");
-        if (userSession == null || !userSession.isSaleStaff()) {
+        if (userSession == null || (!userSession.isSaleStaff() && !userSession.isAdmin())) {
             response.sendRedirect(request.getContextPath() + "/login");
             return;
         }
