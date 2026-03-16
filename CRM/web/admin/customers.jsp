@@ -10,12 +10,12 @@
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
         <title>Quản lý Khách hàng - Admin</title>
         <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
-        <link rel="stylesheet" href="${pageContext.request.contextPath}/assets/css/sidebar.css">
+        <!--<link rel="stylesheet" href="${pageContext.request.contextPath}/assets/css/sidebar.css">-->
         <link rel="stylesheet" href="${pageContext.request.contextPath}/admin/assets/css/customer-management.css">
     </head>
     <body>
         <!-- Include Sidebar -->
-        <jsp:include page="/components/sidebar.jsp" />
+        <jsp:include page="sidebar.jsp" />
 
         <div class="customer-management-content">
             <div class="customer-management-container">
@@ -28,11 +28,28 @@
                         </h1>
                         <p class="customer-text-muted">Quản lý toàn bộ khách hàng trong hệ thống</p>
                     </div>
-                    <c:if test="${canCreate}">
-                        <a href="${pageContext.request.contextPath}/managecustomer?action=add" class="btn btn-primary">
-                            <i class="fas fa-plus"></i> Thêm khách hàng
-                        </a>
-                    </c:if>
+                    <div>
+                        <c:if test="${canCreate}">
+                            <a href="${pageContext.request.contextPath}/managecustomer?action=add" class="btn btn-primary">
+                                <i class="fas fa-plus"></i> Thêm khách hàng
+                            </a>
+                        </c:if>
+                        <form action="${pageContext.request.contextPath}/admin/customer-import-preview"
+                              method="post"
+                              enctype="multipart/form-data"
+                              style="display:inline">
+
+                            <label class="btn btn-primary">
+                                <i class="fas fa-file-import"></i> Import List
+                                <input type="file"
+                                       name="excelFile"
+                                       accept=".xlsx,.xls"
+                                       onchange="this.form.submit()"
+                                       style="display:none">
+                            </label>
+
+                        </form>
+                    </div>
                 </div>
 
                 <!-- Success/Error Messages -->
@@ -90,6 +107,7 @@
                 <!-- Search & Filter -->
                 <div class="search-box">
                     <form action="${pageContext.request.contextPath}/managecustomer" method="GET">
+                        <input type = "hidden" name="pageSize" value = "${pageSize}">
                         <div class="search-input-group">
                             <i class="fas fa-search"></i>
                             <input type="text" 
@@ -112,7 +130,7 @@
                 <div class="search-box" style="margin-top:15px;">
 
                     <form action="${pageContext.request.contextPath}/managecustomer" method="GET">
-
+                        <input type = "hidden" name="pageSize" value = "${pageSize}">
                         <!-- Giữ search -->
                         <input type="hidden" name="search" value="${param.search}"/>
 
@@ -199,7 +217,7 @@
 
                 <!-- Customers Table -->
                 <div class="table-card">
-                    <div class="table-header">
+                    <div class="table-header" style="display:flex; justify-content:space-between; align-items:center;">
                         <h3>
                             <i class="fas fa-list"></i> 
                             Danh sách khách hàng
@@ -207,6 +225,29 @@
                                 <span class="badge badge-info">Kết quả tìm kiếm: "${param.search}"</span>
                             </c:if>
                         </h3>
+                        <form method="get" action="${pageContext.request.contextPath}/managecustomer"
+                              class="page-size-box">
+
+                            <c:if test="${not empty param.search}">
+                                <input type="hidden" name="search" value="${param.search}">
+                            </c:if>
+
+                            <label>Show</label>
+
+                            <select name="pageSize"
+                                    class="page-size-select"
+                                    onchange="this.form.submit()">
+
+                                <option value="8" ${pageSize==8?'selected':''}>8</option>
+                                <option value="10" ${pageSize==10?'selected':''}>10</option>
+                                <option value="15" ${pageSize==15?'selected':''}>15</option>
+                                <option value="20" ${pageSize==20?'selected':''}>20</option>
+
+                            </select>
+
+                            <label>rows</label>
+
+                        </form>
                     </div>
 
                     <c:choose>
@@ -322,6 +363,11 @@
                                                                 </c:otherwise>
                                                             </c:choose>
                                                         </c:if>
+                                                        <button onclick="confirmProvide(${customer.id}, '${customer.fullName}')" 
+                                                                class="btn btn-sm btn-provide"
+                                                                title="Cung cấp tài khoản">
+                                                            <i class="fas fa-key"></i>
+                                                        </button>   
                                                     </div>
                                                 </td>
                                             </tr>
@@ -374,34 +420,61 @@
             <input type="hidden" name="action" id="statusAction">
             <input type="hidden" name="customerId" id="customerId">
         </form>
-
-        <script>
-            function confirmBan(customerId, customerName) {
-                if (confirm('Bạn có chắc muốn khóa tài khoản của "' + customerName + '"?\n\nKhách hàng sẽ không thể đăng nhập sau khi bị khóa.')) {
-                    document.getElementById('statusAction').value = 'ban';
-                    document.getElementById('customerId').value = customerId;
-                    document.getElementById('statusForm').submit();
-                }
-            }
-
-            function confirmUnban(customerId, customerName) {
-                if (confirm('Bạn có chắc muốn mở khóa tài khoản của "' + customerName + '"?')) {
-                    document.getElementById('statusAction').value = 'unban';
-                    document.getElementById('customerId').value = customerId;
-                    document.getElementById('statusForm').submit();
-                }
-            }
-
-            // Auto-hide alerts after 5 seconds
-            setTimeout(function () {
-                const alerts = document.querySelectorAll('.alert');
-                alerts.forEach(function (alert) {
-                    alert.style.opacity = '0';
-                    setTimeout(function () {
-                        alert.remove();
-                    }, 300);
-                });
-            }, 5000);
-        </script>
     </body>
 </html>
+<script>
+    function confirmBan(customerId, customerName) {
+        if (confirm('Bạn có chắc muốn khóa tài khoản của "' + customerName + '"?\n\nKhách hàng sẽ không thể đăng nhập sau khi bị khóa.')) {
+            document.getElementById('statusAction').value = 'ban';
+            document.getElementById('customerId').value = customerId;
+            document.getElementById('statusForm').submit();
+        }
+    }
+
+    function confirmUnban(customerId, customerName) {
+        if (confirm('Bạn có chắc muốn mở khóa tài khoản của "' + customerName + '"?')) {
+            document.getElementById('statusAction').value = 'unban';
+            document.getElementById('customerId').value = customerId;
+            document.getElementById('statusForm').submit();
+        }
+    }
+    function confirmProvide(customerId, customerName) {
+        if (confirm('Bạn có muốn cung cấp tài khoản cho "' + customerName + '" ?\n\nHệ thống sẽ gửi email chứa tài khoản và mật khẩu cho khách hàng.')) {
+            document.getElementById('statusAction').value = 'provideAccount';
+            document.getElementById('customerId').value = customerId;
+            document.getElementById('statusForm').submit();
+        }
+    }
+
+    // Auto-hide alerts after 5 seconds
+    setTimeout(function () {
+        const alerts = document.querySelectorAll('.alert');
+        alerts.forEach(function (alert) {
+            alert.style.opacity = '0';
+            setTimeout(function () {
+                alert.remove();
+            }, 300);
+        });
+    }, 5000);
+    function openFilePicker() {
+        document.getElementById("excelFile").click();
+    }
+
+    function autoPreview(input) {
+
+        if (input.files.length > 0) {
+            document.getElementById("importForm").submit();
+        }
+
+    }
+    window.onload = function () {
+
+        const hasPreview = "${not empty previewCustomers}";
+
+        if (hasPreview === "true") {
+            var modal = new bootstrap.Modal(document.getElementById("previewModal"));
+            modal.show();
+        }
+
+    }
+</script>

@@ -154,28 +154,61 @@
 <script>
 // Drag-and-drop
 let draggedId = null, draggedEl = null;
+
 document.querySelectorAll('.opp-card').forEach(card => {
     card.addEventListener('dragstart', e => {
         draggedId = card.dataset.id;
         draggedEl = card;
         e.dataTransfer.effectAllowed = 'move';
+        setTimeout(() => card.style.opacity = '0.4', 0);
+    });
+    card.addEventListener('dragend', () => {
+        card.style.opacity = '';
     });
 });
+
 document.querySelectorAll('.drop-zone').forEach(zone => {
-    zone.addEventListener('dragover', e => { e.preventDefault(); zone.style.background = 'rgba(102,126,234,0.08)'; });
-    zone.addEventListener('dragleave', () => { zone.style.background = ''; });
+    zone.addEventListener('dragover', e => {
+        e.preventDefault();
+        e.dataTransfer.dropEffect = 'move';
+        zone.style.background = 'rgba(102,126,234,0.12)';
+        zone.style.outline = '2px dashed #667eea';
+        zone.style.borderRadius = '8px';
+    });
+    zone.addEventListener('dragleave', () => {
+        zone.style.background = '';
+        zone.style.outline = '';
+    });
     zone.addEventListener('drop', e => {
         e.preventDefault();
         zone.style.background = '';
+        zone.style.outline = '';
+        if (!draggedId || !draggedEl) return;
         const newStage = zone.dataset.stage;
         const oldStage = draggedEl.dataset.stage;
-        if(newStage !== oldStage) {
-            fetch('${pageContext.request.contextPath}/sales/opportunity-stage', {
-                method: 'POST',
-                headers: {'Content-Type': 'application/x-www-form-urlencoded'},
-                body: `id=\${draggedId}&newStage=\${encodeURIComponent(newStage)}`
-            }).then(r => r.ok ? location.reload() : alert('Cập nhật thất bại'));
-        }
+        if (newStage === oldStage) return;
+
+        // Optimistically move card
+        const emptyMsg = zone.querySelector('.empty-col');
+        if (emptyMsg) emptyMsg.remove();
+        zone.appendChild(draggedEl);
+        draggedEl.dataset.stage = newStage;
+
+        fetch('${pageContext.request.contextPath}/sales/opportunity-stage', {
+            method: 'POST',
+            headers: {'Content-Type': 'application/x-www-form-urlencoded'},
+            body: 'id=' + draggedId + '&newStage=' + encodeURIComponent(newStage)
+        }).then(r => {
+            if (r.ok) {
+                location.reload();
+            } else {
+                alert('Cập nhật stage thất bại (lỗi ' + r.status + ')');
+                location.reload();
+            }
+        }).catch(() => {
+            alert('Không thể kết nối server');
+            location.reload();
+        });
     });
 });
 

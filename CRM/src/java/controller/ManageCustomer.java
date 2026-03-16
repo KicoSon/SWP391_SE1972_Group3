@@ -1,6 +1,8 @@
 package controller;
 
+import dal.AdminDAO;
 import dal.CustomerDAO;
+import dal.StaffDAO;
 import dal.UserDAO;
 import model.Customer;
 import model.User;
@@ -12,19 +14,34 @@ import jakarta.servlet.http.*;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.regex.Pattern;
+import model.Staff;
+import util.SendMail;
 
 @WebServlet(name = "ManageCustomer", urlPatterns = {"/managecustomer"})
 public class ManageCustomer extends HttpServlet {
 
-    private static final int PAGE_SIZE = 8; // số dòng / trang
+    Pattern phonePattern = Pattern.compile("^0[0-9]{9,10}$");
+    Pattern emailPattern = Pattern.compile("^[A-Za-z0-9+_.-]+@[A-Za-z0-9.-]+$");
 
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
 
         try {
-            //Xu li View + EDIT
+//            int PAGE_SIZE = Integer.parseInt(request.getParameter("pageSize"));
+            int PAGE_SIZE = 8; // default
+
+            String pageSizeParam = request.getParameter("pageSize");
+
+            if (pageSizeParam != null && !pageSizeParam.isEmpty()) {
+                PAGE_SIZE = Integer.parseInt(pageSizeParam);
+            }
+
+            request.setAttribute("pageSize", PAGE_SIZE);
+            // Xu li View + EDIT
             CustomerDAO dao = new CustomerDAO();
+            StaffDAO staffDAO = new StaffDAO();
             String action = request.getParameter("action");
             if ("view".equals(action)) {
                 int customerID = Integer.parseInt(request.getParameter("id"));
@@ -37,22 +54,22 @@ public class ManageCustomer extends HttpServlet {
                 return;
             } else if ("edit".equals(action)) {
                 int customerID = Integer.parseInt(request.getParameter("id"));
-                UserDAO userDao = new UserDAO();
                 Customer customer = dao.getCustomerByID(customerID);
-                List<User> owners = userDao.getAllUsers();
+                List<Staff> owners = staffDAO.getAllSales();
 
                 request.setAttribute("customer", customer);
                 request.setAttribute("owners", owners);
+                request.setAttribute("mode", "edit");
 
                 request.getRequestDispatcher("/admin/customer-form.jsp")
                         .forward(request, response);
                 return;
             } else if ("add".equals(action)) {
-                UserDAO userDao = new UserDAO();
-                List<User> owners = userDao.getAllUsers();
-//
+                List<Staff> owners = staffDAO.getAllSales();
+
                 request.removeAttribute("customer");
                 request.setAttribute("owners", owners);
+                request.setAttribute("mode", "add");
 
                 request.getRequestDispatcher("/admin/customer-form.jsp")
                         .forward(request, response);
@@ -61,7 +78,7 @@ public class ManageCustomer extends HttpServlet {
 
             List<Customer> allCustomers = dao.getAllCustomers();
 
-            //get all cus num
+            // get all cus num
             int totalAll = allCustomers.size();
 
             // Count active + inactive acc
@@ -145,7 +162,7 @@ public class ManageCustomer extends HttpServlet {
                     filtered.add(c);
                 }
             }
-//---
+            // ---
 
             /* ===== Pagination ===== */
             int totalCustomers = filtered.size();
@@ -202,6 +219,7 @@ public class ManageCustomer extends HttpServlet {
             throws ServletException, IOException {
 
         CustomerDAO dao = new CustomerDAO();
+        AdminDAO adminDAO = new AdminDAO();
 
         String action = request.getParameter("action");
         String idParam = request.getParameter("customerId");
@@ -241,9 +259,9 @@ public class ManageCustomer extends HttpServlet {
                 }
             } else if ("edit".equals(action)) {
                 try {
-//                    String cusId = request.getParameter("id");
+                    // String cusId = request.getParameter("id");
                     boolean result = false;
-//                    int id = Integer.parseInt(cusId);
+                    // int id = Integer.parseInt(cusId);
                     int id = Integer.parseInt(idParam);
 
                     String fullName = request.getParameter("fullName");
@@ -256,6 +274,73 @@ public class ManageCustomer extends HttpServlet {
                     // Checkbox
                     String isActiveRaw = request.getParameter("isActive");
                     String status = (isActiveRaw != null) ? "Active" : "Inactive";
+
+                    List<String> errors = new ArrayList<>();
+
+                    // FULL NAME
+                    if (fullName == null || fullName.trim().isEmpty()) {
+                        errors.add("Full name is required");
+                    } else if (fullName.length() > 150) {
+                        errors.add("Full name max 150 characters");
+                    }
+
+                    // EMAIL
+                    if (email == null || email.trim().isEmpty()) {
+                        errors.add("Email cannot be empty");
+                    } else if (!emailPattern.matcher(email).matches()) {
+                        errors.add("Invalid email format");
+                    } else if (adminDAO.isEmailExistExceptId(email, id)) {
+                        errors.add("Email already exists");
+                    }
+
+                    // PHONE
+                    if (phone == null || phone.trim().isEmpty()) {
+                        errors.add("Phone cannot be empty");
+                    } else if (!phonePattern.matcher(phone).matches()) {
+                        errors.add("Phone must be 10-11 digits");
+                    } else if (adminDAO.isPhoneExistExceptId(phone, id)) {
+                        errors.add("Phone already exists");
+                    }
+
+                    // PASSWORD (optional khi edit)
+                    if (password != null && !password.isEmpty()) {
+                        if (password.length() < 6) {
+                            errors.add("Password must be at least 6 characters");
+                        }
+                        if (password.contains(" ")) {
+                            errors.add("Password cannot contain spaces");
+                        }
+                    }
+
+                    // ADDRESS
+                    if (address == null || address.trim().isEmpty()) {
+                        errors.add("Address cannot be empty");
+                    }
+
+                    if (!errors.isEmpty()) {
+                        StaffDAO staffDAO = new StaffDAO();
+
+                        request.setAttribute("errorMessage", String.join(", ", errors));
+
+                        Customer c = new Customer();
+                        c.setId(id);
+                        c.setFullName(fullName);
+                        c.setEmail(email);
+                        c.setPhone(phone);
+                        c.setAddress(address);
+                        c.setOwnerId(ownerId);
+                        c.setStatus(status);
+                        List<Staff> owners = staffDAO.getAllSales();
+
+                        request.setAttribute("customer", c);
+                        request.setAttribute("owners", owners);
+                        request.setAttribute("mode", "edit");
+
+                        request.getRequestDispatcher("/admin/customer-form.jsp")
+                                .forward(request, response);
+
+                        return;
+                    }
 
                     Customer c = new Customer();
 
@@ -299,6 +384,70 @@ public class ManageCustomer extends HttpServlet {
 
                 String status = "Active";
 
+                List<String> errors = new ArrayList<>();
+
+                // FULL NAME
+                if (fullName == null || fullName.trim().isEmpty()) {
+                    errors.add("Full name is required");
+                } else if (fullName.length() > 150) {
+                    errors.add("Full name max 150 characters");
+                }
+
+                // EMAIL
+                if (email == null || email.trim().isEmpty()) {
+                    errors.add("Email cannot be empty");
+                } else if (!emailPattern.matcher(email).matches()) {
+                    errors.add("Invalid email format");
+                } else if (adminDAO.isEmailExist(email)) {
+                    errors.add("Email already exists");
+                }
+
+                // PHONE
+                if (phone == null || phone.trim().isEmpty()) {
+                    errors.add("Phone cannot be empty");
+                } else if (!phonePattern.matcher(phone).matches()) {
+                    errors.add("Phone must be 10-11 digits");
+                } else if (adminDAO.isPhoneExist(phone)) {
+                    errors.add("Phone already exists");
+                }
+
+                if (password == null || password.isEmpty()) {
+                    errors.add("Password cannot be empty");
+                } else if (password.length() < 6) {
+                    errors.add("Password must be at least 6 characters");
+                } else if (password.contains(" ")) {
+                    errors.add("Password cannot contain spaces");
+                }
+
+                // ADDRESS
+                if (address == null || address.trim().isEmpty()) {
+                    errors.add("Address cannot be empty");
+                }
+
+                if (!errors.isEmpty()) {
+                    StaffDAO staffDAO = new StaffDAO();
+
+                    request.setAttribute("errorMessage", String.join(", ", errors));
+
+                    Customer c = new Customer();
+                    c.setFullName(fullName);
+                    c.setEmail(email);
+                    c.setPhone(phone);
+                    c.setAddress(address);
+                    c.setOwnerId(ownerId);
+                    c.setStatus(status);
+                    List<Staff> owners = staffDAO.getAllSales();
+
+                    request.setAttribute("customer", c);
+                    request.setAttribute("owners", owners);
+                    request.setAttribute("mode", "add");
+
+                    request.getRequestDispatcher("/admin/customer-form.jsp")
+                            .forward(request, response);
+
+                    return;
+                }
+
                 Customer c = new Customer();
 
                 c.setFullName(fullName);
@@ -323,7 +472,45 @@ public class ManageCustomer extends HttpServlet {
             response.sendRedirect(request.getContextPath() + "/managecustomer?success=add");
             return;
         }
+        else if ("provideAccount".equals(action)) {
+            provideAccount(request, response);
+            return;
+        }
         // Quay lại trang list
         response.sendRedirect(request.getContextPath() + "/managecustomer");
+    }
+
+    private void provideAccount(HttpServletRequest request, HttpServletResponse response)
+            throws ServletException, IOException {
+
+        int customerId = Integer.parseInt(request.getParameter("customerId"));
+
+        CustomerDAO customerDAO = new CustomerDAO();
+        Customer customer = customerDAO.getCustomerById(customerId);
+
+        if (customer != null) {
+            String password = "";
+            if (customer.getPassword() == null) {
+                password = "hash123";
+                // update password vào DB
+                customerDAO.updatePassword(customerId, password);
+            } else {
+                password = customer.getPassword();
+            }
+
+            // gửi mail
+            SendMail.sendAccount(customer.getEmail(), password);
+
+            request.getSession().setAttribute("successMessage",
+                    "Đã gửi tài khoản cho khách hàng!");
+
+        } else {
+
+            request.getSession().setAttribute("errorMessage",
+                    "Không tìm thấy khách hàng!");
+
+        }
+
+        response.sendRedirect("managecustomer");
     }
 }

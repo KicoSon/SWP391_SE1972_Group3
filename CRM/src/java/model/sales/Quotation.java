@@ -23,6 +23,7 @@ public class Quotation {
     private String opportunityTitle;
     private String customerName;
     private String createdByName;
+    private String paymentMethod;
 
     public Quotation() {}
 
@@ -70,4 +71,7 @@ public class Quotation {
 
     public String getCreatedByName() { return createdByName; }
     public void setCreatedByName(String createdByName) { this.createdByName = createdByName; }
+
+    public String getPaymentMethod() { return paymentMethod; }
+    public void setPaymentMethod(String paymentMethod) { this.paymentMethod = paymentMethod; }
 }

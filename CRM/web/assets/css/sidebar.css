@@ -367,22 +367,6 @@
     }
 }
 
-/* Animation for collapsing */
-@keyframes slideInLeft {
-    from {
-        transform: translateX(-100%);
-        opacity: 0;
-    }
-    to {
-        transform: translateX(0);
-        opacity: 1;
-    }
-}
-
-.sidebar {
-    animation: slideInLeft 0.3s ease-out;
-}
-
 /* Hover effects */
 .nav-link::after {
     content: '';

@@ -36,12 +36,13 @@ public class QuotationCreateServlet extends HttpServlet {
         response.setCharacterEncoding("UTF-8");
 
         UserSession userSession = (UserSession) request.getSession().getAttribute("userSession");
-        if (userSession == null || !userSession.isSaleStaff()) {
+        if (userSession == null || (!userSession.isSaleStaff() && !userSession.isAdmin())) {
             response.sendRedirect(request.getContextPath() + "/login"); return;
         }
 
         try {
             int oppId = Integer.parseInt(request.getParameter("opportunityId"));
+            request.setAttribute("opportunityId", oppId);
             request.setAttribute("opportunity", opportunityDAO.getById(oppId));
             request.setAttribute("products", productDAO.getAll());
             request.setAttribute("mode", "create");
@@ -60,24 +61,22 @@ public class QuotationCreateServlet extends HttpServlet {
         response.setCharacterEncoding("UTF-8");
 
         UserSession userSession = (UserSession) request.getSession().getAttribute("userSession");
-        if (userSession == null || !userSession.isSaleStaff()) {
+        if (userSession == null || (!userSession.isSaleStaff() && !userSession.isAdmin())) {
             response.sendRedirect(request.getContextPath() + "/login"); return;
         }
 
         try {
-            int oppId = Integer.parseInt(request.getParameter("opportunityId"));
+            String oppIdStr = request.getParameter("opportunityId");
+            if (oppIdStr == null || oppIdStr.trim().isEmpty()) {
+                response.sendError(400, "Missing opportunityId parameter"); return;
+            }
+            int oppId = Integer.parseInt(oppIdStr.trim());
 
             Quotation q = new Quotation();
             q.setOpportunityId(oppId);
-            q.setQuotationCode(quotationDAO.generateQuotationCode());
             q.setVersion(1);
             q.setStatus("Draft");
             q.setCreatedBy(userSession.getStaff().getId());
-            String validUntil = request.getParameter("validUntil");
-            if (validUntil != null && !validUntil.isEmpty()) {
-                q.setValidUntil(new SimpleDateFormat("yyyy-MM-dd").parse(validUntil));
-            }
-            q.setNotes(request.getParameter("notes"));
 
             List<QuotationItem> items = parseItems(request);
             BigDecimal total = items.stream()

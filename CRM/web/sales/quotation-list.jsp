@@ -7,8 +7,28 @@
     <meta charset="UTF-8">
     <title>Báo giá – ${opportunity.title}</title>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
-    <link rel="stylesheet" href="${pageContext.request.contextPath}/assets/css/sales-common.css">
     <style>
+        body{margin:0;font-family:"Segoe UI",sans-serif;background:linear-gradient(135deg,#3a7bd5,#3a6073);color:#333;}
+        .main-content{margin-left:270px;padding:30px;min-height:100vh;}
+        .page-header{background:rgba(255,255,255,0.95);padding:22px 28px;border-radius:20px;box-shadow:0 10px 25px rgba(0,0,0,0.15);margin-bottom:25px;display:flex;justify-content:space-between;align-items:center;}
+        .page-header h2{font-weight:700;font-size:24px;margin:0;color:#333;}
+        .card{background:rgba(255,255,255,0.95);border-radius:16px;box-shadow:0 8px 20px rgba(0,0,0,0.12);overflow:hidden;}
+        .btn{border:none;padding:10px 16px;border-radius:8px;font-size:14px;font-weight:600;cursor:pointer;text-decoration:none;display:inline-flex;align-items:center;gap:6px;}
+        .btn-primary{background:linear-gradient(135deg,#667eea,#764ba2);color:white;}
+        .btn-info{background:linear-gradient(135deg,#0dcaf0,#0d6efd);color:white;}
+        .btn-warning{background:linear-gradient(135deg,#f7971e,#ffd200);color:#333;}
+        .btn-sm{padding:5px 10px;font-size:12px;}
+        table{width:100%;border-collapse:collapse;}
+        th{background:linear-gradient(135deg,#667eea,#764ba2);color:white;padding:13px 15px;font-size:13px;text-align:left;}
+        td{padding:12px 15px;border-bottom:1px solid #f0f0f0;font-size:14px;vertical-align:middle;}
+        tr:hover td{background:#f8f9ff;}
+        .badge{padding:4px 10px;border-radius:20px;font-size:12px;font-weight:600;}
+        .badge-Draft{background:#e3f2fd;color:#1565c0;}
+        .badge-Approved{background:#e8f5e9;color:#2e7d32;}
+        .badge-Rejected{background:#fce4ec;color:#c62828;}
+        .badge-Sent{background:#f3e5f5;color:#6a1b9a;}
+        .badge-Converted{background:#e0f2f1;color:#00695c;}
+        .val-currency{font-weight:700;color:#2e7d32;}
         .version-badge{background:#ede7f6;color:#5e35b1;padding:3px 9px;border-radius:10px;font-size:11px;font-weight:700;}
         .empty-state{text-align:center;padding:50px;color:#aaa;}
     </style>
