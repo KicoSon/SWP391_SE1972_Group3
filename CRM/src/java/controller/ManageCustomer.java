@@ -16,6 +16,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.regex.Pattern;
 import model.Staff;
+import util.SendMail;
 
 @WebServlet(name = "ManageCustomer", urlPatterns = {"/managecustomer"})
 public class ManageCustomer extends HttpServlet {
@@ -69,7 +70,7 @@ public class ManageCustomer extends HttpServlet {
                 request.removeAttribute("customer");
                 request.setAttribute("owners", owners);
                 request.setAttribute("mode", "add");
-                
+
                 request.getRequestDispatcher("/admin/customer-form.jsp")
                         .forward(request, response);
                 return;
@@ -334,7 +335,6 @@ public class ManageCustomer extends HttpServlet {
                         request.setAttribute("customer", c);
                         request.setAttribute("owners", owners);
                         request.setAttribute("mode", "edit");
-                        
 
                         request.getRequestDispatcher("/admin/customer-form.jsp")
                                 .forward(request, response);
@@ -472,7 +472,45 @@ public class ManageCustomer extends HttpServlet {
             response.sendRedirect(request.getContextPath() + "/managecustomer?success=add");
             return;
         }
+        else if ("provideAccount".equals(action)) {
+            provideAccount(request, response);
+            return;
+        }
         // Quay lại trang list
         response.sendRedirect(request.getContextPath() + "/managecustomer");
+    }
+
+    private void provideAccount(HttpServletRequest request, HttpServletResponse response)
+            throws ServletException, IOException {
+
+        int customerId = Integer.parseInt(request.getParameter("customerId"));
+
+        CustomerDAO customerDAO = new CustomerDAO();
+        Customer customer = customerDAO.getCustomerById(customerId);
+
+        if (customer != null) {
+            String password = "";
+            if (customer.getPassword() == null) {
+                password = "hash123";
+                // update password vào DB
+                customerDAO.updatePassword(customerId, password);
+            } else {
+                password = customer.getPassword();
+            }
+
+            // gửi mail
+            SendMail.sendAccount(customer.getEmail(), password);
+
+            request.getSession().setAttribute("successMessage",
+                    "Đã gửi tài khoản cho khách hàng!");
+
+        } else {
+
+            request.getSession().setAttribute("errorMessage",
+                    "Không tìm thấy khách hàng!");
+
+        }
+
+        response.sendRedirect("managecustomer");
     }
 }

@@ -404,4 +404,21 @@ public class CustomerDAO extends DBContext {
 
         return rs.next();
     }
+
+    public void updatePassword(int id, String password) {
+
+        String sql = "UPDATE Customer SET password = ? WHERE id = ?";
+
+        try {
+
+            PreparedStatement ps = connection.prepareStatement(sql);
+            ps.setString(1, password);
+            ps.setInt(2, id);
+
+            ps.executeUpdate();
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
 }

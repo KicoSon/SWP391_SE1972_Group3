@@ -363,6 +363,11 @@
                                                                 </c:otherwise>
                                                             </c:choose>
                                                         </c:if>
+                                                        <button onclick="confirmProvide(${customer.id}, '${customer.fullName}')" 
+                                                                class="btn btn-sm btn-provide"
+                                                                title="Cung cấp tài khoản">
+                                                            <i class="fas fa-key"></i>
+                                                        </button>   
                                                     </div>
                                                 </td>
                                             </tr>
@@ -429,6 +434,13 @@
     function confirmUnban(customerId, customerName) {
         if (confirm('Bạn có chắc muốn mở khóa tài khoản của "' + customerName + '"?')) {
             document.getElementById('statusAction').value = 'unban';
+            document.getElementById('customerId').value = customerId;
+            document.getElementById('statusForm').submit();
+        }
+    }
+    function confirmProvide(customerId, customerName) {
+        if (confirm('Bạn có muốn cung cấp tài khoản cho "' + customerName + '" ?\n\nHệ thống sẽ gửi email chứa tài khoản và mật khẩu cho khách hàng.')) {
+            document.getElementById('statusAction').value = 'provideAccount';
             document.getElementById('customerId').value = customerId;
             document.getElementById('statusForm').submit();
         }
