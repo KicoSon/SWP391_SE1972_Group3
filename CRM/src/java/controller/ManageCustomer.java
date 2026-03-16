@@ -1,6 +1,8 @@
 package controller;
 
+import dal.AdminDAO;
 import dal.CustomerDAO;
+import dal.StaffDAO;
 import dal.UserDAO;
 import model.Customer;
 import model.User;
@@ -12,11 +14,14 @@ import jakarta.servlet.http.*;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.regex.Pattern;
+import model.Staff;
 
-@WebServlet(name = "ManageCustomer", urlPatterns = { "/managecustomer" })
+@WebServlet(name = "ManageCustomer", urlPatterns = {"/managecustomer"})
 public class ManageCustomer extends HttpServlet {
 
-    // private static final int PAGE_SIZE = 8; // số dòng / trang
+    Pattern phonePattern = Pattern.compile("^[0-9]{10,11}$");
+    Pattern emailPattern = Pattern.compile("^[A-Za-z0-9+_.-]+@[A-Za-z0-9.-]+$");
 
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
@@ -35,6 +40,7 @@ public class ManageCustomer extends HttpServlet {
             request.setAttribute("pageSize", PAGE_SIZE);
             // Xu li View + EDIT
             CustomerDAO dao = new CustomerDAO();
+            StaffDAO staffDAO = new StaffDAO();
             String action = request.getParameter("action");
             if ("view".equals(action)) {
                 int customerID = Integer.parseInt(request.getParameter("id"));
@@ -47,9 +53,8 @@ public class ManageCustomer extends HttpServlet {
                 return;
             } else if ("edit".equals(action)) {
                 int customerID = Integer.parseInt(request.getParameter("id"));
-                UserDAO userDao = new UserDAO();
                 Customer customer = dao.getCustomerByID(customerID);
-                List<User> owners = userDao.getAllUsers();
+                List<Staff> owners = staffDAO.getAllSales();
 
                 request.setAttribute("customer", customer);
                 request.setAttribute("owners", owners);
@@ -58,9 +63,8 @@ public class ManageCustomer extends HttpServlet {
                         .forward(request, response);
                 return;
             } else if ("add".equals(action)) {
-                UserDAO userDao = new UserDAO();
-                List<User> owners = userDao.getAllUsers();
-                //
+                List<Staff> owners = staffDAO.getAllSales();
+
                 request.removeAttribute("customer");
                 request.setAttribute("owners", owners);
 
@@ -212,6 +216,7 @@ public class ManageCustomer extends HttpServlet {
             throws ServletException, IOException {
 
         CustomerDAO dao = new CustomerDAO();
+        AdminDAO adminDAO = new AdminDAO();
 
         String action = request.getParameter("action");
         String idParam = request.getParameter("customerId");
@@ -267,6 +272,72 @@ public class ManageCustomer extends HttpServlet {
                     String isActiveRaw = request.getParameter("isActive");
                     String status = (isActiveRaw != null) ? "Active" : "Inactive";
 
+                    List<String> errors = new ArrayList<>();
+
+                    // FULL NAME
+                    if (fullName == null || fullName.trim().isEmpty()) {
+                        errors.add("Full name is required");
+                    } else if (fullName.length() > 150) {
+                        errors.add("Full name max 150 characters");
+                    }
+
+                    // EMAIL
+                    if (email == null || email.trim().isEmpty()) {
+                        errors.add("Email cannot be empty");
+                    } else if (!emailPattern.matcher(email).matches()) {
+                        errors.add("Invalid email format");
+                    } else if (adminDAO.isEmailExistExceptId(email, id)) {
+                        errors.add("Email already exists");
+                    }
+
+                    // PHONE
+                    if (phone == null || phone.trim().isEmpty()) {
+                        errors.add("Phone cannot be empty");
+                    } else if (!phonePattern.matcher(phone).matches()) {
+                        errors.add("Phone must be 10-11 digits");
+                    } else if (adminDAO.isPhoneExistExceptId(phone, id)) {
+                        errors.add("Phone already exists");
+                    }
+
+                    // PASSWORD (optional khi edit)
+                    if (password != null && !password.isEmpty()) {
+                        if (password.length() < 6) {
+                            errors.add("Password must be at least 6 characters");
+                        }
+                        if (password.contains(" ")) {
+                            errors.add("Password cannot contain spaces");
+                        }
+                    }
+
+                    // ADDRESS
+                    if (address == null || address.trim().isEmpty()) {
+                        errors.add("Address cannot be empty");
+                    }
+
+                    if (!errors.isEmpty()) {
+                        StaffDAO staffDAO = new StaffDAO();
+
+                        request.setAttribute("errorMessage", String.join(", ", errors));
+
+                        Customer c = new Customer();
+                        c.setId(id);
+                        c.setFullName(fullName);
+                        c.setEmail(email);
+                        c.setPhone(phone);
+                        c.setAddress(address);
+                        c.setOwnerId(ownerId);
+                        c.setStatus(status);
+                        List<Staff> owners = staffDAO.getAllSales();
+
+                        request.setAttribute("customer", c);    
+                        request.setAttribute("owners", owners);
+
+                        request.getRequestDispatcher("/admin/customer-form.jsp")
+                                .forward(request, response);
+
+                        return;
+                    }
+
                     Customer c = new Customer();
 
                     c.setId(id);
@@ -308,6 +379,55 @@ public class ManageCustomer extends HttpServlet {
                 int ownerId = Integer.parseInt(request.getParameter("ownerId"));
 
                 String status = "Active";
+
+                List<String> errors = new ArrayList<>();
+
+                // FULL NAME
+                if (fullName == null || fullName.trim().isEmpty()) {
+                    errors.add("Full name is required");
+                } else if (fullName.length() > 150) {
+                    errors.add("Full name max 150 characters");
+                }
+
+                // EMAIL
+                if (email == null || email.trim().isEmpty()) {
+                    errors.add("Email cannot be empty");
+                } else if (!emailPattern.matcher(email).matches()) {
+                    errors.add("Invalid email format");
+                } else if (adminDAO.isEmailExist(phone)) {
+                    errors.add("Email already exists");
+                }
+
+                // PHONE
+                if (phone == null || phone.trim().isEmpty()) {
+                    errors.add("Phone cannot be empty");
+                } else if (!phonePattern.matcher(phone).matches()) {
+                    errors.add("Phone must be 10-11 digits");
+                } else if (adminDAO.isPhoneExist(phone)) {
+                    errors.add("Phone already exists");
+                }
+
+                // PASSWORD (optional khi edit)
+                if (password != null && !password.isEmpty()) {
+                    if (password.length() < 6) {
+                        errors.add("Password must be at least 6 characters");
+                    }
+                    if (password.contains(" ")) {
+                        errors.add("Password cannot contain spaces");
+                    }
+                }
+
+                // ADDRESS
+                if (address == null || address.trim().isEmpty()) {
+                    errors.add("Address cannot be empty");
+                }
+
+                // Nếu có lỗi
+                if (!errors.isEmpty()) {
+                    session.setAttribute("errorMessage", String.join(", ", errors));
+                    response.sendRedirect(request.getContextPath() + "/managecustomer");
+                    return;
+                }
 
                 Customer c = new Customer();
 

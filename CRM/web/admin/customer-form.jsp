@@ -47,6 +47,12 @@
                     </div>
                     <c:remove var="errorMessage" scope="session" />
                 </c:if>
+                <c:if test="${not empty errorMessage}">
+                    <div class="alert-error">
+                        <i class="fas fa-exclamation-circle"></i>
+                        <span>${errorMessage}</span>
+                    </div>
+                </c:if>
 
                 <!-- Form Card -->
                 <div class="form-card">

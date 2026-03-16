@@ -346,20 +346,60 @@ public class AdminDAO extends DBContext {
 
     public boolean isOwnerExist(int ownerId) {
 
-    String sql = "SELECT 1 FROM users WHERE id = ? and role_id = 2";
+        String sql = "SELECT 1 FROM users WHERE id = ? and role_id = 2";
 
-    try (PreparedStatement ps = connection.prepareStatement(sql)) {
+        try (PreparedStatement ps = connection.prepareStatement(sql)) {
 
-        ps.setInt(1, ownerId);
+            ps.setInt(1, ownerId);
 
-        ResultSet rs = ps.executeQuery();
+            ResultSet rs = ps.executeQuery();
 
-        return rs.next();
+            return rs.next();
 
-    } catch (Exception e) {
-        e.printStackTrace();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        return false;
     }
 
-    return false;
-}
+    public boolean isPhoneExistExceptId(String phone, int id) {
+
+        String sql = "SELECT 1 FROM customers WHERE phone = ? AND id <> ?";
+
+        try (PreparedStatement ps = connection.prepareStatement(sql)) {
+
+            ps.setString(1, phone);
+            ps.setInt(2, id);
+
+            ResultSet rs = ps.executeQuery();
+
+            return rs.next();
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        return false;
+    }
+
+    public boolean isEmailExistExceptId(String email, int id) {
+
+        String sql = "SELECT 1 FROM customers WHERE email = ? AND id <> ?";
+
+        try (PreparedStatement ps = connection.prepareStatement(sql)) {
+
+            ps.setString(1, email);
+            ps.setInt(2, id);
+
+            ResultSet rs = ps.executeQuery();
+
+            return rs.next();
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        return false;
+    }
 }
