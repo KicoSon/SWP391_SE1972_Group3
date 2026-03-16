@@ -6,7 +6,7 @@
     <head>
         <meta charset="UTF-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <title>${customer != null ? 'Chỉnh sửa' : 'Thêm'} Khách hàng - Admin</title>
+        <title>${mode == 'edit' ? 'Chỉnh sửa' : 'Thêm'} Khách hàng - Admin</title>
         <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
         <!--<link rel="stylesheet" href="${pageContext.request.contextPath}/assets/css/sidebar.css">-->
         <link rel="stylesheet" href="${pageContext.request.contextPath}/admin/assets/css/customer-form.css">
@@ -28,14 +28,14 @@
                         <i class="fas fa-users"></i> Quản lý Khách hàng
                     </a>
                     <i class="fas fa-chevron-right"></i>
-                    <span>${customer != null ? 'Chỉnh sửa' : 'Thêm mới'}</span>
+                    <span>${mode == 'edit' ? 'Chỉnh sửa' : 'Thêm mới'}</span>
                 </div>
 
                 <!-- Page Header -->
                 <div class="page-header">
                     <h1>
-                        <i class="fas ${customer != null ? 'fa-edit' : 'fa-plus-circle'}"></i>
-                        ${customer != null ? 'Chỉnh sửa' : 'Thêm mới'} Khách hàng
+                        <i class="fas ${mode == 'edit' ? 'fa-edit' : 'fa-plus-circle'}"></i>
+                        ${mode == 'edit' ? 'Chỉnh sửa' : 'Thêm mới'} Khách hàng
                     </h1>
                 </div>
 
@@ -57,8 +57,8 @@
                 <!-- Form Card -->
                 <div class="form-card">
                     <form action="${pageContext.request.contextPath}/managecustomer" method="POST" id="customerForm">
-                        <input type="hidden" name="action" value="${customer != null ? 'edit' : 'add'}">
-                        <c:if test="${customer != null}">
+                        <input type="hidden" name="action" value="${mode == 'edit' ? 'edit' : 'add'}">
+                        <c:if test="${mode == 'edit'}">
                             <input type="hidden" name="customerId" value="${customer.id}">
                         </c:if>
 
@@ -112,20 +112,20 @@
                                                value="${customer != null ? customer.phone : ''}" 
                                                required
                                                placeholder="Nhập số điện thoại"
-                                               pattern="[0-9]{10,11}">
+                                               pattern="0[0-9]{9,10}">
                                     </div>
                                 </div>
 
                                 <div class="form-group">
                                     <label for="password">
-                                        Mật khẩu ${customer != null ? '(để trống nếu không đổi)' : ''} <c:if test="${customer == null}"><span class="required">*</span></c:if>
+                                        Mật khẩu ${mode == 'edit' ? '(để trống nếu không đổi)' : ''} <c:if test="${mode == 'add'}"><span class="required">*</span></c:if>
                                         </label>
                                         <div class="input-with-icon">
                                             <i class="fas fa-lock"></i>
                                             <input type="password" 
                                                    id="password" 
                                                    name="password" 
-                                            ${customer == null ? 'required' : ''}
+                                            ${mode == 'add' ? 'required' : ''}
                                             placeholder="Nhập mật khẩu"
                                             minlength="6">
                                     </div>
@@ -180,7 +180,7 @@
                                         <c:forEach items="${owners}" var="u">
 
                                             <option value="${u.id}"
-                                                    <c:if test="${u.id == customer.ownerId}">
+                                                    <c:if test="${customer != null && u.id == customer.ownerId}">
                                                         selected
                                                     </c:if>>
                                                 ${u.fullName}
@@ -194,7 +194,7 @@
                         </div>
 
                         <!-- Account Status Section (Edit only) -->
-                        <c:if test="${customer != null}">
+                        <c:if test="${mode == 'edit'}">
                             <div class="form-section">
                                 <div class="section-header">
                                     <i class="fas fa-toggle-on"></i>
@@ -221,7 +221,7 @@
                             </a>
                             <button type="submit" class="btn btn-submit" id="submitBtn">
                                 <i class="fas fa-save"></i>
-                                ${customer != null ? 'Cập nhật' : 'Thêm mới'}
+                                ${mode == 'edit' ? 'Cập nhật' : 'Thêm mới'}
                             </button>
                         </div>
                     </form>
@@ -233,7 +233,7 @@
             // Form validation
             document.getElementById('customerForm').addEventListener('submit', function (e) {
                 const phone = document.getElementById('phone').value;
-                const phonePattern = /^[0-9]{10,11}$/;
+                const phonePattern = /^0[0-9]{9,10}$/;
 
                 if (!phonePattern.test(phone)) {
                     e.preventDefault();

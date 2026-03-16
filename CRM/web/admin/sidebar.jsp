@@ -209,7 +209,12 @@
                     <i class="fas fa-user-shield"></i> Thông tin cá nhân
                 </a>
             </div>
-
+            <div class="nav-item">
+                <a href="${pageContext.request.contextPath}/logout" class="nav-link nav-link-danger">
+                    <i class="fas fa-sign-out-alt"></i>
+                    <span class="nav-text">Logout</span>
+                </a>
+            </div>
         </nav>
     </div>
 

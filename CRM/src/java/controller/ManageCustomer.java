@@ -20,7 +20,7 @@ import model.Staff;
 @WebServlet(name = "ManageCustomer", urlPatterns = {"/managecustomer"})
 public class ManageCustomer extends HttpServlet {
 
-    Pattern phonePattern = Pattern.compile("^[0-9]{10,11}$");
+    Pattern phonePattern = Pattern.compile("^0[0-9]{9,10}$");
     Pattern emailPattern = Pattern.compile("^[A-Za-z0-9+_.-]+@[A-Za-z0-9.-]+$");
 
     @Override
@@ -58,6 +58,7 @@ public class ManageCustomer extends HttpServlet {
 
                 request.setAttribute("customer", customer);
                 request.setAttribute("owners", owners);
+                request.setAttribute("mode", "edit");
 
                 request.getRequestDispatcher("/admin/customer-form.jsp")
                         .forward(request, response);
@@ -67,7 +68,8 @@ public class ManageCustomer extends HttpServlet {
 
                 request.removeAttribute("customer");
                 request.setAttribute("owners", owners);
-
+                request.setAttribute("mode", "add");
+                
                 request.getRequestDispatcher("/admin/customer-form.jsp")
                         .forward(request, response);
                 return;
@@ -329,8 +331,10 @@ public class ManageCustomer extends HttpServlet {
                         c.setStatus(status);
                         List<Staff> owners = staffDAO.getAllSales();
 
-                        request.setAttribute("customer", c);    
+                        request.setAttribute("customer", c);
                         request.setAttribute("owners", owners);
+                        request.setAttribute("mode", "edit");
+                        
 
                         request.getRequestDispatcher("/admin/customer-form.jsp")
                                 .forward(request, response);
@@ -394,7 +398,7 @@ public class ManageCustomer extends HttpServlet {
                     errors.add("Email cannot be empty");
                 } else if (!emailPattern.matcher(email).matches()) {
                     errors.add("Invalid email format");
-                } else if (adminDAO.isEmailExist(phone)) {
+                } else if (adminDAO.isEmailExist(email)) {
                     errors.add("Email already exists");
                 }
 
@@ -407,14 +411,12 @@ public class ManageCustomer extends HttpServlet {
                     errors.add("Phone already exists");
                 }
 
-                // PASSWORD (optional khi edit)
-                if (password != null && !password.isEmpty()) {
-                    if (password.length() < 6) {
-                        errors.add("Password must be at least 6 characters");
-                    }
-                    if (password.contains(" ")) {
-                        errors.add("Password cannot contain spaces");
-                    }
+                if (password == null || password.isEmpty()) {
+                    errors.add("Password cannot be empty");
+                } else if (password.length() < 6) {
+                    errors.add("Password must be at least 6 characters");
+                } else if (password.contains(" ")) {
+                    errors.add("Password cannot contain spaces");
                 }
 
                 // ADDRESS
@@ -422,10 +424,27 @@ public class ManageCustomer extends HttpServlet {
                     errors.add("Address cannot be empty");
                 }
 
-                // Nếu có lỗi
                 if (!errors.isEmpty()) {
-                    session.setAttribute("errorMessage", String.join(", ", errors));
-                    response.sendRedirect(request.getContextPath() + "/managecustomer");
+                    StaffDAO staffDAO = new StaffDAO();
+
+                    request.setAttribute("errorMessage", String.join(", ", errors));
+
+                    Customer c = new Customer();
+                    c.setFullName(fullName);
+                    c.setEmail(email);
+                    c.setPhone(phone);
+                    c.setAddress(address);
+                    c.setOwnerId(ownerId);
+                    c.setStatus(status);
+                    List<Staff> owners = staffDAO.getAllSales();
+
+                    request.setAttribute("customer", c);
+                    request.setAttribute("owners", owners);
+                    request.setAttribute("mode", "add");
+
+                    request.getRequestDispatcher("/admin/customer-form.jsp")
+                            .forward(request, response);
+
                     return;
                 }
 
