@@ -1,187 +1,287 @@
 <%@ page contentType="text/html;charset=UTF-8" language="java" %>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
-<%@ taglib uri="http://java.sun.com/jsp/jstl/fmt" prefix="fmt" %>
 
 <!DOCTYPE html>
 <html lang="vi">
     <head>
         <meta charset="UTF-8">
         <title>Chi Tiết Khách Hàng</title>
-        <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
-        <!-- Favicon -->
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
         <link rel="icon" type="image/png"
               href="${pageContext.request.contextPath}/assets/images/favicon.png">
+        <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+
         <style>
-            body{
-                margin:0;
-                font-family:"Segoe UI",sans-serif;
-                background:linear-gradient(135deg,#3a7bd5,#3a6073);
+            /* ── Base (khớp ticketdetail.jsp) ───────────────────── */
+            body {
+                margin: 0;
+                font-family: "Segoe UI", sans-serif;
+                background: linear-gradient(135deg, #3a7bd5, #3a6073);
+                color: #333;
+            }
+            .main-content {
+                margin-left: 270px;
+                padding: 30px;
+                min-height: 100vh;
+            }
+            .header {
+                background: rgba(255,255,255,0.95);
+                backdrop-filter: blur(20px);
+                padding: 25px 30px;
+                border-radius: 20px;
+                box-shadow: 0 10px 25px rgba(0,0,0,0.15);
+                margin-bottom: 30px;
+                display: flex;
+                align-items: center;
+                justify-content: space-between;
+            }
+            .header h2 {
+                font-weight: 700;
+                font-size: 26px;
+                margin: 0;
             }
 
-            .main-content{
-                margin-left:270px;
-                padding:40px;
-                min-height:100vh;
+            .section-title {
+                font-size: 20px;
+                font-weight: 600;
+                margin: 25px 0 15px;
+                color: white;
+            }
+            .card {
+                background: white;
+                border-radius: 20px;
+                box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+                overflow: hidden;
+                margin-bottom: 30px;
+            }
+            .card-inner {
+                padding: 24px;
             }
 
-            .detail-card{
-                background:white;
-                border-radius:20px;
-                padding:40px;
-                box-shadow:0 15px 40px rgba(0,0,0,0.15);
+            /* ── Info table ──────────────────────────────────────── */
+            table {
+                width: 100%;
+                border-collapse: collapse;
+            }
+            th, td {
+                padding: 13px 15px;
+                border-bottom: 1px solid rgba(0,0,0,0.07);
+                font-size: 14px;
+            }
+            th {
+                background: rgba(102,126,234,0.07);
+                text-align: left;
+                width: 170px;
+                font-weight: 600;
+                color: #555;
+            }
+            tr:last-child th, tr:last-child td {
+                border-bottom: none;
             }
 
-            .top-section{
-                display:flex;
-                gap:40px;
-                align-items:center;
-                border-bottom:1px solid #eee;
-                padding-bottom:30px;
-                margin-bottom:30px;
+            /* ── Customer name banner ────────────────────────────── */
+            .customer-banner {
+                background: linear-gradient(135deg, #667eea, #764ba2);
+                padding: 28px 30px;
+                display: flex;
+                align-items: center;
+                gap: 20px;
+            }
+            .customer-avatar-placeholder {
+                width: 60px;
+                height: 60px;
+                border-radius: 50%;
+                background: rgba(255,255,255,0.25);
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                font-size: 26px;
+                color: white;
+                flex-shrink: 0;
+            }
+            .customer-banner-name {
+                font-size: 22px;
+                font-weight: 700;
+                color: white;
+            }
+            .customer-banner-email {
+                font-size: 14px;
+                color: rgba(255,255,255,0.8);
+                margin-top: 4px;
             }
 
-            .avatar{
-                width:160px;
-                height:160px;
-                border-radius:50%;
-                object-fit:cover;
-                border:5px solid #667eea;
+            /* ── Badges ──────────────────────────────────────────── */
+            .badge {
+                border-radius: 12px;
+                padding: 5px 12px;
+                font-size: 12px;
+                font-weight: 600;
+                color: white;
+                display: inline-flex;
+                align-items: center;
+                gap: 5px;
+            }
+            .status-active   {
+                background: #28a745;
+            }
+            .status-inactive {
+                background: #e74c3c;
             }
 
-            .customer-name{
-                font-size:28px;
-                font-weight:700;
+            .tier-badge {
+                display: inline-flex;
+                align-items: center;
+                gap: 4px;
+                padding: 4px 12px;
+                border-radius: 10px;
+                font-size: 12px;
+                font-weight: 600;
+            }
+            .tier-1 {
+                background: #e8f4f8;
+                color: #0fb8ad;
+            }
+            .tier-2 {
+                background: #e8f0ff;
+                color: #667eea;
+            }
+            .tier-3 {
+                background: #fff5e0;
+                color: #f5a623;
+            }
+            .tier-4 {
+                background: #ffeef0;
+                color: #e74c3c;
             }
 
-            .badge{
-                padding:6px 14px;
-                border-radius:20px;
-                font-size:13px;
-                color:white;
-                display:inline-block;
-                margin-top:8px;
+            /* ── Buttons ─────────────────────────────────────────── */
+            .btn-back {
+                background: #f0f0f0;
+                color: #555;
+                padding: 9px 18px;
+                border-radius: 10px;
+                font-weight: 600;
+                font-size: 14px;
+                text-decoration: none;
+                display: inline-flex;
+                align-items: center;
+                gap: 6px;
+                transition: 0.3s;
+            }
+            .btn-back:hover {
+                background: #e0e0e0;
             }
 
-            .active{
-                background:#28a745;
-            }
-            .inactive{
-                background:#e74c3c;
-            }
-
-            .info-grid{
-                display:grid;
-                grid-template-columns: 1fr 1fr;
-                gap:25px 50px;
-            }
-
-            .info-box{
-                background:#f8f9ff;
-                padding:20px;
-                border-radius:12px;
-            }
-
-            .label{
-                font-size:13px;
-                color:#777;
-                margin-bottom:5px;
-            }
-
-            .value{
-                font-size:16px;
-                font-weight:600;
-            }
-
-            .actions{
-                margin-top:40px;
-                display:flex;
-                gap:15px;
-            }
-
-            .btn{
-                padding:10px 18px;
-                border-radius:8px;
-                text-decoration:none;
-                font-weight:600;
-                font-size:14px;
-            }
-
-            .btn-edit{
-                background:linear-gradient(135deg,#667eea,#764ba2);
-                color:white;
-            }
-
-            .btn-back{
-                border:2px solid #667eea;
-                color:#667eea;
+            @media (max-width: 992px) {
+                .main-content {
+                    margin-left: 0;
+                    padding: 20px;
+                }
             }
         </style>
     </head>
-
     <body>
 
         <%@ include file="sidebar.jsp" %>
 
         <div class="main-content">
 
-            <div class="detail-card">
+            <!-- ===== HEADER ===== -->
+            <div class="header">
+                <h2>
+                    <i class="fas fa-user" style="color:#667eea"></i>
+                    Chi Tiết Khách Hàng
+                </h2>
+                <a href="${pageContext.request.contextPath}/customerservice/customerlist"
+                   class="btn-back">
+                    <i class="fas fa-arrow-left"></i> Quay lại
+                </a>
+            </div>
 
-                <div class="top-section">
-                    <img src="${pageContext.request.contextPath}/${customer.profileURL}" class="avatar">
+            <!-- ===== THÔNG TIN KHÁCH HÀNG ===== -->
+            <div class="section-title">👤 Thông Tin Khách Hàng</div>
 
+            <div class="card">
+                <%-- Banner tên thay cho avatar ảnh --%>
+                <div class="customer-banner">
+                    <div class="customer-avatar-placeholder">
+                        <i class="fas fa-user"></i>
+                    </div>
                     <div>
-                        <div class="customer-name">
-                            ${customer.fullName}
-                        </div>
-
-                        <div>
-                            <div class="info-box">
-                                <div class="label">Status</div>
-                                <div class="value">#${customer.status}</div>
-                            </div>
-                        </div>
+                        <div class="customer-banner-name">${customer.fullName}</div>
+                        <div class="customer-banner-email">${customer.email}</div>
                     </div>
                 </div>
 
-                <div class="info-grid">
-
-                    <div class="info-box">
-                        <div class="label">Customer ID</div>
-                        <div class="value">#${customer.id}</div>
-                    </div>
-
-                    <div class="info-box">
-                        <div class="label">Email</div>
-                        <div class="value">${customer.email}</div>
-                    </div>
-
-                    <div class="info-box">
-                        <div class="label">Số điện thoại</div>
-                        <div class="value">${customer.phone}</div>
-                    </div>
-
-                    <div class="info-box">
-                        <div class="label">Tier</div>
-                        <div class="value">Tier ${customer.tier}</div>
-                    </div>
-
-                    <div class="info-box">
-                        <div class="label">Ngày tạo</div>
-                        <div class="value">Ngày tạo ${customer.createdAt}</div>
-                    </div>
-
+                <div class="card-inner">
+                    <table>
+                        <tr>
+                            <th><i class="fas fa-hashtag" style="color:#667eea"></i> ID</th>
+                            <td style="font-weight:600">#${customer.id}</td>
+                        </tr>
+                        <tr>
+                            <th><i class="fas fa-user" style="color:#667eea"></i> Họ tên</th>
+                            <td style="font-weight:600">${customer.fullName}</td>
+                        </tr>
+                        <tr>
+                            <th><i class="fas fa-envelope" style="color:#667eea"></i> Email</th>
+                            <td>${customer.email}</td>
+                        </tr>
+                        <tr>
+                            <th><i class="fas fa-phone" style="color:#667eea"></i> Số điện thoại</th>
+                            <td>${customer.phone}</td>
+                        </tr>
+                        <tr>
+                            <th><i class="fas fa-layer-group" style="color:#667eea"></i> Tier</th>
+                            <td>
+                                <c:choose>
+                                    <c:when test="${customer.tier == 1}">
+                                        <span class="tier-badge tier-1">Tier 1</span>
+                                    </c:when>
+                                    <c:when test="${customer.tier == 2}">
+                                        <span class="tier-badge tier-2">Tier 2</span>
+                                    </c:when>
+                                    <c:when test="${customer.tier == 3}">
+                                        <span class="tier-badge tier-3">Tier 3</span>
+                                    </c:when>
+                                    <c:otherwise>
+                                        <span class="tier-badge tier-4">Tier ${customer.tier}</span>
+                                    </c:otherwise>
+                                </c:choose>
+                            </td>
+                        </tr>
+                        <tr>
+                            <th><i class="fas fa-circle-dot" style="color:#667eea"></i> Trạng thái</th>
+                            <td>
+                                <c:choose>
+                                    <c:when test="${customer.status == 'active' or customer.status == 'Active'}">
+                                        <span class="badge status-active">
+                                            <i class="fas fa-check-circle" style="font-size:10px"></i>
+                                            Hoạt động
+                                        </span>
+                                    </c:when>
+                                    <c:otherwise>
+                                        <span class="badge status-inactive">
+                                            <i class="fas fa-ban" style="font-size:10px"></i>
+                                            Bị khóa
+                                        </span>
+                                    </c:otherwise>
+                                </c:choose>
+                            </td>
+                        </tr>
+                        <tr>
+                            <th><i class="fas fa-calendar-plus" style="color:#667eea"></i> Ngày tạo</th>
+                            <td style="color:#888;font-size:13px">
+                                <c:if test="${not empty customer.createdAt}">
+                                    ${customer.createdAt.toString().substring(0,10)}
+                                </c:if>
+                                <c:if test="${empty customer.createdAt}">—</c:if>
+                            </td>
+                        </tr>
+                    </table>
                 </div>
-
-                <div class="actions">           
-                    <a href="${pageContext.request.contextPath}/customerservice/customerlist"
-                       class="btn btn-back">
-                        <i class="fas fa-arrow-left"></i> Quay lại
-                    </a>
-                </div>
-
             </div>
 
         </div>
-
     </body>
 </html>

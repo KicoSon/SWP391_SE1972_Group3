@@ -215,7 +215,7 @@
 
                                     <td>
                                         <div class="action-btns">
-                                            <a href="${pageContext.request.contextPath}/support/viewTicket?id=${t.id}"
+                                            <a href="${pageContext.request.contextPath}/customerservice/ticketdetail?id=${t.id}"
                                                class="view-btn">
                                                 <i class="fas fa-eye"></i>
                                             </a>
@@ -285,7 +285,7 @@
 
                                     <td>
                                         <div class="action-btns">
-                                            <a href="${pageContext.request.contextPath}/support/viewTicket?id=${t.id}"
+                                            <a href="${pageContext.request.contextPath}/customerservice/ticketdetail?id=${t.id}"
                                                class="view-btn">
                                                 <i class="fas fa-eye"></i>
                                             </a>
