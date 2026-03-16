@@ -15,8 +15,7 @@ public class StaffDAO extends DBContext {
         // Giả sử bảng tên là [users] như trong script SQL bạn gửi
         String sql = "SELECT id, full_name, email, role_id, department FROM users WHERE is_active = 1";
 
-        try (PreparedStatement ps = getConnection().prepareStatement(sql);
-             ResultSet rs = ps.executeQuery()) {
+        try (PreparedStatement ps = getConnection().prepareStatement(sql); ResultSet rs = ps.executeQuery()) {
             while (rs.next()) {
                 Staff s = new Staff();
                 // Map dữ liệu từ SQL vào Object Staff
@@ -26,7 +25,7 @@ public class StaffDAO extends DBContext {
                 s.setRoleId(rs.getInt("role_id"));
                 s.setDepartment(rs.getString("department"));
                 s.setActive(true);
-                
+
                 list.add(s);
             }
         } catch (Exception e) {
@@ -56,5 +55,42 @@ public class StaffDAO extends DBContext {
             e.printStackTrace();
         }
         return null;
+    }
+
+    public List<Staff> getAllSales() {
+
+        List<Staff> list = new ArrayList<>();
+
+        String sql = """
+                 SELECT id, role_id, email, password_hash, full_name,
+                        department, created_at, is_active
+                 FROM users
+                 WHERE role_id = 2 AND is_active = 1
+                 """;
+
+        try (
+                PreparedStatement ps = connection.prepareStatement(sql); ResultSet rs = ps.executeQuery()) {
+
+            while (rs.next()) {
+
+                Staff s = new Staff();
+
+                s.setId(rs.getInt("id"));
+                s.setRoleId(rs.getInt("role_id"));
+                s.setEmail(rs.getString("email"));
+                s.setPassword(rs.getString("password_hash"));
+                s.setFullName(rs.getString("full_name"));
+                s.setDepartment(rs.getString("department"));
+                s.setCreatedAt(rs.getString("created_at"));
+                s.setActive(rs.getBoolean("is_active"));
+
+                list.add(s);
+            }
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        return list;
     }
 }

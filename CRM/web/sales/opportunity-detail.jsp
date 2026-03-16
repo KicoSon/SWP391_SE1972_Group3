@@ -401,181 +401,67 @@
                         </c:if>
                     </div>
 
-                    <!-- Quotations -->
-                    <div class="card">
-                        <div class="section-title"><i class="fas fa-file-invoice-dollar" style="color:#667eea"></i> Báo
-                            giá liên quan</div>
-                        <c:choose>
-                            <c:when test="${empty quotations}">
-                                <p style="color:#aaa;text-align:center;">Chưa có báo giá nào. <a
-                                        href="${pageContext.request.contextPath}/sales/quotation-create?opportunityId=${opportunity.id}">Tạo
-                                        báo giá đầu tiên</a></p>
-                            </c:when>
-                            <c:otherwise>
-                                <table>
-                                    <thead>
-                                        <tr>
-                                            <th>Mã báo giá</th>
-                                            <th>Phiên bản</th>
-                                            <th>Status</th>
-                                            <th>Tổng tiền</th>
-                                            <th>Hết hạn</th>
-                                            <th></th>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        <c:forEach var="q" items="${quotations}">
-                                            <tr>
-                                                <td><strong>${q.quotationCode}</strong></td>
-                                                <td>v${q.version}</td>
-                                                <td><span class="badge badge-${q.status}">${q.status}</span></td>
+<!-- Assign Modal -->
+<c:if test="${isManager}">
+<div id="assignModal" class="modal-overlay" onclick="this.style.display='none'">
+    <div class="modal-box" onclick="event.stopPropagation()">
+        <h4><i class="fas fa-user-tag"></i> Assign Sales</h4>
+        <form method="post" action="${pageContext.request.contextPath}/sales/opportunity-assign">
+            <input type="hidden" name="id" value="${opportunity.id}">
+            <div class="form-group">
+                <label>Chọn Sales Staff</label>
+                <select name="salesId">
+                    <c:forEach var="s" items="${staffList}">
+                        <option value="${s.id}" ${opportunity.assignedSalesId == s.id ? 'selected' : ''}>${s.fullName}</option>
+                    </c:forEach>
+                </select>
+            </div>
+            <div style="display:flex;gap:10px;justify-content:flex-end;">
+                <button type="button" class="btn btn-warning" onclick="document.getElementById('assignModal').style.display='none'">Hủy</button>
+                <button type="submit" class="btn btn-primary">Assign</button>
+            </div>
+        </form>
+    </div>
+</div>
+</c:if>
 
-                                                <td>
-                                                    <fmt:formatNumber value="${q.totalAmount}" type="number"
-                                                        groupingUsed="true" /> đ
-                                                </td>
-                                                <td>
-                                                    <fmt:formatDate value="${q.validUntil}" pattern="dd/MM/yyyy" />
-                                                </td>
-                                                <td><a href="${pageContext.request.contextPath}/sales/quotation-detail?id=${q.id}"
-                                                        class="btn btn-info"><i class="fas fa-eye"></i></a></td>
-                                            </tr>
-                                        </c:forEach>
-                                    </tbody>
-                                </table>
-                            </c:otherwise>
-                        </c:choose>
-                    </div>
+<!-- Add Product Modal -->
+<div id="productModal" class="modal-overlay" onclick="this.style.display='none'">
+    <div class="modal-box" onclick="event.stopPropagation()">
+        <h4><i class="fas fa-box"></i> Thêm Sản Phẩm </h4>
+        <form method="post" action="${pageContext.request.contextPath}/sales/opportunity-product-add">
+            <input type="hidden" name="opportunityId" value="${opportunity.id}">
+            <div class="form-group">
+                <label>Sản phẩm</label>
+                <select name="productId" required>
+                    <c:forEach var="p" items="${catalogProducts}">
+                        <option value="${p.id}">${p.name} - <fmt:formatNumber value="${p.basePrice}" type="number" groupingUsed="true"/> đ</option>
+                    </c:forEach>
+                </select>
+            </div>
+            <div class="form-group">
+                <label>Số lượng</label>
+                <input type="number" name="quantity" style="width:100%;padding:9px;border:1px solid #ddd;border-radius:8px;font-size:14px;" value="1" min="1" required>
+            </div>
+            <div class="form-group">
+                <label>Đơn giá</label>
+                <input type="number" name="unitPrice" style="width:100%;padding:9px;border:1px solid #ddd;border-radius:8px;font-size:14px;" placeholder="ví dụ: 500000" required>
+            </div>
+            <div class="form-group">
+                <label>Chiết khấu (Lượng tiền)</label>
+                <input type="number" name="discount" style="width:100%;padding:9px;border:1px solid #ddd;border-radius:8px;font-size:14px;" value="0">
+            </div>
+            <div class="form-group">
+                <label>Ghi chú</label>
+                <textarea name="notes" rows="2" style="width:100%;padding:9px;border:1px solid #ddd;border-radius:8px;font-size:14px;"></textarea>
+            </div>
+            <div style="display:flex;gap:10px;justify-content:flex-end;margin-top:15px;">
+                <button type="button" class="btn btn-warning" onclick="document.getElementById('productModal').style.display='none'">Hủy</button>
+                <button type="submit" class="btn btn-primary">Thêm</button>
+            </div>
+        </form>
+    </div>
+</div>
 
-                    <!-- Activities -->
-                    <div class="card">
-                        <div class="section-title" style="justify-content:space-between;">
-                            <span><i class="fas fa-tasks" style="color:#667eea"></i> Hoạt động</span>
-                            <a href="${pageContext.request.contextPath}/sales/activity-create?opportunityId=${opportunity.id}"
-                                class="btn btn-primary" style="font-size:12px;padding:7px 12px"><i
-                                    class="fas fa-plus"></i> Thêm</a>
-                        </div>
-                        <c:choose>
-                            <c:when test="${empty activities}">
-                                <p style="color:#aaa;text-align:center;">Chưa có hoạt động nào.</p>
-                            </c:when>
-                            <c:otherwise>
-                                <c:forEach var="act" items="${activities}">
-                                    <div class="activity-item">
-                                        <div class="activity-icon type-${act.type}">
-                                            <c:choose>
-                                                <c:when test="${act.type == 'Call'}"><i class="fas fa-phone"></i>
-                                                </c:when>
-                                                <c:when test="${act.type == 'Meeting'}"><i class="fas fa-users"></i>
-                                                </c:when>
-                                                <c:when test="${act.type == 'Task'}"><i class="fas fa-check-square"></i>
-                                                </c:when>
-                                                <c:when test="${act.type == 'Email'}"><i class="fas fa-envelope"></i>
-                                                </c:when>
-                                                <c:otherwise><i class="fas fa-sticky-note"></i></c:otherwise>
-                                            </c:choose>
-                                        </div>
-                                        <div>
-                                            <strong>${act.title}</strong> <span
-                                                style="background:#f0f0f0;padding:2px 7px;border-radius:10px;font-size:11px;">${act.type}</span>
-                                            <p style="margin:4px 0 0;font-size:13px;color:#666">${act.description}</p>
-                                            <small style="color:#aaa">
-                                                <fmt:formatDate value="${act.createdAt}" pattern="dd/MM/yyyy HH:mm" />
-                                            </small>
-                                        </div>
-                                    </div>
-                                </c:forEach>
-                            </c:otherwise>
-                        </c:choose>
-                    </div>
-                </div>
-
-                <!-- Stage Modal -->
-                <div id="stageModal" class="modal-overlay" onclick="this.style.display='none'">
-                    <div class="modal-box" onclick="event.stopPropagation()">
-                        <h4><i class="fas fa-exchange-alt"></i> Đổi Stage</h4>
-                        <form method="post" action="${pageContext.request.contextPath}/sales/opportunity-stage">
-                            <input type="hidden" name="id" value="${opportunity.id}">
-                            <div class="form-group">
-                                <label>Stage mới</label>
-                                <select name="newStage">
-                                    <option value="Qualification" ${opportunity.stage=='Qualification' ? 'selected' : ''
-                                        }>Qualification</option>
-                                    <option value="Need Analysis" ${opportunity.stage=='Need Analysis' ? 'selected' : ''
-                                        }>Need Analysis</option>
-                                    <option value="Product Proposal" ${opportunity.stage=='Product Proposal'
-                                        ? 'selected' : '' }>Product Proposal</option>
-                                    <option value="Quotation" ${opportunity.stage=='Quotation' ? 'selected' : '' }>
-                                        Quotation</option>
-                                    <option value="Negotiation" ${opportunity.stage=='Negotiation' ? 'selected' : '' }>
-                                        Negotiation</option>
-                                    <option value="Closed Won" ${opportunity.stage=='Closed Won' ? 'selected' : '' }>
-                                        Closed Won</option>
-                                    <option value="Closed Lost" ${opportunity.stage=='Closed Lost' ? 'selected' : '' }>
-                                        Closed Lost</option>
-                                </select>
-                            </div>
-                            <div style="display:flex;gap:10px;justify-content:flex-end;">
-                                <button type="button" class="btn btn-warning"
-                                    onclick="document.getElementById('stageModal').style.display='none'">Hủy</button>
-                                <button type="submit" class="btn btn-primary">Cập nhật</button>
-                            </div>
-                        </form>
-                    </div>
-                </div>
-
-                <!-- Close Modal -->
-                <div id="closeModal" class="modal-overlay" onclick="this.style.display='none'">
-                    <div class="modal-box" onclick="event.stopPropagation()">
-                        <h4><i class="fas fa-flag-checkered"></i> Đóng Opportunity</h4>
-                        <form method="post" action="${pageContext.request.contextPath}/sales/opportunity-close">
-                            <input type="hidden" name="id" value="${opportunity.id}">
-                            <div class="form-group">
-                                <label>Kết quả</label>
-                                <select name="status"
-                                    onchange="document.getElementById('lostReasonGroup').style.display=this.value=='Lost'?'block':'none'">
-                                    <option value="Won">✅ Won – Thành công</option>
-                                    <option value="Lost">❌ Lost – Thất bại</option>
-                                </select>
-                            </div>
-                            <div id="lostReasonGroup" class="form-group" style="display:none">
-                                <label>Lý do thất bại</label>
-                                <textarea name="lostReason" rows="3" placeholder="Nhập lý do..."></textarea>
-                            </div>
-                            <div style="display:flex;gap:10px;justify-content:flex-end;">
-                                <button type="button" class="btn btn-warning"
-                                    onclick="document.getElementById('closeModal').style.display='none'">Hủy</button>
-                                <button type="submit" class="btn btn-danger">Đóng Opportunity</button>
-                            </div>
-                        </form>
-                    </div>
-                </div>
-
-                <!-- Assign Modal -->
-                <c:if test="${isManager}">
-                    <div id="assignModal" class="modal-overlay" onclick="this.style.display='none'">
-                        <div class="modal-box" onclick="event.stopPropagation()">
-                            <h4><i class="fas fa-user-tag"></i> Assign Sales</h4>
-                            <form method="post" action="${pageContext.request.contextPath}/sales/opportunity-assign">
-                                <input type="hidden" name="id" value="${opportunity.id}">
-                                <div class="form-group">
-                                    <label>Chọn Sales Staff</label>
-                                    <select name="salesId">
-                                        <c:forEach var="s" items="${staffList}">
-                                            <option value="${s.id}" ${opportunity.assignedSalesId==s.id ? 'selected'
-                                                : '' }>${s.fullName}</option>
-                                        </c:forEach>
-                                    </select>
-                                </div>
-                                <div style="display:flex;gap:10px;justify-content:flex-end;">
-                                    <button type="button" class="btn btn-warning"
-                                        onclick="document.getElementById('assignModal').style.display='none'">Hủy</button>
-                                    <button type="submit" class="btn btn-primary">Assign</button>
-                                </div>
-                            </form>
-                        </div>
-                    </div>
-                </c:if>
-            </body>
-
-            </html>
+</body>
+</html>

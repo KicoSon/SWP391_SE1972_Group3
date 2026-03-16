@@ -7,7 +7,6 @@
     <meta charset="UTF-8">
     <title>Danh sách Opportunity – Sales CRM</title>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
-    <link rel="stylesheet" href="${pageContext.request.contextPath}/assets/css/sales-common.css">
     <style>
         body{margin:0;font-family:"Segoe UI";background:linear-gradient(135deg,#3a7bd5,#3a6073);color:#333;}
         .main-content{margin-left:270px;padding:30px;min-height:100vh;}
@@ -34,7 +33,7 @@
         .badge-Negotiation{background:#fd7e14;}
         .badge-Closed\.Won,.badge-Won{background:#198754;}
         .badge-Closed\.Lost,.badge-Lost{background:#dc3545;}
-        .stage-badge{padding:3px 9px;border-radius:12px;font-size:11px;font-weight:700;}
+        .badge-stage{padding:3px 9px;border-radius:12px;font-size:11px;font-weight:700;color:#000;background:#f0f0f0;}
         .status-Open{background:#e3f2fd;color:#1565c0;}
         .status-Won{background:#e8f5e9;color:#2e7d32;}
         .status-Lost{background:#fce4ec;color:#c62828;}

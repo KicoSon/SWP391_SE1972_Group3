@@ -26,7 +26,7 @@ public class QuotationDetailServlet extends HttpServlet {
         response.setCharacterEncoding("UTF-8");
 
         UserSession userSession = (UserSession) request.getSession().getAttribute("userSession");
-        if (userSession == null || !userSession.isSaleStaff()) {
+        if (userSession == null || (!userSession.isSaleStaff() && !userSession.isAdmin())) {
             response.sendRedirect(request.getContextPath() + "/login"); return;
         }
 
@@ -37,7 +37,7 @@ public class QuotationDetailServlet extends HttpServlet {
 
             request.setAttribute("quotation", q);
             request.setAttribute("items", quotationDAO.getItemsByQuotationId(id));
-            request.setAttribute("isManager", userSession.isAdmin() || userSession.hasRole("SALES_MANAGER"));
+            request.setAttribute("isManager", userSession.isAdmin());
             request.getRequestDispatcher("/sales/quotation-detail.jsp").forward(request, response);
         } catch (Exception e) {
             e.printStackTrace();

@@ -3,6 +3,7 @@ package controller.sales;
 import dal.OpportunityDAO;
 import dal.QuotationDAO;
 import dal.ActivityDAO;
+import dal.ProductDAO;
 import model.sales.Opportunity;
 import model.UserSession;
 import jakarta.servlet.ServletException;
@@ -17,11 +18,14 @@ public class OpportunityDetailServlet extends HttpServlet {
     private QuotationDAO quotationDAO;
     private ActivityDAO activityDAO;
 
+    private ProductDAO productDAO;
+
     @Override
     public void init() throws ServletException {
         opportunityDAO = new OpportunityDAO();
         quotationDAO   = new QuotationDAO();
         activityDAO    = new ActivityDAO();
+        productDAO     = new ProductDAO();
     }
 
     @Override
@@ -32,7 +36,7 @@ public class OpportunityDetailServlet extends HttpServlet {
         response.setCharacterEncoding("UTF-8");
 
         UserSession userSession = (UserSession) request.getSession().getAttribute("userSession");
-        if (userSession == null || !userSession.isSaleStaff()) {
+        if (userSession == null || (!userSession.isSaleStaff() && !userSession.isAdmin())) {
             response.sendRedirect(request.getContextPath() + "/login");
             return;
         }
@@ -50,8 +54,16 @@ public class OpportunityDetailServlet extends HttpServlet {
             request.setAttribute("opportunity", opp);
             request.setAttribute("quotations", quotationDAO.getByOpportunityId(id));
             request.setAttribute("activities", activityDAO.getActivitiesByOpportunityId(id));
+            
+            // NEW MODULE 2 LOGIC: 
+            request.setAttribute("products", opportunityDAO.getOpportunityProducts(id));
+            // TODO: uncomment when stage_history table is created in DB
+            // request.setAttribute("timeline", opportunityDAO.getOpportunityTimeline(id));
+            request.setAttribute("timeline", java.util.Collections.emptyList());
+            request.setAttribute("catalogProducts", productDAO.getAll());
+
             request.setAttribute("isManager",
-                userSession.isAdmin() || userSession.hasRole("SALES_MANAGER"));
+                userSession.isAdmin());
             request.getRequestDispatcher("/sales/opportunity-detail.jsp").forward(request, response);
         } catch (NumberFormatException e) {
             response.sendError(400, "Invalid ID");

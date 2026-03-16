@@ -15,3 +15,4 @@ Thumbs.db
 CRM/src/java/dal/DBContext.java
 CRM/nbproject/genfiles.properties
 CRM/nbproject/build-impl.xml
+CRM/nbproject/private/private.properties

@@ -10,12 +10,13 @@
     
     <!-- CSS -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
-    <link rel="stylesheet" href="${pageContext.request.contextPath}/assets/css/sidebar.css">
+    <!--<link rel="stylesheet" href="pageContext.request.contextPath/assets/css/sidebar.css">-->
     <link rel="stylesheet" href="${pageContext.request.contextPath}/admin/assets/css/admin-dashboard.css">
 </head>
 <body>
     <!-- Include Sidebar Component -->
-    <jsp:include page="../components/sidebar.jsp" />
+    <%--<jsp:include page="../components/sidebar.jsp" />--%>
+    <jsp:include page="sidebar.jsp" />
     
     <!-- Main Content -->
     <div class="main-content">

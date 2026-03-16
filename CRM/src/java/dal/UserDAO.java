@@ -64,20 +64,21 @@ public class UserDAO extends DBContext {
 
         return list;
     }
+
     public List<Staff> getSalesList() {
 
         List<Staff> list = new ArrayList<>();
 
-        String sql =
-                "SELECT u.id, u.full_name, u.email " +
-                "FROM users u " +
-                "JOIN roles r ON u.role_id = r.id " +
-                "WHERE r.name = 'sales'";
+        String sql
+                = "SELECT u.id, u.full_name, u.email "
+                + "FROM users u "
+                + "JOIN roles r ON u.role_id = r.id "
+                + "WHERE r.name = 'sales'";
 
         try {
 
-            PreparedStatement ps =
-                    connection.prepareStatement(sql);
+            PreparedStatement ps
+                    = connection.prepareStatement(sql);
 
             ResultSet rs = ps.executeQuery();
 
@@ -114,5 +115,17 @@ public class UserDAO extends DBContext {
         for (User u : list) {
             System.out.println(u.getId() + " | " + u.getFullName());
         }
+    }
+
+    public boolean checkEmailExists(String email) throws Exception {
+
+        String sql = "SELECT 1 FROM users WHERE email = ?";
+
+        PreparedStatement ps = connection.prepareStatement(sql);
+        ps.setString(1, email);
+
+        ResultSet rs = ps.executeQuery();
+
+        return rs.next();
     }
 }
