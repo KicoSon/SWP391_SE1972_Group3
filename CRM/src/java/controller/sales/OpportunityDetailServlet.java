@@ -4,6 +4,7 @@ import dal.OpportunityDAO;
 import dal.QuotationDAO;
 import dal.ActivityDAO;
 import dal.ProductDAO;
+import dal.SalesOrderDAO;
 import model.sales.Opportunity;
 import model.UserSession;
 import jakarta.servlet.ServletException;
@@ -17,6 +18,7 @@ public class OpportunityDetailServlet extends HttpServlet {
     private OpportunityDAO opportunityDAO;
     private QuotationDAO quotationDAO;
     private ActivityDAO activityDAO;
+    private SalesOrderDAO salesOrderDAO;
 
     private ProductDAO productDAO;
 
@@ -26,6 +28,7 @@ public class OpportunityDetailServlet extends HttpServlet {
         quotationDAO   = new QuotationDAO();
         activityDAO    = new ActivityDAO();
         productDAO     = new ProductDAO();
+        salesOrderDAO  = new SalesOrderDAO();
     }
 
     @Override
@@ -54,6 +57,7 @@ public class OpportunityDetailServlet extends HttpServlet {
             request.setAttribute("opportunity", opp);
             request.setAttribute("quotations", quotationDAO.getByOpportunityId(id));
             request.setAttribute("activities", activityDAO.getActivitiesByOpportunityId(id));
+            request.setAttribute("orders", salesOrderDAO.getByOpportunityId(id));
             
             // NEW MODULE 2 LOGIC: 
             request.setAttribute("products", opportunityDAO.getOpportunityProducts(id));

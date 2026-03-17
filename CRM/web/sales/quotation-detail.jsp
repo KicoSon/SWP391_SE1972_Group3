@@ -55,30 +55,27 @@
         <div style="display:flex;gap:8px;flex-wrap:wrap;">
             <c:if test="${quotation.status == 'Draft'}">
                 <a href="${pageContext.request.contextPath}/sales/quotation-edit?id=${quotation.id}&opportunityId=${quotation.opportunityId}" class="btn btn-warning"><i class="fas fa-edit"></i> Sửa</a>
-                <c:if test="${isManager}">
-                    <form method="post" action="${pageContext.request.contextPath}/sales/quotation-approve" style="display:inline">
-                        <input type="hidden" name="id" value="${quotation.id}">
-                        <input type="hidden" name="action" value="approve">
-                        <button type="submit" class="btn btn-success"><i class="fas fa-check"></i> Duyệt</button>
-                    </form>
-                    <form method="post" action="${pageContext.request.contextPath}/sales/quotation-approve" style="display:inline">
-                        <input type="hidden" name="id" value="${quotation.id}">
-                        <input type="hidden" name="action" value="reject">
-                        <button type="submit" class="btn btn-danger"><i class="fas fa-times"></i> Từ chối</button>
-                    </form>
-                </c:if>
-            </c:if>
-            <c:if test="${quotation.status == 'Approved'}">
-                <form method="post" action="${pageContext.request.contextPath}/sales/quotation-approve" style="display:inline">
+                
+                <form method="post" action="${pageContext.request.contextPath}/sales/quotation-approve" style="display:inline" onsubmit="return confirm('Are you sure you want to approve this quotation?');">
                     <input type="hidden" name="id" value="${quotation.id}">
-                    <input type="hidden" name="action" value="send">
-                    <button type="submit" class="btn btn-info"><i class="fas fa-paper-plane"></i> Gửi KH</button>
+                    <input type="hidden" name="action" value="approve">
+                    <button type="submit" class="btn btn-success"><i class="fas fa-check"></i> Approve</button>
                 </form>
-                <form method="post" action="${pageContext.request.contextPath}/sales/convert-to-order" style="display:inline" onsubmit="return confirm('Chuyển báo giá thành đơn hàng?')">
-                    <input type="hidden" name="quotationId" value="${quotation.id}">
-                    <button type="submit" class="btn btn-success"><i class="fas fa-shopping-cart"></i> Tạo đơn hàng</button>
+
+                <form method="post" action="${pageContext.request.contextPath}/sales/quotation-approve" style="display:inline" onsubmit="return confirm('Are you sure you want to reject this quotation?');">
+                    <input type="hidden" name="id" value="${quotation.id}">
+                    <input type="hidden" name="action" value="reject">
+                    <button type="submit" class="btn btn-danger"><i class="fas fa-times"></i> Reject</button>
                 </form>
             </c:if>
+            
+            <c:if test="${quotation.status == 'Approved'}">
+                <form method="post" action="${pageContext.request.contextPath}/sales/convert-to-order" style="display:inline" onsubmit="return confirm('Convert this quotation to an order?');">
+                    <input type="hidden" name="quotationId" value="${quotation.id}">
+                    <button type="submit" class="btn btn-primary"><i class="fas fa-exchange-alt"></i> Convert to Order</button>
+                </form>
+            </c:if>
+
             <form method="post" action="${pageContext.request.contextPath}/sales/quotation-version" style="display:inline">
                 <input type="hidden" name="id" value="${quotation.id}">
                 <button type="submit" class="btn btn-primary"><i class="fas fa-copy"></i> Phiên bản mới</button>

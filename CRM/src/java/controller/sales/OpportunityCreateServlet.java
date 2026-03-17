@@ -11,8 +11,6 @@ import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.*;
 import java.io.IOException;
 import java.math.BigDecimal;
-import java.text.SimpleDateFormat;
-import java.util.List;
 
 @WebServlet("/sales/opportunity-create")
 public class OpportunityCreateServlet extends HttpServlet {
@@ -68,6 +66,10 @@ public class OpportunityCreateServlet extends HttpServlet {
 
         try {
             Opportunity opp = buildFromRequest(request);
+            if (userSession.getStaff() == null) {
+                response.sendError(403, "Không tìm thấy thông tin nhân viên");
+                return;
+            }
             opp.setCreatedBy(userSession.getStaff().getId());
 
             // Sales staff can only create for themselves
@@ -75,19 +77,11 @@ public class OpportunityCreateServlet extends HttpServlet {
                 opp.setAssignedSalesId(userSession.getStaff().getId());
             }
 
-            String title = opp.getTitle();
-            if (title == null || title.trim().isEmpty()) {
-                request.setAttribute("error", "Tiêu đề không được để trống");
-                request.setAttribute("customers", authDAO.getAllCustomers());
-                request.setAttribute("staffList", authDAO.getAllStaff());
-                request.setAttribute("pipelines", pipelineDAO.getAll());
-                request.setAttribute("mode", "create");
-                request.getRequestDispatcher("/sales/opportunity-form.jsp").forward(request, response);
-                return;
-            }
-
             opportunityDAO.insert(opp);
             response.sendRedirect(request.getContextPath() + "/sales/opportunities");
+        } catch (IllegalArgumentException e) {
+            request.setAttribute("error", e.getMessage());
+            renderCreateForm(request, response);
         } catch (Exception e) {
             e.printStackTrace();
             response.sendError(500, "Internal Server Error");
@@ -96,27 +90,31 @@ public class OpportunityCreateServlet extends HttpServlet {
 
     protected Opportunity buildFromRequest(HttpServletRequest request) throws Exception {
         Opportunity opp = new Opportunity();
-        opp.setTitle(request.getParameter("title"));
-        String custId = request.getParameter("customerId");
-        opp.setCustomerId(custId != null && !custId.isEmpty() ? Integer.parseInt(custId) : null);
-        String salesId = request.getParameter("assignedSalesId");
-        opp.setAssignedSalesId(salesId != null && !salesId.isEmpty() ? Integer.parseInt(salesId) : 0);
-        opp.setStage(request.getParameter("stage") != null ? request.getParameter("stage") : "Qualification");
+        opp.setTitle(SalesInputValidator.requireText("Tiêu đề", request.getParameter("title"), 3, 255));
+        opp.setCustomerId(SalesInputValidator.parseNullablePositiveInt("Khách hàng", request.getParameter("customerId")));
+        opp.setAssignedSalesId(SalesInputValidator.parsePositiveInt("Sales phụ trách", request.getParameter("assignedSalesId")));
+        opp.setStage(SalesInputValidator.parseOpportunityStage(request.getParameter("stage"), "Qualification"));
         opp.setStatus("Open");
-        String ev = request.getParameter("expectedValue");
-        opp.setExpectedValue(ev != null && !ev.isEmpty() ? new BigDecimal(ev) : BigDecimal.ZERO);
-        String cp = request.getParameter("closeProbability");
-        opp.setCloseProbability(cp != null && !cp.isEmpty() ? Double.parseDouble(cp) : 0);
-        String dateStr = request.getParameter("expectedCloseDate");
-        if (dateStr != null && !dateStr.isEmpty()) {
-            opp.setExpectedCloseDate(new SimpleDateFormat("yyyy-MM-dd").parse(dateStr));
-        }
-        opp.setSource(request.getParameter("source"));
-        String campId = request.getParameter("campaignId");
-        opp.setCampaignId(campId != null && !campId.isEmpty() ? Integer.parseInt(campId) : null);
-        String plId = request.getParameter("pipelineId");
-        opp.setPipelineId(plId != null && !plId.isEmpty() ? Integer.parseInt(plId) : 1);
-        opp.setNotes(request.getParameter("notes"));
+        opp.setExpectedValue(SalesInputValidator.parseNonNegativeDecimal("Giá trị dự kiến", request.getParameter("expectedValue"), BigDecimal.ZERO));
+        opp.setCloseProbability(SalesInputValidator.parseDoubleInRange("Xác suất đóng", request.getParameter("closeProbability"), 0, 0, 100));
+        opp.setExpectedCloseDate(SalesInputValidator.parseOptionalDate("Ngày dự kiến đóng", request.getParameter("expectedCloseDate")));
+        opp.setSource(SalesInputValidator.parseOpportunitySource(request.getParameter("source"), "Manual"));
+        opp.setCampaignId(SalesInputValidator.parseNullablePositiveInt("Campaign", request.getParameter("campaignId")));
+        opp.setPipelineId(SalesInputValidator.parsePositiveIntOrDefault("Pipeline", request.getParameter("pipelineId"), 1));
+        opp.setNotes(SalesInputValidator.optionalText(request.getParameter("notes"), 2000));
         return opp;
+    }
+
+    private void renderCreateForm(HttpServletRequest request, HttpServletResponse response)
+            throws ServletException, IOException {
+        try {
+            request.setAttribute("customers", authDAO.getAllCustomers());
+            request.setAttribute("staffList", authDAO.getAllStaff());
+            request.setAttribute("pipelines", pipelineDAO.getAll());
+            request.setAttribute("mode", "create");
+            request.getRequestDispatcher("/sales/opportunity-form.jsp").forward(request, response);
+        } catch (Exception ex) {
+            throw new ServletException(ex);
+        }
     }
 }

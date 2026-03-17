@@ -56,9 +56,10 @@
                         <td>
                             <form method="post" action="${pageContext.request.contextPath}/sales/pipeline-config" style="display:flex;gap:8px;align-items:center">
                                 <input type="hidden" name="action" value="updateStage">
+                                <input type="hidden" name="pipelineId" value="${currentPipelineId}">
                                 <input type="hidden" name="stageId" value="${s.id}">
                                 <input type="hidden" name="orderIndex" value="${s.orderIndex}">
-                                <input type="text" name="stageName" value="${s.stageName}" style="border:1.5px solid #ddd;border-radius:6px;padding:6px 10px;font-size:13px;width:160px;">
+                                <input type="text" name="stageName" value="${s.stageName}" required minlength="2" maxlength="100" style="border:1.5px solid #ddd;border-radius:6px;padding:6px 10px;font-size:13px;width:160px;">
                                 <input type="color" name="color" value="${s.color}" style="padding:0;border:none;width:36px;height:34px;cursor:pointer;border-radius:6px;">
                                 <button type="submit" class="btn btn-primary btn-sm"><i class="fas fa-save"></i></button>
                             </form>
@@ -72,6 +73,7 @@
                         <td>
                             <form method="post" action="${pageContext.request.contextPath}/sales/pipeline-config" onsubmit="return confirm('Xóa stage này?')">
                                 <input type="hidden" name="action" value="deleteStage">
+                                <input type="hidden" name="pipelineId" value="${currentPipelineId}">
                                 <input type="hidden" name="stageId" value="${s.id}">
                                 <button type="submit" class="btn btn-danger btn-sm"><i class="fas fa-trash"></i></button>
                             </form>
@@ -85,9 +87,9 @@
             <strong style="font-size:14px;">Thêm Stage mới</strong>
             <form method="post" action="${pageContext.request.contextPath}/sales/pipeline-config" style="margin-top:12px;">
                 <input type="hidden" name="action" value="addStage">
-                <input type="hidden" name="pipelineId" value="${pipeline.id}">
+                <input type="hidden" name="pipelineId" value="${currentPipelineId}">
                 <div class="form-inline">
-                    <input type="text" name="stageName" placeholder="Tên stage..." required style="flex:1;min-width:160px;">
+                    <input type="text" name="stageName" placeholder="Tên stage..." required minlength="2" maxlength="100" style="flex:1;min-width:160px;">
                     <input type="color" name="color" value="#667eea" style="width:48px;height:38px;border:none;cursor:pointer;border-radius:8px;">
                     <select name="isWon">
                         <option value="0">Thường</option>
@@ -117,7 +119,9 @@
                         <td>
                             <form method="post" action="${pageContext.request.contextPath}/sales/pipeline-config">
                                 <input type="hidden" name="action" value="toggleLostReason">
+                                <input type="hidden" name="pipelineId" value="${currentPipelineId}">
                                 <input type="hidden" name="lostReasonId" value="${lr.id}">
+                                <input type="hidden" name="active" value="${!lr.active}">
                                 <button type="submit" class="btn ${lr.active ? 'btn-warning' : 'btn-success'} btn-sm">
                                     <c:choose>
                                         <c:when test="${lr.active}"><i class="fas fa-ban"></i> Tắt</c:when>
@@ -135,8 +139,9 @@
             <strong style="font-size:14px;">Thêm lý do mới</strong>
             <form method="post" action="${pageContext.request.contextPath}/sales/pipeline-config" style="margin-top:12px;">
                 <input type="hidden" name="action" value="addLostReason">
+                <input type="hidden" name="pipelineId" value="${currentPipelineId}">
                 <div class="form-inline">
-                    <input type="text" name="reason" placeholder="Nhập lý do thất bại..." required style="flex:1;min-width:250px;">
+                    <input type="text" name="reason" placeholder="Nhập lý do thất bại..." required minlength="3" maxlength="500" style="flex:1;min-width:250px;">
                     <button type="submit" class="btn btn-danger"><i class="fas fa-plus"></i> Thêm</button>
                 </div>
             </form>

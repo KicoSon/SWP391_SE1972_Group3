@@ -3,14 +3,18 @@ package controller.sales;
 import dal.QuotationDAO;
 import dal.OpportunityDAO;
 import dal.SalesOrderDAO;
+import dal.SalesOrderItemDAO;
 import model.sales.Quotation;
+import model.sales.QuotationItem;
 import model.sales.SalesOrder;
+import model.sales.SalesOrderItem;
 import model.UserSession;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.*;
 import java.io.IOException;
 import java.text.SimpleDateFormat;
+import java.util.List;
 
 @WebServlet("/sales/convert-to-order")
 public class ConvertQuotationToOrderServlet extends HttpServlet {
@@ -18,12 +22,14 @@ public class ConvertQuotationToOrderServlet extends HttpServlet {
     private QuotationDAO    quotationDAO;
     private SalesOrderDAO   salesOrderDAO;
     private OpportunityDAO  opportunityDAO;
+    private SalesOrderItemDAO salesOrderItemDAO;
 
     @Override
     public void init() throws ServletException {
         quotationDAO   = new QuotationDAO();
         salesOrderDAO  = new SalesOrderDAO();
         opportunityDAO = new OpportunityDAO();
+        salesOrderItemDAO = new SalesOrderItemDAO();
     }
 
     @Override
@@ -48,18 +54,9 @@ public class ConvertQuotationToOrderServlet extends HttpServlet {
 
             SalesOrder order = new SalesOrder();
             order.setQuotationId(quotationId);
-            order.setOpportunityId(q.getOpportunityId());
             order.setOrderCode(salesOrderDAO.generateOrderCode());
-            order.setStatus("Confirmed");
+            order.setStatus("Pending");
             order.setTotalAmount(q.getTotalAmount());
-            order.setShippingAddress(request.getParameter("shippingAddress"));
-            order.setPaymentMethod(request.getParameter("paymentMethod"));
-            order.setPaymentStatus("Pending");
-            order.setCreatedBy(userSession.getStaff().getId());
-            String deliveryStr = request.getParameter("deliveryDate");
-            if (deliveryStr != null && !deliveryStr.isEmpty()) {
-                order.setDeliveryDate(new SimpleDateFormat("yyyy-MM-dd").parse(deliveryStr));
-            }
 
             boolean inserted = salesOrderDAO.insert(order);
             if (inserted) {
@@ -70,6 +67,18 @@ public class ConvertQuotationToOrderServlet extends HttpServlet {
 
                 SalesOrder saved = salesOrderDAO.getByQuotationId(quotationId);
                 if (saved != null) {
+                    // Clone Items
+                    List<QuotationItem> items = quotationDAO.getItemsByQuotationId(quotationId);
+                    for (QuotationItem qi : items) {
+                        SalesOrderItem oi = new SalesOrderItem();
+                        oi.setOrderId(saved.getId());
+                        oi.setProductName(qi.getProductName());
+                        oi.setQuantity(qi.getQuantity());
+                        oi.setUnitPrice(qi.getUnitPrice());
+                        oi.setTotalPrice(qi.getLineTotal());
+                        salesOrderItemDAO.insert(oi);
+                    }
+
                     salesOrderDAO.syncToCustomerCore(saved.getId());
                     response.sendRedirect(request.getContextPath() + "/sales/order-detail?id=" + saved.getId());
                     return;

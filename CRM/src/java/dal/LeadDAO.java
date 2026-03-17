@@ -383,11 +383,10 @@ public void updateLead(Lead lead) {
     "SELECT l.*, u.full_name AS sale_name "
   + "FROM leads l "
   + "LEFT JOIN users u ON l.assigned_sales_id = u.id "
-  + "WHERE l.status IN ('qualified','assigned') "
+  + "WHERE l.status != 'Converted' "
   + "ORDER BY l.created_at DESC";
 
-    try {
-
+      try {
         PreparedStatement ps = connection.prepareStatement(sql);
 
         ResultSet rs = ps.executeQuery();
@@ -487,6 +486,12 @@ public Lead getById(long id) {
                 l.setSource(rs.getString("source"));
                 l.setStatus(rs.getString("status"));
                 try { l.setCampaignId(rs.getLong("campaign_id")); } catch (Exception ignored) {}
+                try {
+                    Object assignedObj = rs.getObject("assigned_sales_id");
+                    if (assignedObj != null) {
+                        l.setAssignedSalesId(((Number) assignedObj).longValue());
+                    }
+                } catch (Exception ignored) {}
                 return l;
             }
         } catch (Exception e) { e.printStackTrace(); }

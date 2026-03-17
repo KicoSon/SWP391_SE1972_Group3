@@ -32,9 +32,16 @@ public class OpportunityCloseServlet extends HttpServlet {
         }
 
         try {
-            int id = Integer.parseInt(request.getParameter("id"));
-            String status = request.getParameter("status"); // Won or Lost
-            String lostReason = request.getParameter("lostReason");
+            int id = SalesInputValidator.parsePositiveInt("Opportunity", request.getParameter("id"));
+            String status = SalesInputValidator.requireText("Trạng thái", request.getParameter("status"), 3, 10);
+            String lostReason = SalesInputValidator.optionalText(request.getParameter("lostReason"), 500);
+
+            if (!"Won".equalsIgnoreCase(status) && !"Lost".equalsIgnoreCase(status)) {
+                throw new IllegalArgumentException("Trạng thái đóng không hợp lệ");
+            }
+            if ("Lost".equalsIgnoreCase(status) && (lostReason == null || lostReason.isEmpty())) {
+                throw new IllegalArgumentException("Vui lòng nhập lý do thất bại");
+            }
 
             Opportunity opp = opportunityDAO.getById(id);
             if (opp == null) { response.sendError(404); return; }
@@ -46,6 +53,8 @@ public class OpportunityCloseServlet extends HttpServlet {
 
             opportunityDAO.closeOpportunity(id, status, lostReason);
             response.sendRedirect(request.getContextPath() + "/sales/opportunity-detail?id=" + id);
+        } catch (IllegalArgumentException e) {
+            response.sendError(400, e.getMessage());
         } catch (Exception e) {
             e.printStackTrace();
             response.sendError(500, "Internal Server Error");

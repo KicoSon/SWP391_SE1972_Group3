@@ -71,7 +71,7 @@
             <div class="form-grid">
                 <div class="form-group full">
                     <label>Tiêu đề Opportunity *</label>
-                    <input type="text" name="title" required
+                    <input type="text" name="title" required minlength="3" maxlength="255"
                         value="${not empty opportunity ? opportunity.title : (not empty lead ? 'Cơ hội từ '.concat(lead.fullName) : '')}"
                         placeholder="Nhập tiêu đề cơ hội bán hàng...">
                 </div>
@@ -88,39 +88,61 @@
 
                 <div class="form-group">
                     <label>Sales phụ trách *</label>
-                    <select name="assignedSalesId">
+                    <select name="assignedSalesId" required>
                         <c:forEach var="s" items="${staffList}">
-                            <option value="${s.id}" ${not empty opportunity && opportunity.assignedSalesId == s.id ? 'selected' : ''}>${s.fullName}</option>
+                            <option value="${s.id}"
+                                ${(not empty opportunity && opportunity.assignedSalesId == s.id)
+                                    || (empty opportunity && not empty defaultAssignedSalesId && defaultAssignedSalesId == s.id)
+                                    || (empty opportunity && empty defaultAssignedSalesId && sessionScope.userSession.staffInfo.id == s.id)
+                                    ? 'selected' : ''}>
+                                ${s.fullName}
+                            </option>
                         </c:forEach>
                     </select>
                 </div>
 
                 <div class="form-group">
                     <label>Stage</label>
-                    <select name="stage">
-                        <option value="Qualification"    ${not empty opportunity && opportunity.stage == 'Qualification'    ? 'selected' : ''}>Qualification</option>
-                        <option value="Need Analysis"    ${not empty opportunity && opportunity.stage == 'Need Analysis'    ? 'selected' : ''}>Need Analysis</option>
-                        <option value="Product Proposal" ${not empty opportunity && opportunity.stage == 'Product Proposal' ? 'selected' : ''}>Product Proposal</option>
-                        <option value="Quotation"        ${not empty opportunity && opportunity.stage == 'Quotation'        ? 'selected' : ''}>Quotation</option>
-                        <option value="Negotiation"      ${not empty opportunity && opportunity.stage == 'Negotiation'      ? 'selected' : ''}>Negotiation</option>
-                        <option value="Closed Won"       ${not empty opportunity && opportunity.stage == 'Closed Won'       ? 'selected' : ''}>Closed Won</option>
-                        <option value="Closed Lost"      ${not empty opportunity && opportunity.stage == 'Closed Lost'      ? 'selected' : ''}>Closed Lost</option>
-                    </select>
+                    <c:choose>
+                        <c:when test="${mode == 'convert'}">
+                            <input type="text" value="Qualification" readonly>
+                            <input type="hidden" name="stage" value="Qualification">
+                        </c:when>
+                        <c:otherwise>
+                            <select name="stage">
+                                <option value="Qualification"    ${not empty opportunity && opportunity.stage == 'Qualification'    ? 'selected' : ''}>Qualification</option>
+                                <option value="Need Analysis"    ${not empty opportunity && opportunity.stage == 'Need Analysis'    ? 'selected' : ''}>Need Analysis</option>
+                                <option value="Product Proposal" ${not empty opportunity && opportunity.stage == 'Product Proposal' ? 'selected' : ''}>Product Proposal</option>
+                                <option value="Quotation"        ${not empty opportunity && opportunity.stage == 'Quotation'        ? 'selected' : ''}>Quotation</option>
+                                <option value="Negotiation"      ${not empty opportunity && opportunity.stage == 'Negotiation'      ? 'selected' : ''}>Negotiation</option>
+                                <option value="Closed Won"       ${not empty opportunity && opportunity.stage == 'Closed Won'       ? 'selected' : ''}>Closed Won</option>
+                                <option value="Closed Lost"      ${not empty opportunity && opportunity.stage == 'Closed Lost'      ? 'selected' : ''}>Closed Lost</option>
+                            </select>
+                        </c:otherwise>
+                    </c:choose>
                 </div>
 
 
                 <div class="form-group">
                     <label>Nguồn</label>
-                    <select name="source">
-                        <option value="Manual" ${not empty opportunity && opportunity.source == 'Manual' ? 'selected' : ''}>Manual</option>
-                        <option value="Lead" ${not empty opportunity && opportunity.source == 'Lead' ? 'selected' : (mode == 'convert' ? 'selected' : '')}>Lead</option>
-                        <option value="Campaign" ${not empty opportunity && opportunity.source == 'Campaign' ? 'selected' : ''}>Campaign</option>
-                    </select>
+                    <c:choose>
+                        <c:when test="${mode == 'convert'}">
+                            <input type="text" value="Lead" readonly>
+                            <input type="hidden" name="source" value="Lead">
+                        </c:when>
+                        <c:otherwise>
+                            <select name="source">
+                                <option value="Manual" ${not empty opportunity && opportunity.source == 'Manual' ? 'selected' : ''}>Manual</option>
+                                <option value="Lead" ${not empty opportunity && opportunity.source == 'Lead' ? 'selected' : (mode == 'convert' ? 'selected' : '')}>Lead</option>
+                                <option value="Campaign" ${not empty opportunity && opportunity.source == 'Campaign' ? 'selected' : ''}>Campaign</option>
+                            </select>
+                        </c:otherwise>
+                    </c:choose>
                 </div>
 
                 <div class="form-group">
                     <label>Giá trị dự kiến (VNĐ)</label>
-                    <input type="number" name="expectedValue" min="0" step="1000"
+                    <input type="number" name="expectedValue" min="0" max="999999999999" step="1000"
                         value="${not empty opportunity ? opportunity.expectedValue : ''}">
                 </div>
 
@@ -148,7 +170,7 @@
 
                 <div class="form-group full">
                     <label>Ghi chú</label>
-                    <textarea name="notes" rows="4" placeholder="Thêm ghi chú về cơ hội này...">${not empty opportunity ? opportunity.notes : ''}</textarea>
+                    <textarea name="notes" rows="4" maxlength="2000" placeholder="Thêm ghi chú về cơ hội này...">${not empty opportunity ? opportunity.notes : ''}</textarea>
                 </div>
             </div>
 
