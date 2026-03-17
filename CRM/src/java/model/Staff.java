@@ -9,6 +9,7 @@ package model;
  * @author Admin
  */
 public class Staff {
+
     private int id;
     private int roleId;
     private String email;
@@ -111,7 +112,7 @@ public class Staff {
     public boolean isActive() {
         return isActive;
     }
-    
+
     public void setActive(boolean active) {
         isActive = active;
     }
@@ -120,5 +121,8 @@ public class Staff {
     public String toString() {
         return "Staff{" + "id=" + id + ", roleId=" + roleId + ", email=" + email + ", password=" + password + ", fullName=" + fullName + ", department=" + department + ", isActive=" + isActive + '}';
     }
-    
+
+    public boolean isAdmin() {
+        return this.roleId == 5;
+    }
 }

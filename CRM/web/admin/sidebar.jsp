@@ -171,7 +171,7 @@
 
             <div class="nav-item">
 
-                <a href="${pageContext.request.contextPath}/managestaff"
+                <a href="${pageContext.request.contextPath}/admin/staff"
                    class="nav-link">
 
                     <i class="fas fa-bullhorn"></i>
@@ -205,7 +205,7 @@
 
 
             <div class="nav-item">
-                <a href="${pageContext.request.contextPath}/admin/adminProfile" class="nav-link">
+                <a href="${pageContext.request.contextPath}/admin/profile" class="nav-link">
                     <i class="fas fa-user-shield"></i> Thông tin cá nhân
                 </a>
             </div>

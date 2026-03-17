@@ -45,11 +45,7 @@ public class ManagerDashboardController extends HttpServlet {
         request.setAttribute("ordersByStatus", adminDAO.getOrdersByStatus());
         request.setAttribute("ticketsByStatus", adminDAO.getTicketsByStatus());
         request.setAttribute("ticketsByPriority", adminDAO.getTicketsByPriority());
-
-        /* ================= TABLE DATA ================= */
-        request.setAttribute("topProducts", adminDAO.getTopProducts(5));
-//        request.setAttribute("recentOrders", adminDAO.getRecentOrders(10));
-
+        
         /* ================= FORWARD ================= */
         request.getRequestDispatcher("/admin/dashboard.jsp").forward(request, response);
     }

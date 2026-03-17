@@ -91,15 +91,11 @@
                                 <span>${staff.email}</span>
                             </div>
                             <div class="info-item">
-                                <label><i class="fas fa-phone"></i> Số Điện Thoại:</label>
-                                <span>${staff.phone}</span>
-                            </div>
-                            <div class="info-item">
                                 <label><i class="fas fa-building"></i> Phòng Ban:</label>
                                 <span>
                                     <c:choose>
-                                        <c:when test="${not empty staff.departmentName}">
-                                            ${staff.departmentName}
+                                        <c:when test="${not empty staff.department}">
+                                            ${staff.department}
                                         </c:when>
                                         <c:otherwise>
                                             <span class="text-muted">Chưa xác định</span>

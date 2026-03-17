@@ -93,4 +93,39 @@ public class StaffDAO extends DBContext {
 
         return list;
     }
+
+    public void updateStatus(int id, boolean active) {
+        String sql = "UPDATE users SET is_active = ? WHERE id = ?";
+        try (PreparedStatement ps = connection.prepareStatement(sql)) {
+            ps.setBoolean(1, active);
+            ps.setInt(2, id);
+            ps.executeUpdate();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    public List<Staff> getAllStaff() {
+        List<Staff> list = new ArrayList<>();
+        String sql = "SELECT id, full_name, email, role_id, department, is_active FROM users";
+
+        try (PreparedStatement ps = getConnection().prepareStatement(sql); ResultSet rs = ps.executeQuery()) {
+            while (rs.next()) {
+                Staff s = new Staff();
+                // Map dữ liệu từ SQL vào Object Staff
+                s.setId(rs.getInt("id"));
+                s.setFullName(rs.getString("full_name"));
+                s.setEmail(rs.getString("email"));
+                s.setRoleId(rs.getInt("role_id"));
+                s.setDepartment(rs.getString("department"));
+                s.setActive(rs.getInt("is_active")==1?true:false);
+
+                list.add(s);
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return list;
+    }
+
 }
