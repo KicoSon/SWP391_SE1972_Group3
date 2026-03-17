@@ -408,7 +408,43 @@
                 </c:choose>
             </div>
         </div>
-                
+    <!-- Add Product Modal -->
+<div id="productModal" class="modal-overlay" onclick="this.style.display='none'">
+    <div class="modal-box" onclick="event.stopPropagation()">
+        <h4><i class="fas fa-box"></i> Thêm Sản Phẩm </h4>
+        <form method="post" action="${pageContext.request.contextPath}/sales/opportunity-product-add">
+            <input type="hidden" name="opportunityId" value="${opportunity.id}">
+            <div class="form-group">
+                <label>Sản phẩm</label>
+                <select name="productId" required>
+                    <c:forEach var="p" items="${catalogProducts}">
+                        <option value="${p.id}">${p.name} - <fmt:formatNumber value="${p.basePrice}" type="number" groupingUsed="true"/> đ</option>
+                    </c:forEach>
+                </select>
+            </div>
+            <div class="form-group">
+                <label>Số lượng</label>
+                <input type="number" name="quantity" style="width:100%;padding:9px;border:1px solid #ddd;border-radius:8px;font-size:14px;" value="1" min="1" required>
+            </div>
+            <div class="form-group">
+                <label>Đơn giá</label>
+                <input type="number" name="unitPrice" style="width:100%;padding:9px;border:1px solid #ddd;border-radius:8px;font-size:14px;" placeholder="ví dụ: 500000" required>
+            </div>
+            <div class="form-group">
+                <label>Chiết khấu (Lượng tiền)</label>
+                <input type="number" name="discount" style="width:100%;padding:9px;border:1px solid #ddd;border-radius:8px;font-size:14px;" value="0">
+            </div>
+            <div class="form-group">
+                <label>Ghi chú</label>
+                <textarea name="notes" rows="2" style="width:100%;padding:9px;border:1px solid #ddd;border-radius:8px;font-size:14px;"></textarea>
+            </div>
+            <div style="display:flex;gap:10px;justify-content:flex-end;margin-top:15px;">
+                <button type="button" class="btn btn-warning" onclick="document.getElementById('productModal').style.display='none'">Hủy</button>
+                <button type="submit" class="btn btn-primary">Thêm</button>
+            </div>
+        </form>
+    </div>
+</div>            
 
     </body>
 </html>
