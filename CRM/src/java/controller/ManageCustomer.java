@@ -486,11 +486,11 @@ public class ManageCustomer extends HttpServlet {
         int customerId = Integer.parseInt(request.getParameter("customerId"));
 
         CustomerDAO customerDAO = new CustomerDAO();
-        Customer customer = customerDAO.getCustomerById(customerId);
+        Customer customer = customerDAO.getCustomerById2(customerId);
 
         if (customer != null) {
             String password = "";
-            if (customer.getPassword() == null) {
+            if (customer.getPassword() == null || customer.getPassword().trim().isEmpty()) {
                 password = "hash123";
                 // update password vào DB
                 customerDAO.updatePassword(customerId, password);

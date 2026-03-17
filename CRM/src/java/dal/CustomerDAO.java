@@ -8,10 +8,10 @@ import java.util.List;
 public class CustomerDAO extends DBContext {
 
     // ── SQL base dùng chung cho filterCustomers + getCustomerById ──
-    private static final String BASE_SELECT =
-        "SELECT id, full_name, email, phone, profile_pic_url, " +
-        "       created_at, status, tier_id " +
-        "FROM customers ";
+    private static final String BASE_SELECT
+            = "SELECT id, full_name, email, phone, profile_pic_url, "
+            + "       created_at, status, tier_id "
+            + "FROM customers ";
 
     // =========================================================
     // 1. FILTER — danh sách có search + status
@@ -40,7 +40,9 @@ public class CustomerDAO extends DBContext {
             }
 
             ResultSet rs = ps.executeQuery();
-            while (rs.next()) list.add(mapRowSimple(rs));
+            while (rs.next()) {
+                list.add(mapRowSimple(rs));
+            }
 
         } catch (Exception e) {
             e.printStackTrace();
@@ -57,7 +59,9 @@ public class CustomerDAO extends DBContext {
         try (PreparedStatement ps = connection.prepareStatement(sql)) {
             ps.setInt(1, id);
             ResultSet rs = ps.executeQuery();
-            if (rs.next()) return mapRowSimple(rs);
+            if (rs.next()) {
+                return mapRowSimple(rs);
+            }
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -68,14 +72,14 @@ public class CustomerDAO extends DBContext {
     // 3. GET BY ID (full) — dùng cho edit form kèm JOIN tier + owner
     // =========================================================
     public Customer getCustomerByID(int id) {
-        String sql =
-            "SELECT c.id, c.full_name, c.email, c.phone, c.address, " +
-            "       c.tier_id, t.tier_name, c.status, " +
-            "       c.owner_id, u.full_name AS owner_name, c.created_at " +
-            "FROM customers c " +
-            "LEFT JOIN tiers t ON c.tier_id = t.id " +
-            "LEFT JOIN users u ON c.owner_id = u.id " +
-            "WHERE c.id = ?";
+        String sql
+                = "SELECT c.id, c.full_name, c.email, c.phone, c.address, "
+                + "       c.tier_id, t.tier_name, c.status, "
+                + "       c.owner_id, u.full_name AS owner_name, c.created_at "
+                + "FROM customers c "
+                + "LEFT JOIN tiers t ON c.tier_id = t.id "
+                + "LEFT JOIN users u ON c.owner_id = u.id "
+                + "WHERE c.id = ?";
 
         try (PreparedStatement ps = connection.prepareStatement(sql)) {
             ps.setInt(1, id);
@@ -108,13 +112,12 @@ public class CustomerDAO extends DBContext {
     // =========================================================
     public List<Customer> getAllCustomers() {
         List<Customer> list = new ArrayList<>();
-        String sql =
-            "SELECT c.*, t.tier_name " +
-            "FROM customers c " +
-            "LEFT JOIN tiers t ON c.tier_id = t.id";
+        String sql
+                = "SELECT c.*, t.tier_name "
+                + "FROM customers c "
+                + "LEFT JOIN tiers t ON c.tier_id = t.id";
 
-        try (PreparedStatement ps = connection.prepareStatement(sql);
-             ResultSet rs = ps.executeQuery()) {
+        try (PreparedStatement ps = connection.prepareStatement(sql); ResultSet rs = ps.executeQuery()) {
             while (rs.next()) {
                 Customer c = new Customer();
                 c.setId(rs.getInt("id"));
@@ -149,9 +152,10 @@ public class CustomerDAO extends DBContext {
         List<Customer> list = new ArrayList<>();
         String sql = "SELECT * FROM customers WHERE status = 'active' ORDER BY full_name ASC";
 
-        try (PreparedStatement ps = connection.prepareStatement(sql);
-             ResultSet rs = ps.executeQuery()) {
-            while (rs.next()) list.add(mapRowSimple(rs));
+        try (PreparedStatement ps = connection.prepareStatement(sql); ResultSet rs = ps.executeQuery()) {
+            while (rs.next()) {
+                list.add(mapRowSimple(rs));
+            }
         } catch (SQLException e) {
             e.printStackTrace();
         }
@@ -168,7 +172,9 @@ public class CustomerDAO extends DBContext {
         try (PreparedStatement ps = connection.prepareStatement(sql)) {
             ps.setInt(1, ownerId);
             ResultSet rs = ps.executeQuery();
-            while (rs.next()) list.add(mapRowSimple(rs));
+            while (rs.next()) {
+                list.add(mapRowSimple(rs));
+            }
         } catch (SQLException e) {
             e.printStackTrace();
         }
@@ -195,12 +201,12 @@ public class CustomerDAO extends DBContext {
     //    FIX: version cũ gọi executeUpdate() 2 lần → update 2 lần
     // =========================================================
     public boolean updateWithoutPassword(Customer c) {
-        String sql =
-            "UPDATE customers " +
-            "SET full_name = ?, email = ?, phone = ?, " +
-            "    address = ?, owner_id = ?, status = ?, " +
-            "    updated_at = GETDATE() " +
-            "WHERE id = ?";
+        String sql
+                = "UPDATE customers "
+                + "SET full_name = ?, email = ?, phone = ?, "
+                + "    address = ?, owner_id = ?, status = ?, "
+                + "    updated_at = GETDATE() "
+                + "WHERE id = ?";
 
         try (PreparedStatement ps = connection.prepareStatement(sql)) {
             ps.setString(1, c.getFullName());
@@ -222,12 +228,12 @@ public class CustomerDAO extends DBContext {
     //    FIX: version cũ gọi executeUpdate() 2 lần → update 2 lần
     // =========================================================
     public boolean updateWithPassword(Customer c) {
-        String sql =
-            "UPDATE customers " +
-            "SET full_name = ?, email = ?, phone = ?, password = ?, " +
-            "    address = ?, owner_id = ?, status = ?, " +
-            "    updated_at = GETDATE() " +
-            "WHERE id = ?";
+        String sql
+                = "UPDATE customers "
+                + "SET full_name = ?, email = ?, phone = ?, password = ?, "
+                + "    address = ?, owner_id = ?, status = ?, "
+                + "    updated_at = GETDATE() "
+                + "WHERE id = ?";
 
         try (PreparedStatement ps = connection.prepareStatement(sql)) {
             ps.setString(1, c.getFullName());
@@ -249,10 +255,10 @@ public class CustomerDAO extends DBContext {
     // 10. INSERT
     // =========================================================
     public boolean insert(Customer c) {
-        String sql =
-            "INSERT INTO customers " +
-            "(full_name, email, phone, password, address, owner_id, status) " +
-            "VALUES (?, ?, ?, ?, ?, ?, ?)";
+        String sql
+                = "INSERT INTO customers "
+                + "(full_name, email, phone, password, address, owner_id, status) "
+                + "VALUES (?, ?, ?, ?, ?, ?, ?)";
 
         try (PreparedStatement ps = connection.prepareStatement(sql)) {
             ps.setString(1, c.getFullName());
@@ -429,5 +435,31 @@ public class CustomerDAO extends DBContext {
         } catch (Exception e) {
             e.printStackTrace();
         }
+    }
+
+    public Customer getCustomerById2(int id) {
+        String sql = "SELECT id, full_name, email, password FROM customers WHERE id = ?";
+
+        try (PreparedStatement ps = connection.prepareStatement(sql)) {
+
+            ps.setInt(1, id);
+            ResultSet rs = ps.executeQuery();
+
+            if (rs.next()) {
+                Customer c = new Customer();
+
+                c.setId(rs.getInt("id"));
+                c.setFullName(rs.getString("full_name"));
+                c.setEmail(rs.getString("email"));
+                c.setPassword(rs.getString("password"));
+
+                return c;
+            }
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        return null;
     }
 }

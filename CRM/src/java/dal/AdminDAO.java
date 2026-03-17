@@ -40,7 +40,7 @@ public class AdminDAO extends DBContext {
     }
 
     public int getTotalStaff() {
-        return count("SELECT COUNT(*) FROM users WHERE role='STAFF'");
+        return count("SELECT COUNT(*) FROM users");
     }
 
     public int getTotalTickets() {

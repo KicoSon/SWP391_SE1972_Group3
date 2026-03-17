@@ -13,7 +13,7 @@
 </head>
 <body>
     <!-- Include Sidebar -->
-    <jsp:include page="/components/sidebar.jsp" />
+    <jsp:include page="sidebar.jsp" />
     
     <div class="staff-management-content">
             <div class="staff-page-header">
@@ -64,12 +64,14 @@
                 <div class="alert alert-success">
                     <i class="fas fa-check-circle"></i> ${successMessage}
                 </div>
+                <c:remove var="successMessage" scope="session"/>
             </c:if>
             
             <c:if test="${not empty errorMessage}">
                 <div class="alert alert-error">
                     <i class="fas fa-exclamation-circle"></i> ${errorMessage}
                 </div>
+                <c:remove var="errorMessage" scope="session"/>
             </c:if>
 
             <!-- Search and Filter -->
@@ -99,7 +101,6 @@
                             <th>ID</th>
                             <th>Họ Tên</th>
                             <th>Email</th>
-                            <th>Số Điện Thoại</th>
                             <th>Phòng Ban</th>
                             <th>Trạng Thái</th>
                             <th>Hành Động</th>
@@ -126,11 +127,10 @@
                                             </div>
                                         </td>
                                         <td>${staff.email}</td>
-                                        <td>${staff.phone}</td>
                                         <td>
                                             <c:choose>
-                                                <c:when test="${not empty staff.departmentName}">
-                                                    ${staff.departmentName}
+                                                <c:when test="${not empty staff.department}">
+                                                    ${staff.department}
                                                 </c:when>
                                                 <c:otherwise>
                                                     <span class="text-muted">Chưa xác định</span>
@@ -161,7 +161,7 @@
                                                 
                                                 <!-- Edit/Activate/Deactivate ONLY if NOT ADMIN -->
                                                 <c:choose>
-                                                    <c:when test="${adminRoleMap[staff.id]}">
+                                                    <c:when test="${staff.admin}">
                                                         <!-- ADMIN role - show lock icon instead -->
                                                         <span class="btn-action btn-locked" title="Không thể chỉnh sửa ADMIN">
                                                             <i class="fas fa-lock"></i>
