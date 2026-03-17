@@ -1,5 +1,6 @@
 package controller.admin;
 
+import dal.RoleDAO;
 import dal.StaffDAO;
 import java.io.IOException;
 import java.io.PrintWriter;
@@ -13,6 +14,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.regex.Pattern;
 import model.Staff;
 
 /**
@@ -23,6 +25,7 @@ import model.Staff;
 public class ManageStaffController extends HttpServlet {
 
     private static final int PAGE_SIZE = 8;
+    Pattern emailPattern = Pattern.compile("^[A-Za-z0-9+_.-]+@[A-Za-z0-9.-]+$");
 
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
@@ -30,6 +33,7 @@ public class ManageStaffController extends HttpServlet {
 
         try {
             StaffDAO dao = new StaffDAO();
+            RoleDAO roleDao = new RoleDAO();
 
             String action = request.getParameter("action");
 
@@ -51,6 +55,7 @@ public class ManageStaffController extends HttpServlet {
 
                 request.setAttribute("staff", staff);
                 request.setAttribute("mode", "edit");
+                request.setAttribute("departments", roleDao.getAllDepartments());
 
                 request.getRequestDispatcher("/admin/staff-form.jsp")
                         .forward(request, response);
@@ -60,6 +65,8 @@ public class ManageStaffController extends HttpServlet {
             // ===== ADD =====
             if ("add".equals(action)) {
                 request.setAttribute("mode", "add");
+                request.setAttribute("departments", roleDao.getAllDepartments());
+
                 request.getRequestDispatcher("/admin/staff-form.jsp")
                         .forward(request, response);
                 return;
@@ -158,13 +165,14 @@ public class ManageStaffController extends HttpServlet {
             throws ServletException, IOException {
 
         StaffDAO dao = new StaffDAO();
+        RoleDAO roleDao = new RoleDAO();
         HttpSession session = request.getSession();
 
         String action = request.getParameter("action");
 
+        String idRaw = request.getParameter("id");
+        int id = (idRaw != null && !idRaw.isEmpty()) ? Integer.parseInt(idRaw) : 0;
         try {
-
-            int id = Integer.parseInt(request.getParameter("id"));
 
             // ===== DEACTIVATE =====
             if ("deactivate".equals(action)) {
@@ -174,11 +182,186 @@ public class ManageStaffController extends HttpServlet {
             else if ("activate".equals(action)) {
                 dao.updateStatus(id, true);
                 session.setAttribute("successMessage", "Đã kích hoạt nhân viên");
+            } else if ("edit".equals(action)) {
+                boolean result = false;
+
+                String fullName = request.getParameter("fullName");
+                String email = request.getParameter("email");
+                String password = request.getParameter("password");
+                String departmentRaw = request.getParameter("departmentId");
+
+                String isActiveRaw = request.getParameter("isActive");
+                boolean isActive = (isActiveRaw != null);
+
+                List<String> errors = new ArrayList<>();
+
+                // ===== VALIDATE =====
+                if (fullName == null || fullName.trim().isEmpty()) {
+                    errors.add("Tên không được để trống");
+                } else if (fullName.length() > 150) {
+                    errors.add("Tên tối đa 150 ký tự");
+                }
+
+                if (email == null || email.trim().isEmpty()) {
+                    errors.add("Email không được để trống");
+                } else if (!emailPattern.matcher(email).matches()) {
+                    errors.add("Email không hợp lệ");
+                } else if (dao.isEmailExistExceptId(email, id)) {
+                    errors.add("Email đã tồn tại");
+                }
+
+                if (departmentRaw == null || departmentRaw.isEmpty()) {
+                    errors.add("Vui lòng chọn phòng ban");
+                }
+
+                if (password != null && !password.isEmpty()) {
+                    if (password.length() < 6) {
+                        errors.add("Mật khẩu phải >= 6 ký tự");
+                    }
+                    if (password.contains(" ")) {
+                        errors.add("Mật khẩu không được chứa khoảng trắng");
+                    }
+                }
+
+                // ===== CÓ LỖI =====
+                if (!errors.isEmpty()) {
+                    request.setAttribute("errorMessage", String.join(", ", errors));
+
+                    Staff s = new Staff();
+                    s.setId(id);
+                    s.setFullName(fullName);
+                    s.setEmail(email);
+                    s.setRoleId(Integer.parseInt(departmentRaw));
+                    s.setActive(isActive);
+
+                    request.setAttribute("staff", s);
+                    request.setAttribute("departments", roleDao.getAllDepartments());
+                    request.setAttribute("isEdit", true);
+                    request.setAttribute("mode", "edit");
+
+                    request.getRequestDispatcher("/admin/staff-form.jsp")
+                            .forward(request, response);
+                    return;
+                }
+
+                // ===== UPDATE =====
+                Staff s = new Staff();
+                s.setId(id);
+                s.setFullName(fullName);
+                s.setEmail(email);
+                s.setRoleId(Integer.parseInt(departmentRaw));
+                s.setActive(isActive);
+
+                if (password != null && !password.isEmpty()) {
+                    s.setPassword(password);
+                    result = dao.updateWithPassword(s);
+                } else {
+                    result = dao.updateWithoutPassword(s);
+                }
+
+                if (result) {
+                    session.setAttribute("successMessage", "Cập nhật thành công!");
+                } else {
+                    session.setAttribute("errorMessage", "Cập nhật thất bại!");
+                }
+
+                response.sendRedirect(request.getContextPath() + "/admin/staff");
+                return;
+            } else if ("add".equals(action)) {
+                try {
+                    boolean result = false;
+
+                    String fullName = request.getParameter("fullName");
+                    String email = request.getParameter("email");
+                    String password = request.getParameter("password");
+                    String confirmPassword = request.getParameter("confirmPassword");
+                    String departmentRaw = request.getParameter("departmentId");
+
+                    List<String> errors = new ArrayList<>();
+
+                    // ===== VALIDATE =====
+                    if (fullName == null || fullName.trim().isEmpty()) {
+                        errors.add("Tên không được để trống");
+                    } else if (fullName.length() > 150) {
+                        errors.add("Tên tối đa 150 ký tự");
+                    }
+
+                    if (email == null || email.trim().isEmpty()) {
+                        errors.add("Email không được để trống");
+                    } else if (!emailPattern.matcher(email).matches()) {
+                        errors.add("Email không hợp lệ");
+                    } else if (dao.isEmailExist(email)) {
+                        errors.add("Email đã tồn tại");
+                    }
+
+                    if (password == null || password.isEmpty()) {
+                        errors.add("Mật khẩu không được để trống");
+                    } else if (password.length() < 6) {
+                        errors.add("Mật khẩu phải >= 6 ký tự");
+                    } else if (password.contains(" ")) {
+                        errors.add("Mật khẩu không được chứa khoảng trắng");
+                    }
+
+                    if (!password.equals(confirmPassword)) {
+                        errors.add("Mật khẩu xác nhận không khớp");
+                    }
+
+                    if (departmentRaw == null || departmentRaw.isEmpty()) {
+                        errors.add("Vui lòng chọn phòng ban");
+                    }
+
+                    // ===== CÓ LỖI =====
+                    if (!errors.isEmpty()) {
+                        request.setAttribute("errorMessage", String.join(", ", errors));
+
+                        Staff s = new Staff();
+                        s.setFullName(fullName);
+                        s.setEmail(email);
+                        s.setRoleId(Integer.parseInt(departmentRaw));
+
+                        request.setAttribute("staff", s);
+                        request.setAttribute("departments", roleDao.getAllDepartments());
+                        request.setAttribute("isEdit", false);
+                        request.setAttribute("mode", "add");
+
+                        request.getRequestDispatcher("/admin/staff-form.jsp")
+                                .forward(request, response);
+                        return;
+                    }
+
+                    // ===== INSERT =====
+                    Staff s = new Staff();
+                    s.setFullName(fullName);
+                    s.setEmail(email);
+                    s.setPassword(password);
+                    s.setRoleId(Integer.parseInt(departmentRaw));
+                    s.setActive(true);
+
+                    result = dao.insertStaff(s);
+
+                    if (result) {
+                        session.setAttribute("successMessage", "Thêm nhân viên thành công!");
+                    } else {
+                        session.setAttribute("errorMessage", "Thêm thất bại!");
+                    }
+
+                } catch (Exception e) {
+                    e.printStackTrace();
+                    session.setAttribute("errorMessage", "Dữ liệu không hợp lệ!");
+                }
+
+                response.sendRedirect(request.getContextPath() + "/admin/staff");
+                return;
             }
 
         } catch (Exception e) {
             e.printStackTrace();
-            session.setAttribute("errorMessage", "Lỗi xử lý!");
+            session.setAttribute("errorMessage", "Dữ liệu không hợp lệ!");
+            if ("edit".equals(action)) {
+                request.setAttribute("mode", "edit");
+            } else if ("add".equals(action)) {
+                request.setAttribute("mode", "add");
+            }
         }
 
         response.sendRedirect(request.getContextPath() + "/admin/staff");

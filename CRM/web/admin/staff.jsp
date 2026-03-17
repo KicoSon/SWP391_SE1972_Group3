@@ -64,12 +64,14 @@
                 <div class="alert alert-success">
                     <i class="fas fa-check-circle"></i> ${successMessage}
                 </div>
+                <c:remove var="successMessage" scope="session"/>
             </c:if>
             
             <c:if test="${not empty errorMessage}">
                 <div class="alert alert-error">
                     <i class="fas fa-exclamation-circle"></i> ${errorMessage}
                 </div>
+                <c:remove var="errorMessage" scope="session"/>
             </c:if>
 
             <!-- Search and Filter -->
