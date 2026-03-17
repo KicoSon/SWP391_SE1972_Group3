@@ -13,12 +13,13 @@ public class LeadDAO extends DBContext {
 
         List<Lead> list = new ArrayList<>();
 
-        StringBuilder sql = new StringBuilder(
-                "SELECT l.*, c.name AS campaign_name "
-                + "FROM leads l "
-                + "LEFT JOIN campaigns c ON l.campaign_id = c.id "
-                + "WHERE 1=1"
-        );
+       StringBuilder sql = new StringBuilder(
+    "SELECT l.*, c.name AS campaign_name, u.full_name AS created_by_name "
+  + "FROM leads l "
+  + "LEFT JOIN campaigns c ON l.campaign_id = c.id "
+  + "LEFT JOIN users u ON l.created_by = u.id "
+  + "WHERE 1=1"
+);
 
         if (search != null && !search.trim().isEmpty()) {
 
@@ -100,6 +101,7 @@ public class LeadDAO extends DBContext {
                 l.setCampaignName(
                         rs.getString("campaign_name")
                 );
+                l.setCreatedByName(rs.getString("created_by_name"));
 
                 list.add(l);
 

@@ -259,7 +259,7 @@
 
                             <small class="text-muted">
 
-                                Không thể đổi campaign khi lead đã được assign
+                                Không thể đổi campaign khi lead đã được assign hoặc qualified
 
                             </small>
 

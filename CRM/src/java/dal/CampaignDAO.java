@@ -233,5 +233,28 @@ public class CampaignDAO extends DBContext {
         }
 
     }
+public List<Campaign> getActiveCampaigns() {
+    List<Campaign> list = new ArrayList<>();
 
+    String sql = "SELECT * FROM campaigns WHERE status = 'ACTIVE'";
+
+    try {
+        PreparedStatement ps = connection.prepareStatement(sql);
+        ResultSet rs = ps.executeQuery();
+
+        while (rs.next()) {
+            Campaign c = new Campaign();
+            c.setId(rs.getLong("id"));
+            c.setName(rs.getString("name"));
+            c.setDescription(rs.getString("description"));
+            c.setBannerUrl(rs.getString("banner_url"));
+            list.add(c);
+        }
+
+    } catch (Exception e) {
+        e.printStackTrace();
+    }
+
+    return list;
+}
 }

@@ -29,7 +29,7 @@ public class Lead {
 
     private String campaignName;
     private String saleName;
-
+     private String createdByName;
 
 
 
@@ -191,5 +191,11 @@ public class Lead {
 public void setSaleName(String saleName) {
     this.saleName = saleName;
 }
+ public String getCreatedByName() {
+        return createdByName;
+    }
 
+    public void setCreatedByName(String createdByName) {
+        this.createdByName = createdByName;
+    }
 }
