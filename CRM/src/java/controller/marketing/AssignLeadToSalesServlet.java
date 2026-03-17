@@ -37,7 +37,7 @@ public class AssignLeadToSalesServlet extends HttpServlet {
 
             // list lead qualified
             List<Lead> leadList =
-                    leadDAO.getQualifiedLeadsFull();
+                    leadDAO.getQualifiedLeadsFull2();
 
             // list sales staff
             List<Staff> salesList =

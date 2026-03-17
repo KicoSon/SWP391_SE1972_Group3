@@ -54,7 +54,7 @@ public class AuthDAO extends DBContext {
      * Authenticate customer login
      */
     public Customer loginCustomer(String email, String password) {
-        String sql = "SELECT * FROM customers WHERE email = ? AND password = ? AND status = 'Active'";
+        String sql = "SELECT * FROM customers WHERE email = ? AND password = ? ";
         try (PreparedStatement stmt = connection.prepareStatement(sql)) {
             stmt.setString(1, email);
             stmt.setString(2, password);
@@ -128,7 +128,7 @@ public class AuthDAO extends DBContext {
                 + "u.full_name, "
                 + "u.department, "
                 + "u.is_active from users u "
-                + "WHERE u.email = ? AND u.password_hash = ?";
+                + "WHERE u.email = ? AND u.password_hash = ? ";
         try (PreparedStatement stmt = connection.prepareStatement(sql)) {
             stmt.setString(1, email);
             stmt.setString(2, password);

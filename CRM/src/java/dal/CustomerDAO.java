@@ -448,7 +448,7 @@ public class CustomerDAO extends DBContext {
 
     public void updatePassword(int id, String password) {
 
-        String sql = "UPDATE Customer SET password = ? WHERE id = ?";
+        String sql = "UPDATE customers SET password = ? WHERE id = ?";
 
         try {
 

@@ -64,15 +64,25 @@ public class LoginController extends HttpServlet {
                     request.getRequestDispatcher("/login.jsp").forward(request, response);
                     return;
                 }
+                else if ( customer!= null && customer.getStatus().equals("Inactive")) {
+                    request.setAttribute("error", "Tài khoản đã bị vô hiệu hóa");
+                    request.getRequestDispatcher("/login.jsp").forward(request, response);
+                    return;
+                }
 
                 userSession = new UserSession(customer);
             } // ===== STAFF LOGIN =====
             else if ("staff".equals(userType)) {
-
+                
                 Staff staff = authDAO.loginStaff(email, password);
 
                 if (staff == null) {
                     request.setAttribute("error", "Email hoặc mật khẩu không đúng");
+                    request.getRequestDispatcher("/login.jsp").forward(request, response);
+                    return;
+                }
+                else if (staff != null && !staff.isActive()) {
+                    request.setAttribute("error", "Tài khoản đã bị vô hiệu hóa");
                     request.getRequestDispatcher("/login.jsp").forward(request, response);
                     return;
                 }

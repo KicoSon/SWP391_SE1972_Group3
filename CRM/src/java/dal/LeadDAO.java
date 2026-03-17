@@ -648,4 +648,70 @@ public Map<String, Integer> getTopCampaignStats() {
     return map;
 
 }
+public List<Lead> getQualifiedLeadsFull2() {
+
+    List<Lead> list = new ArrayList<>();
+
+    String sql =
+    "SELECT l.*, u.full_name AS sale_name "
+  + "FROM leads l "
+  + "LEFT JOIN users u ON l.assigned_sales_id = u.id "
+  + "WHERE l.status IN ('qualified','assigned') "
+  + "ORDER BY l.created_at DESC";
+
+      try {
+        PreparedStatement ps = connection.prepareStatement(sql);
+
+        ResultSet rs = ps.executeQuery();
+
+        while (rs.next()) {
+
+            Lead lead = new Lead();
+
+            lead.setId(rs.getLong("id"));
+
+            lead.setFullName(rs.getString("full_name"));
+
+            lead.setPhone(rs.getString("phone"));
+
+            lead.setEmail(rs.getString("email"));
+
+            lead.setAddress(rs.getString("address"));
+
+            lead.setProductInterest(
+                    rs.getString("product_interest"));
+
+            lead.setSource(rs.getString("source"));
+
+            lead.setStatus(rs.getString("status"));
+
+            lead.setCampaignId(
+                    (Long) rs.getObject("campaign_id"));
+
+            lead.setAssignedSalesId(
+                    (Long) rs.getObject("assigned_sales_id"));
+
+            lead.setCreatedBy(
+                    (Long) rs.getObject("created_by"));
+
+            lead.setCreatedAt(
+                    rs.getTimestamp("created_at"));
+
+            lead.setUpdatedAt(
+                    rs.getTimestamp("updated_at"));
+
+            // quan trọng
+            lead.setSaleName(
+                    rs.getString("sale_name"));
+
+            list.add(lead);
+        }
+
+    } catch (Exception e) {
+
+        e.printStackTrace();
+    }
+
+    return list;
+}
 }
