@@ -181,6 +181,20 @@
                 </a>
 
             </div>
+                   
+                   <div class="nav-item">
+                <a href="${pageContext.request.contextPath}/sale/dashboard"
+                   class="nav-link">
+                    <i class="fas fa-calendar-check"></i> Activity Dashboard
+                </a>
+            </div>
+
+            <div class="nav-item">
+                <a href="${pageContext.request.contextPath}/emails/compose"
+                   class="nav-link">
+                    <i class="fas fa-paper-plane"></i> Soạn Email
+                </a>
+            </div>
 
             <div class="nav-item">
                 <a href="${pageContext.request.contextPath}/managecustomer"

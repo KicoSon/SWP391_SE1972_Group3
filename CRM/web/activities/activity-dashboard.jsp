@@ -84,7 +84,7 @@
 
         <c:choose>
             <c:when test="${sessionScope.userSession.admin}">
-                <jsp:include page="/components/sidebar.jsp" />
+                <jsp:include page="/admin/sidebar.jsp" />
             </c:when>
             <c:when test="${sessionScope.userSession.supportStaff}">
                 <jsp:include page="/customerservice/sidebar.jsp" />
@@ -432,7 +432,7 @@
                                     <button class="page-btn" disabled>&gt;</button>
                                 </c:if>
                             </div>
-                            <div class="total-info">Total: ${totalRecords} activities</div>
+                            
                         </div>
                     </div><!-- /.card-body -->
                 </div><!-- /.card -->
@@ -508,6 +508,13 @@
             const calendarEl = document.getElementById('calendar');
             calendarInstance = new FullCalendar.Calendar(calendarEl, {
                 initialView: 'dayGridMonth',
+                forceEventDuration: true,
+                defaultTimedEventDuration: '00:01:00',
+                views: {
+                    dayGridMonth: {
+                        type: 'dayGridMonth'
+                    }
+                },
                 headerToolbar: {
                     left: 'prev,next today',
                     center: 'title',
@@ -520,11 +527,24 @@
                     week: 'Tuần',
                     day: 'Ngày'
                 },
+                slotMinTime: '00:00:00',
+                slotMaxTime: '24:00:00',
+                scrollTime: '08:00:00',
+                eventMinHeight: 24,
                 events: '${pageContext.request.contextPath}/api/activities/calendar',
                 eventContent: function (arg) {
                     let bgColor = arg.event.backgroundColor || '#007bff';
+
+                    if (arg.view.type !== 'dayGridMonth') {
+                        return {
+                            html: '<div style="background-color: ' + bgColor + '; color: white; padding: 2px 6px; border-radius: 3px; overflow: hidden; white-space: nowrap; text-overflow: ellipsis; font-size: 0.85em; font-weight: 600;">'
+                                    + arg.event.title
+                                    + '</div>'
+                        };
+                    }
+
                     return {
-                        html: '<div style="background-color: ' + bgColor + '; color: white; padding: 2px 4px; border-radius: 3px; width: 100%; height: 100%; overflow: hidden; white-space: nowrap; text-overflow: ellipsis; font-size: 0.85em;">'
+                        html: '<div style="background-color: ' + bgColor + '; color: white; padding: 2px 4px; border-radius: 3px; width: 100%; overflow: hidden; white-space: nowrap; text-overflow: ellipsis; font-size: 0.85em;">'
                                 + arg.event.title
                                 + '</div>'
                     };
