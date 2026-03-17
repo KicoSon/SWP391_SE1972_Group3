@@ -27,7 +27,7 @@
         <c:catch var="sidebarRenderError">
             <c:choose>
                 <c:when test="${sessionScope.userSession.admin}">
-                    <jsp:include page="/components/sidebar.jsp" />
+                    <jsp:include page="/admin/sidebar.jsp" />
                 </c:when>
                 <c:when test="${sessionScope.userSession.supportStaff}">
                     <jsp:include page="/customerservice/sidebar.jsp" />

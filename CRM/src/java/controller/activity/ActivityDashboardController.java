@@ -64,7 +64,6 @@ public class ActivityDashboardController extends HttpServlet {
         request.setAttribute("statOverdue", stats[4]);
 
         request.setAttribute("activities", list);
-        request.setAttribute("totalRecords", totalRecords);
         request.setAttribute("totalPages", totalPages);
         request.setAttribute("currentPage", pageIndex);
         
