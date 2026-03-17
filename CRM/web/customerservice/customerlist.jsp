@@ -389,19 +389,6 @@
                                                class="view-btn">
                                                 <i class="fas fa-eye"></i>
                                             </a>
-
-                                            <a href="${pageContext.request.contextPath}/customerservice/toggleStatus?id=${c.id}"
-                                               class="${(c.status == 'active' or c.status == 'Active') ? 'toggle-btn' : 'toggle-btn activate'}"
-                                               onclick="return confirm('Bạn có chắc muốn thay đổi trạng thái khách hàng này?')">
-                                                <c:choose>
-                                                    <c:when test="${c.status == 'active' or c.status == 'Active'}">
-                                                        <i class="fas fa-ban"></i>
-                                                    </c:when>
-                                                    <c:otherwise>
-                                                        <i class="fas fa-check"></i>
-                                                    </c:otherwise>
-                                                </c:choose>
-                                            </a>
                                         </div>
                                     </td>
                                 </tr>

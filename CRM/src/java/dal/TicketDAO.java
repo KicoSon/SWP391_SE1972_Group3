@@ -27,13 +27,13 @@ public class TicketDAO extends DBContext {
     }
 
     // SQL base dùng chung — JOIN đầy đủ
-    private static final String BASE_SELECT =
-        "SELECT t.*, " +
-        "       c.full_name AS customer_name, " +
-        "       u.full_name AS staff_name " +
-        "FROM support_tickets t " +
-        "LEFT JOIN customers c ON c.id = t.customer_id " +
-        "LEFT JOIN users     u ON u.id = t.assigned_to ";
+    private static final String BASE_SELECT
+            = "SELECT t.*, "
+            + "       c.full_name AS customer_name, "
+            + "       u.full_name AS staff_name "
+            + "FROM support_tickets t "
+            + "LEFT JOIN customers c ON c.id = t.customer_id "
+            + "LEFT JOIN users     u ON u.id = t.assigned_to ";
 
     // =========================================================
     // 1. FILTER — staff xem tất cả + search/status filter
@@ -42,17 +42,29 @@ public class TicketDAO extends DBContext {
         List<SupportTicket> list = new ArrayList<>();
         StringBuilder sql = new StringBuilder(BASE_SELECT).append("WHERE 1=1 ");
 
-        if (search != null && !search.trim().isEmpty())  sql.append("AND t.title LIKE ? ");
-        if (status != null && !status.trim().isEmpty())  sql.append("AND t.status = ? ");
+        if (search != null && !search.trim().isEmpty()) {
+            sql.append("AND t.title LIKE ? ");
+        }
+        if (status != null && !status.trim().isEmpty()) {
+            sql.append("AND t.status = ? ");
+        }
         sql.append("ORDER BY t.created_at DESC");
 
         try (PreparedStatement ps = connection.prepareStatement(sql.toString())) {
             int idx = 1;
-            if (search != null && !search.trim().isEmpty()) ps.setString(idx++, "%" + search.trim() + "%");
-            if (status != null && !status.trim().isEmpty()) ps.setString(idx++, status);
+            if (search != null && !search.trim().isEmpty()) {
+                ps.setString(idx++, "%" + search.trim() + "%");
+            }
+            if (status != null && !status.trim().isEmpty()) {
+                ps.setString(idx++, status);
+            }
             ResultSet rs = ps.executeQuery();
-            while (rs.next()) list.add(mapRow(rs));
-        } catch (SQLException e) { e.printStackTrace(); }
+            while (rs.next()) {
+                list.add(mapRow(rs));
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
         return list;
     }
 
@@ -64,8 +76,12 @@ public class TicketDAO extends DBContext {
         try (PreparedStatement ps = connection.prepareStatement(sql)) {
             ps.setInt(1, id);
             ResultSet rs = ps.executeQuery();
-            if (rs.next()) return mapRow(rs);
-        } catch (SQLException e) { e.printStackTrace(); }
+            if (rs.next()) {
+                return mapRow(rs);
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
         return null;
     }
 
@@ -78,8 +94,12 @@ public class TicketDAO extends DBContext {
         try (PreparedStatement ps = connection.prepareStatement(sql)) {
             ps.setInt(1, customerId);
             ResultSet rs = ps.executeQuery();
-            while (rs.next()) list.add(mapRow(rs));
-        } catch (SQLException e) { e.printStackTrace(); }
+            while (rs.next()) {
+                list.add(mapRow(rs));
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
         return list;
     }
 
@@ -92,8 +112,12 @@ public class TicketDAO extends DBContext {
         try (PreparedStatement ps = connection.prepareStatement(sql)) {
             ps.setInt(1, staffId);
             ResultSet rs = ps.executeQuery();
-            while (rs.next()) list.add(mapRow(rs));
-        } catch (SQLException e) { e.printStackTrace(); }
+            while (rs.next()) {
+                list.add(mapRow(rs));
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
         return list;
     }
 
@@ -101,10 +125,10 @@ public class TicketDAO extends DBContext {
     // 5. INSERT
     // =========================================================
     public void insertTicket(SupportTicket t) {
-        String sql =
-            "INSERT INTO support_tickets " +
-            "(customer_id, title, description, priority, status, assigned_to, created_at) " +
-            "VALUES (?, ?, ?, ?, ?, ?, GETDATE())";
+        String sql
+                = "INSERT INTO support_tickets "
+                + "(customer_id, title, description, priority, status, assigned_to, created_at) "
+                + "VALUES (?, ?, ?, ?, ?, ?, GETDATE())";
         try (PreparedStatement ps = connection.prepareStatement(sql)) {
             ps.setInt(1, t.getCustomerId());
             ps.setString(2, t.getTitle());
@@ -113,7 +137,9 @@ public class TicketDAO extends DBContext {
             ps.setString(5, t.getStatus());
             ps.setInt(6, t.getAssignedTo());
             ps.executeUpdate();
-        } catch (SQLException e) { e.printStackTrace(); }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
     }
 
     // =========================================================
@@ -125,7 +151,9 @@ public class TicketDAO extends DBContext {
             ps.setString(1, status);
             ps.setInt(2, id);
             ps.executeUpdate();
-        } catch (SQLException e) { e.printStackTrace(); }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
     }
 
     // =========================================================
@@ -137,7 +165,9 @@ public class TicketDAO extends DBContext {
             ps.setInt(1, staffId);
             ps.setInt(2, ticketId);
             ps.executeUpdate();
-        } catch (SQLException e) { e.printStackTrace(); }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
     }
 
     // =========================================================
@@ -145,13 +175,16 @@ public class TicketDAO extends DBContext {
     // =========================================================
     public List<String[]> getStaffList() {
         List<String[]> list = new ArrayList<>();
-        String sql = "SELECT id, full_name FROM users WHERE is_active = 1 ORDER BY full_name";
-        try (PreparedStatement ps = connection.prepareStatement(sql);
-             ResultSet rs = ps.executeQuery()) {
+        String sql = "SELECT id, full_name FROM users "
+                + "WHERE is_active = 1 AND department = 'Customer Service' "
+                + "ORDER BY full_name";
+        try (PreparedStatement ps = connection.prepareStatement(sql); ResultSet rs = ps.executeQuery()) {
             while (rs.next()) {
                 list.add(new String[]{String.valueOf(rs.getInt("id")), rs.getString("full_name")});
             }
-        } catch (SQLException e) { e.printStackTrace(); }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
         return list;
     }
 
@@ -161,12 +194,13 @@ public class TicketDAO extends DBContext {
     public List<String[]> getCustomerList() {
         List<String[]> list = new ArrayList<>();
         String sql = "SELECT id, full_name FROM customers WHERE status = 'active' ORDER BY full_name";
-        try (PreparedStatement ps = connection.prepareStatement(sql);
-             ResultSet rs = ps.executeQuery()) {
+        try (PreparedStatement ps = connection.prepareStatement(sql); ResultSet rs = ps.executeQuery()) {
             while (rs.next()) {
                 list.add(new String[]{String.valueOf(rs.getInt("id")), rs.getString("full_name")});
             }
-        } catch (SQLException e) { e.printStackTrace(); }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
         return list;
     }
 }

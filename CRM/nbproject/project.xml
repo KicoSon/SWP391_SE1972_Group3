@@ -7,9 +7,6 @@
             <minimum-ant-version>1.6.5</minimum-ant-version>
             <web-module-libraries>
                 <library dirs="200">
-                    <file>${file.reference.sqljdbc42.jar}</file>
-                </library>
-                <library dirs="200">
                     <file>${file.reference.sqljdbc42.jar-1}</file>
                 </library>
                 <library dirs="200">
