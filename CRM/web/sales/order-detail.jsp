@@ -81,37 +81,35 @@
             <strong>Cập nhật trạng thái:</strong>
             <form method="post" action="${pageContext.request.contextPath}/sales/order-detail" style="margin-top:10px;" class="status-form">
                 <input type="hidden" name="id" value="${order.id}">
-                <select name="newStatus">
-                    <option value="New"         ${order.status == 'New' ? 'selected' : ''}>New</option>
-                    <option value="Processing"   ${order.status == 'Processing' ? 'selected' : ''}>Processing</option>
-                    <option value="Delivered"    ${order.status == 'Delivered' ? 'selected' : ''}>Delivered</option>
-                    <option value="Cancelled"    ${order.status == 'Cancelled' ? 'selected' : ''}>Cancelled</option>
+                <select name="status">
+                    <option value="Pending"   ${order.status == 'Pending' ? 'selected' : ''}>Pending</option>
+                    <option value="Paid"      ${order.status == 'Paid' ? 'selected' : ''}>Paid</option>
+                    <option value="Shipped"   ${order.status == 'Shipped' ? 'selected' : ''}>Shipped</option>
+                    <option value="Delivered" ${order.status == 'Delivered' ? 'selected' : ''}>Delivered</option>
                 </select>
                 <button type="submit" class="btn btn-primary"><i class="fas fa-save"></i> Cập nhật</button>
             </form>
         </div>
     </div>
 
-    <!-- Quotation Items -->
+    <!-- Order Items -->
     <div class="card">
         <h3 style="margin:0 0 16px;font-size:17px;font-weight:700;"><i class="fas fa-boxes" style="color:#667eea"></i> Sản phẩm</h3>
         <c:choose>
-            <c:when test="${empty items}">
+            <c:when test="${empty orderItems}">
                 <p style="color:#aaa;text-align:center;">Chưa có sản phẩm</p>
             </c:when>
             <c:otherwise>
                 <table>
-                    <thead><tr><th>#</th><th>Sản phẩm</th><th>SL</th><th>Đơn giá</th><th>Giảm giá</th><th>Thuế</th><th>Thành tiền</th></tr></thead>
+                    <thead><tr><th>#</th><th>Sản phẩm</th><th>SL</th><th>Đơn giá</th><th>Thành tiền</th></tr></thead>
                     <tbody>
-                        <c:forEach var="item" items="${items}" varStatus="i">
+                        <c:forEach var="item" items="${orderItems}" varStatus="i">
                             <tr>
                                 <td>${i.count}</td>
                                 <td><strong>${item.productName}</strong></td>
                                 <td>${item.quantity}</td>
                                 <td><fmt:formatNumber value="${item.unitPrice}" type="number" groupingUsed="true"/> đ</td>
-                                <td>${item.discount}%</td>
-                                <td>${item.taxRate}%</td>
-                                <td><strong><fmt:formatNumber value="${item.lineTotal}" type="number" groupingUsed="true"/> đ</strong></td>
+                                <td><strong><fmt:formatNumber value="${item.totalPrice}" type="number" groupingUsed="true"/> đ</strong></td>
                             </tr>
                         </c:forEach>
                     </tbody>

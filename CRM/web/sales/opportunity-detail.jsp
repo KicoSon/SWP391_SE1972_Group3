@@ -377,6 +377,31 @@
                 </c:choose>
             </div>
 
+            <!-- Orders -->
+            <div class="card">
+                <div class="section-title"><i class="fas fa-shopping-cart" style="color:#667eea"></i> Đơn hàng liên quan</div>
+                <c:choose>
+                    <c:when test="${empty orders}">
+                        <p style="color:#aaa;text-align:center;">Chưa có đơn hàng nào.</p>
+                    </c:when>
+                    <c:otherwise>
+                        <table>
+                            <thead><tr><th>Mã đơn hàng</th><th>Trạng thái</th><th>Tổng tiền</th><th>Thao tác</th></tr></thead>
+                            <tbody>
+                                <c:forEach var="order" items="${orders}">
+                                    <tr>
+                                        <td><strong>${order.orderCode}</strong></td>
+                                        <td><span class="badge badge-${order.status}">${order.status}</span></td>
+                                        <td><fmt:formatNumber value="${order.totalAmount}" type="number" groupingUsed="true"/> đ</td>
+                                        <td><a href="${pageContext.request.contextPath}/sales/order-detail?id=${order.id}" class="btn btn-info"><i class="fas fa-eye"></i></a></td>
+                                    </tr>
+                                </c:forEach>
+                            </tbody>
+                        </table>
+                    </c:otherwise>
+                </c:choose>
+            </div>
+
             <!-- Activities -->
             <div class="card">
                 <div class="section-title" style="justify-content:space-between;">
@@ -424,19 +449,19 @@
             </div>
             <div class="form-group">
                 <label>Số lượng</label>
-                <input type="number" name="quantity" style="width:100%;padding:9px;border:1px solid #ddd;border-radius:8px;font-size:14px;" value="1" min="1" required>
+                <input type="number" name="quantity" style="width:100%;padding:9px;border:1px solid #ddd;border-radius:8px;font-size:14px;" value="1" min="1" max="100000" required>
             </div>
             <div class="form-group">
                 <label>Đơn giá</label>
-                <input type="number" name="unitPrice" style="width:100%;padding:9px;border:1px solid #ddd;border-radius:8px;font-size:14px;" placeholder="ví dụ: 500000" required>
+                <input type="number" name="unitPrice" style="width:100%;padding:9px;border:1px solid #ddd;border-radius:8px;font-size:14px;" placeholder="ví dụ: 500000" min="0" max="999999999999" required>
             </div>
             <div class="form-group">
                 <label>Chiết khấu (Lượng tiền)</label>
-                <input type="number" name="discount" style="width:100%;padding:9px;border:1px solid #ddd;border-radius:8px;font-size:14px;" value="0">
+                <input type="number" name="discount" style="width:100%;padding:9px;border:1px solid #ddd;border-radius:8px;font-size:14px;" value="0" min="0" max="999999999999">
             </div>
             <div class="form-group">
                 <label>Ghi chú</label>
-                <textarea name="notes" rows="2" style="width:100%;padding:9px;border:1px solid #ddd;border-radius:8px;font-size:14px;"></textarea>
+                <textarea name="notes" rows="2" maxlength="1000" style="width:100%;padding:9px;border:1px solid #ddd;border-radius:8px;font-size:14px;"></textarea>
             </div>
             <div style="display:flex;gap:10px;justify-content:flex-end;margin-top:15px;">
                 <button type="button" class="btn btn-warning" onclick="document.getElementById('productModal').style.display='none'">Hủy</button>

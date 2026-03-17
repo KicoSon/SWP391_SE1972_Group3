@@ -275,6 +275,32 @@ public class CustomerDAO extends DBContext {
         return false;
     }
 
+    public int insertAndReturnId(Customer c) {
+        String sql =
+            "INSERT INTO customers " +
+            "(full_name, email, phone, password, address, owner_id, status) " +
+            "VALUES (?, ?, ?, ?, ?, ?, ?)";
+
+        try (PreparedStatement ps = connection.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
+            ps.setString(1, c.getFullName());
+            ps.setString(2, c.getEmail());
+            ps.setString(3, c.getPhone());
+            ps.setString(4, c.getPassword());
+            ps.setString(5, c.getAddress());
+            ps.setInt(6, c.getOwnerId());
+            ps.setString(7, c.getStatus());
+            ps.executeUpdate();
+            try (ResultSet keys = ps.getGeneratedKeys()) {
+                if (keys.next()) {
+                    return keys.getInt(1);
+                }
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return -1;
+    }
+
     // =========================================================
     // Private helper: map ResultSet → Customer (các field cơ bản)
     // =========================================================

@@ -32,8 +32,8 @@ public class OpportunityStageServlet extends HttpServlet {
         }
 
         try {
-            int id = Integer.parseInt(request.getParameter("id"));
-            String newStage = request.getParameter("newStage");
+            int id = SalesInputValidator.parsePositiveInt("Opportunity", request.getParameter("id"));
+            String newStage = SalesInputValidator.parseOpportunityStage(request.getParameter("newStage"), "Qualification");
 
             Opportunity opp = opportunityDAO.getById(id);
             if (opp == null) { response.sendError(404); return; }
@@ -48,6 +48,8 @@ public class OpportunityStageServlet extends HttpServlet {
             opportunityDAO.updateStage(id, newStage);
             response.setStatus(200);
             response.getWriter().write("OK");
+        } catch (IllegalArgumentException e) {
+            response.sendError(400, e.getMessage());
         } catch (Exception e) {
             e.printStackTrace();
             response.sendError(500, "Internal Server Error");

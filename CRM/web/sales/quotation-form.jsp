@@ -155,7 +155,7 @@
                             <c:forEach var="item" items="${items}">
                                 <tr class="item-row">
                                     <td>
-                                        <select name="productId" onchange="loadPrice(this)">
+                                        <select name="productId" required onchange="loadPrice(this)">
                                             <option value="">-- Chọn SP --</option>
                                             <c:forEach var="p" items="${products}">
                                                 <option value="${p.id}" data-price="${p.basePrice}"
@@ -163,10 +163,10 @@
                                             </c:forEach>
                                         </select>
                                     </td>
-                                    <td><input type="number" name="quantity" min="1" value="${item.quantity}" class="qty-input" oninput="calcRow(this)"></td>
-                                    <td><input type="number" name="unitPrice" min="0" step="1000" value="${item.unitPrice}" class="price-input" oninput="calcRow(this)"></td>
+                                    <td><input type="number" name="quantity" min="1" max="100000" required value="${item.quantity}" class="qty-input" oninput="calcRow(this)"></td>
+                                    <td><input type="number" name="unitPrice" min="0" max="999999999999" step="1000" required value="${item.unitPrice}" class="price-input" oninput="calcRow(this)"></td>
                                     <td><input type="number" name="discount" min="0" max="100" step="0.5" value="${item.discount}" class="disc-input" oninput="calcRow(this)"></td>
-                                    <td><input type="number" name="taxRate" min="0" max="30" step="0.5" value="${item.taxRate}" class="tax-input" oninput="calcRow(this)"></td>
+                                    <td><input type="number" name="taxRate" min="0" max="100" step="0.5" value="${item.taxRate}" class="tax-input" oninput="calcRow(this)"></td>
                                     <td><input type="text" class="line-total" readonly style="background:#f8fff8;font-weight:700;color:#2e7d32;"></td>
                                     <td><button type="button" class="btn btn-danger btn-sm" onclick="removeRow(this)"><i class="fas fa-trash"></i></button></td>
                                 </tr>
@@ -284,11 +284,11 @@ function addRow() {
     const tr = document.createElement('tr');
     tr.className = 'item-row';
     tr.innerHTML =
-        '<td><select name="productId" onchange="loadPrice(this)">' + buildProductOptions() + '</select></td>' +
-        '<td><input type="number" name="quantity" min="1" value="1" class="qty-input" oninput="calcRow(this)"></td>' +
-        '<td><input type="number" name="unitPrice" min="0" step="1000" value="0" class="price-input" oninput="calcRow(this)"></td>' +
+        '<td><select name="productId" required onchange="loadPrice(this)">' + buildProductOptions() + '</select></td>' +
+        '<td><input type="number" name="quantity" min="1" max="100000" required value="1" class="qty-input" oninput="calcRow(this)"></td>' +
+        '<td><input type="number" name="unitPrice" min="0" max="999999999999" step="1000" required value="0" class="price-input" oninput="calcRow(this)"></td>' +
         '<td><input type="number" name="discount" min="0" max="100" step="0.5" value="0" class="disc-input" oninput="calcRow(this)"></td>' +
-        '<td><input type="number" name="taxRate" min="0" max="30" step="0.5" value="10" class="tax-input" oninput="calcRow(this)"></td>' +
+        '<td><input type="number" name="taxRate" min="0" max="100" step="0.5" value="10" class="tax-input" oninput="calcRow(this)"></td>' +
         '<td><input type="text" class="line-total" readonly style="background:#f8fff8;font-weight:700;color:#2e7d32;" value="0"></td>' +
         '<td><button type="button" class="btn btn-danger btn-sm" onclick="removeRow(this)"><i class="fas fa-trash"></i></button></td>';
     document.getElementById('itemsBody').appendChild(tr);
@@ -305,8 +305,26 @@ function removeRow(btn) {
 }
 
 // On submit: sync totalAmount hidden field
-document.getElementById('quoteForm').addEventListener('submit', function() {
+document.getElementById('quoteForm').addEventListener('submit', function(e) {
     recalcTotals();
+    const rows = document.querySelectorAll('#itemsBody .item-row');
+    if (!rows.length) {
+        e.preventDefault();
+        alert('Báo giá phải có ít nhất 1 sản phẩm.');
+        return;
+    }
+    for (const row of rows) {
+        const productId = row.querySelector('select[name="productId"]').value;
+        const qty = parseFloat(row.querySelector('.qty-input').value) || 0;
+        const price = parseFloat(row.querySelector('.price-input').value) || 0;
+        const discount = parseFloat(row.querySelector('.disc-input').value) || 0;
+        const tax = parseFloat(row.querySelector('.tax-input').value) || 0;
+        if (!productId || qty <= 0 || price < 0 || discount < 0 || discount > 100 || tax < 0 || tax > 100) {
+            e.preventDefault();
+            alert('Có dòng sản phẩm chưa hợp lệ. Vui lòng kiểm tra lại.');
+            return;
+        }
+    }
 });
 
 // Init: add empty row if none exist, then calc totals
@@ -392,11 +410,11 @@ function selectProduct(id, name, price) {
     var opts = buildProductOptions();
     opts = opts.replace('value="' + id + '"', 'value="' + id + '" selected');
     tr.innerHTML =
-        '<td><select name="productId" onchange="loadPrice(this)">' + opts + '</select></td>' +
-        '<td><input type="number" name="quantity" min="1" value="1" class="qty-input" oninput="calcRow(this)"></td>' +
-        '<td><input type="number" name="unitPrice" min="0" step="1000" value="' + price + '" class="price-input" oninput="calcRow(this)"></td>' +
+        '<td><select name="productId" required onchange="loadPrice(this)">' + opts + '</select></td>' +
+        '<td><input type="number" name="quantity" min="1" max="100000" required value="1" class="qty-input" oninput="calcRow(this)"></td>' +
+        '<td><input type="number" name="unitPrice" min="0" max="999999999999" step="1000" required value="' + price + '" class="price-input" oninput="calcRow(this)"></td>' +
         '<td><input type="number" name="discount" min="0" max="100" step="0.5" value="0" class="disc-input" oninput="calcRow(this)"></td>' +
-        '<td><input type="number" name="taxRate" min="0" max="30" step="0.5" value="10" class="tax-input" oninput="calcRow(this)"></td>' +
+        '<td><input type="number" name="taxRate" min="0" max="100" step="0.5" value="10" class="tax-input" oninput="calcRow(this)"></td>' +
         '<td><input type="text" class="line-total" readonly style="background:#f8fff8;font-weight:700;color:#2e7d32;"></td>' +
         '<td><button type="button" class="btn btn-danger btn-sm" onclick="removeRow(this)"><i class="fas fa-trash"></i></button></td>';
     tbody.appendChild(tr);

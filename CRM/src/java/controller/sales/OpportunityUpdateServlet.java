@@ -10,7 +10,6 @@ import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.*;
 import java.io.IOException;
 import java.math.BigDecimal;
-import java.text.SimpleDateFormat;
 
 @WebServlet("/sales/opportunity-update")
 public class OpportunityUpdateServlet extends HttpServlet {
@@ -86,30 +85,25 @@ public class OpportunityUpdateServlet extends HttpServlet {
 
             Opportunity opp = new Opportunity();
             opp.setId(id);
-            opp.setTitle(request.getParameter("title"));
-            String custId = request.getParameter("customerId");
-            opp.setCustomerId(custId != null && !custId.isEmpty() ? Integer.parseInt(custId) : null);
-            String salesId = request.getParameter("assignedSalesId");
-            opp.setAssignedSalesId(salesId != null && !salesId.isEmpty() ? Integer.parseInt(salesId) : existing.getAssignedSalesId());
-            opp.setStage(request.getParameter("stage") != null ? request.getParameter("stage") : existing.getStage());
+            opp.setTitle(SalesInputValidator.requireText("Tiêu đề", request.getParameter("title"), 3, 255));
+            opp.setCustomerId(SalesInputValidator.parseNullablePositiveInt("Khách hàng", request.getParameter("customerId")));
+            int assignedSalesId = SalesInputValidator.parsePositiveIntOrDefault("Sales phụ trách", request.getParameter("assignedSalesId"), existing.getAssignedSalesId());
+            opp.setAssignedSalesId(assignedSalesId);
+            opp.setStage(SalesInputValidator.parseOpportunityStage(request.getParameter("stage"), existing.getStage()));
             opp.setStatus(existing.getStatus());
-            String ev = request.getParameter("expectedValue");
-            opp.setExpectedValue(ev != null && !ev.isEmpty() ? new BigDecimal(ev) : BigDecimal.ZERO);
-            String cp = request.getParameter("closeProbability");
-            opp.setCloseProbability(cp != null && !cp.isEmpty() ? Double.parseDouble(cp) : 0);
-            String dateStr = request.getParameter("expectedCloseDate");
-            if (dateStr != null && !dateStr.isEmpty()) {
-                opp.setExpectedCloseDate(new SimpleDateFormat("yyyy-MM-dd").parse(dateStr));
-            }
-            opp.setSource(request.getParameter("source"));
-            String campId = request.getParameter("campaignId");
-            opp.setCampaignId(campId != null && !campId.isEmpty() ? Integer.parseInt(campId) : null);
-            String plId = request.getParameter("pipelineId");
-            opp.setPipelineId(plId != null && !plId.isEmpty() ? Integer.parseInt(plId) : existing.getPipelineId());
-            opp.setNotes(request.getParameter("notes"));
+            opp.setExpectedValue(SalesInputValidator.parseNonNegativeDecimal("Giá trị dự kiến", request.getParameter("expectedValue"), BigDecimal.ZERO));
+            opp.setCloseProbability(SalesInputValidator.parseDoubleInRange("Xác suất đóng", request.getParameter("closeProbability"), existing.getCloseProbability(), 0, 100));
+            opp.setExpectedCloseDate(SalesInputValidator.parseOptionalDate("Ngày dự kiến đóng", request.getParameter("expectedCloseDate")));
+            opp.setSource(SalesInputValidator.parseOpportunitySource(request.getParameter("source"), "Manual"));
+            opp.setCampaignId(SalesInputValidator.parseNullablePositiveInt("Campaign", request.getParameter("campaignId")));
+            opp.setPipelineId(SalesInputValidator.parsePositiveIntOrDefault("Pipeline", request.getParameter("pipelineId"), existing.getPipelineId()));
+            opp.setNotes(SalesInputValidator.optionalText(request.getParameter("notes"), 2000));
 
             opportunityDAO.update(opp);
             response.sendRedirect(request.getContextPath() + "/sales/opportunity-detail?id=" + id);
+        } catch (IllegalArgumentException e) {
+            request.setAttribute("error", e.getMessage());
+            doGet(request, response);
         } catch (Exception e) {
             e.printStackTrace();
             response.sendError(500, "Internal Server Error");

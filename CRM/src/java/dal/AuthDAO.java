@@ -379,5 +379,31 @@ public class AuthDAO extends DBContext {
         return list;
     }
 
+    /**
+     * Get active sales staffs for assignment dropdowns.
+     */
+    public List<Staff> getSalesStaff() {
+        List<Staff> list = new ArrayList<>();
+        String sql = "SELECT u.id, u.full_name, u.email, u.department "
+                + "FROM users u "
+                + "JOIN roles r ON u.role_id = r.id "
+                + "WHERE u.is_active = 1 AND r.name = 'Sales' "
+                + "ORDER BY u.full_name";
+        try (PreparedStatement ps = connection.prepareStatement(sql)) {
+            ResultSet rs = ps.executeQuery();
+            while (rs.next()) {
+                Staff s = new Staff();
+                s.setId(rs.getInt("id"));
+                s.setFullName(rs.getString("full_name"));
+                s.setEmail(rs.getString("email"));
+                s.setDepartment(rs.getString("department"));
+                list.add(s);
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return list;
+    }
+
 
 }

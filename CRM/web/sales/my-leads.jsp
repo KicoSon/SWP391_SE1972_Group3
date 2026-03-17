@@ -85,10 +85,19 @@
                                     <td>${lead.saleName}</td>
                                 </c:if>
                                 <td>
-                                    <a href="${pageContext.request.contextPath}/sales/convert-lead?leadId=${lead.id}"
-                                       class="btn btn-success" style="padding:6px 12px;font-size:13px;">
-                                        <i class="fas fa-exchange-alt"></i> Chuyển đổi
-                                    </a>
+                                      <c:choose>
+                                          <c:when test="${lead.status == 'Converted'}">
+                                              <button class="btn btn-success" style="padding:6px 12px;font-size:13px;opacity:0.5;cursor:not-allowed;" disabled>
+                                                  <i class="fas fa-check"></i> Đã chuyển đổi
+                                              </button>
+                                          </c:when>
+                                          <c:otherwise>
+                                              <a href="${pageContext.request.contextPath}/sales/convert-lead?leadId=${lead.id}"
+                                                 class="btn btn-success" style="padding:6px 12px;font-size:13px;">
+                                                  <i class="fas fa-exchange-alt"></i> Chuyển đổi
+                                              </a>
+                                          </c:otherwise>
+                                      </c:choose>
                                 </td>
                             </tr>
                         </c:forEach>

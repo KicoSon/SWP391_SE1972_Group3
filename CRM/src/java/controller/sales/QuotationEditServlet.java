@@ -10,7 +10,6 @@ import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.*;
 import java.io.IOException;
 import java.math.BigDecimal;
-import java.text.SimpleDateFormat;
 import java.util.*;
 
 @WebServlet("/sales/quotation-edit")
@@ -69,17 +68,21 @@ public class QuotationEditServlet extends HttpServlet {
         }
 
         try {
-            int id = Integer.parseInt(request.getParameter("id"));
+            int id = SalesInputValidator.parsePositiveInt("Báo giá", request.getParameter("id"));
             Quotation q = quotationDAO.getById(id);
             if (q == null) { response.sendError(404); return; }
-
-            String validUntil = request.getParameter("validUntil");
-            if (validUntil != null && !validUntil.isEmpty()) {
-                q.setValidUntil(new SimpleDateFormat("yyyy-MM-dd").parse(validUntil));
+            if (!"Draft".equals(q.getStatus())) {
+                response.sendError(400, "Chỉ báo giá Draft mới được sửa");
+                return;
             }
-            q.setNotes(request.getParameter("notes"));
+
+            q.setValidUntil(SalesInputValidator.parseOptionalDate("Hạn sử dụng", request.getParameter("validUntil")));
+            q.setNotes(SalesInputValidator.optionalText(request.getParameter("notes"), 2000));
 
             List<QuotationItem> items = new QuotationCreateServlet().parseItems(request);
+            if (items.isEmpty()) {
+                throw new IllegalArgumentException("Báo giá phải có ít nhất 1 sản phẩm hợp lệ");
+            }
             BigDecimal total = items.stream()
                 .map(QuotationItem::getLineTotal)
                 .filter(Objects::nonNull)
@@ -88,6 +91,9 @@ public class QuotationEditServlet extends HttpServlet {
 
             quotationDAO.update(q, items);
             response.sendRedirect(request.getContextPath() + "/sales/quotation-detail?id=" + id);
+        } catch (IllegalArgumentException e) {
+            request.setAttribute("error", e.getMessage());
+            doGet(request, response);
         } catch (Exception e) {
             e.printStackTrace();
             response.sendError(500, "Internal Server Error");
