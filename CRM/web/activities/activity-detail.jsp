@@ -86,15 +86,6 @@
                         </div>
                         <div class="field-value"><c:out value="${empty activity.description ? 'Không có mô tả.' : activity.description}" /></div>
                     </div>
-
-                    <c:if test="${not empty activity.outcomeNotes}">
-                        <div class="field-group" style="background: #FFFBEB; border-color: #FCD34D;">
-                            <div class="field-header">
-                                <div class="field-label" style="color: #D97706;">Kết quả thực hiện (Outcome)</div>
-                            </div>
-                            <div class="field-value"><c:out value="${activity.outcomeNotes}" /></div>
-                        </div>
-                    </c:if>
                 </div>
 
                 <div class="section">

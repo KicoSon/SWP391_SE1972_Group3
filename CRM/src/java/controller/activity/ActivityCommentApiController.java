@@ -95,7 +95,7 @@ public class ActivityCommentApiController extends HttpServlet {
                 model.activity.Activity activity = dao.getActivityById(activityId);
 
                 if (!canAccessActivity(userSession, activity, dao)) {
-                    response.setStatus(HttpServletResponse.SC_FORBIDDEN);
+                    response.setStatus(HttpServletResponse.SC_FORBIDDEN); //khong co quyen them comment
                     response.getWriter().write("{\"error\": \"Forbidden\"}");
                     return;
                 }
@@ -104,11 +104,11 @@ public class ActivityCommentApiController extends HttpServlet {
                 
                 response.getWriter().write("{\"status\": \"success\"}");
             } else {
-                response.setStatus(401);
+                response.setStatus(401); //chua dang nhap
             }
         } catch (Exception e) {
             e.printStackTrace();
-            response.setStatus(500);
+            response.setStatus(500); //loi server
         }
     }
     
