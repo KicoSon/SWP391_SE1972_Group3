@@ -276,10 +276,10 @@ public class CustomerDAO extends DBContext {
     }
 
     public int insertAndReturnId(Customer c) {
-        String sql =
-            "INSERT INTO customers " +
-            "(full_name, email, phone, password, address, owner_id, status) " +
-            "VALUES (?, ?, ?, ?, ?, ?, ?)";
+        String sql
+                = "INSERT INTO customers "
+                + "(full_name, email, phone, password, address, owner_id, status) "
+                + "VALUES (?, ?, ?, ?, ?, ?, ?)";
 
         try (PreparedStatement ps = connection.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
             ps.setString(1, c.getFullName());

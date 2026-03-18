@@ -41,7 +41,7 @@
                         <div class="stat-content">
                             <div class="stat-label">Tổng doanh thu</div>
                             <div class="stat-value">
-                                <fmt:formatNumber value="${totalRevenue}" type="currency" currencySymbol="₫" groupingUsed="true" />
+                                <fmt:formatNumber value="${totalRevenue}" type="currency" currencySymbol="₫" groupingUsed="true" maxFractionDigits="0"/>
                             </div>
                         </div>
                     </div>

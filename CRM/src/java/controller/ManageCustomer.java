@@ -2,7 +2,9 @@ package controller;
 
 import dal.AdminDAO;
 import dal.CustomerDAO;
+import dal.OrderDAO;
 import dal.StaffDAO;
+import dal.TicketDAO;
 import dal.UserDAO;
 import model.Customer;
 import model.User;
@@ -15,7 +17,9 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.regex.Pattern;
+import model.Order;
 import model.Staff;
+import model.SupportTicket;
 import util.SendMail;
 
 @WebServlet(name = "ManageCustomer", urlPatterns = {"/managecustomer"})
@@ -42,11 +46,18 @@ public class ManageCustomer extends HttpServlet {
             // Xu li View + EDIT
             CustomerDAO dao = new CustomerDAO();
             StaffDAO staffDAO = new StaffDAO();
+            OrderDAO odDAO = new OrderDAO();
+            TicketDAO ticketDAO = new TicketDAO();
             String action = request.getParameter("action");
             if ("view".equals(action)) {
                 int customerID = Integer.parseInt(request.getParameter("id"));
                 Customer customer = dao.getCustomerByID(customerID);
+                List<Order> lsOrders = odDAO.getOrderByCustomerId(customerID);
+                List<SupportTicket> lsTickers = ticketDAO.getTicketsByCustomerId(customerID);
                 request.setAttribute("customer", customer);
+                request.setAttribute("orders", lsOrders);
+                request.setAttribute("tickets", lsTickers);
+                
 
                 /* ===== Forward ===== */
                 request.getRequestDispatcher("/admin/customer-details.jsp")

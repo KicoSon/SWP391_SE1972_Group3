@@ -10,7 +10,7 @@ public class AdminDAO extends DBContext {
     /* ===================== TOTAL STAT ===================== */
     public double getTotalRevenue() {
 
-        String sql = "SELECT SUM(total_amount) FROM orders WHERE status='PAID'";
+        String sql = "SELECT SUM(total_amount) FROM orders WHERE status='Delivered'";
 
         try {
             PreparedStatement ps = connection.prepareStatement(sql);
@@ -74,7 +74,7 @@ public class AdminDAO extends DBContext {
                 FORMAT(created_at,'MM-yyyy') AS month,
                 SUM(total_amount) revenue
             FROM orders
-            WHERE status='PAID'
+            WHERE status='Delivered'
             GROUP BY FORMAT(created_at,'MM-yyyy')
             ORDER BY MIN(created_at)
         """;

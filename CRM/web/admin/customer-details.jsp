@@ -148,7 +148,7 @@
                             <div class="stat-value">
                                 <c:set var="totalRevenue" value="0"/>
                                 <c:forEach items="${orders}" var="order">
-                                    <c:if test="${order.status == 'PAID' || order.status == 'SHIPPED' || order.status == 'COMPLETED'}">
+                                    <c:if test="${order.status == 'Delivered'}">
                                         <c:set var="totalRevenue" value="${totalRevenue + order.totalAmount}"/>
                                     </c:if>
                                 </c:forEach>
@@ -180,24 +180,22 @@
                                     <table class="data-table">
                                         <thead>
                                             <tr>
-                                                <th>Mã đơn</th>
-                                                <th>Ngày đặt</th>
-                                                <th>Tổng tiền</th>
-                                                <th>Trạng thái</th>
-                                                <th>Thao tác</th>
+                                                <th>ID</th>
+                                                <th>Order Number</th>
+                                                <th>Total Amount</th>
+                                                <th>Status</th>
+                                                <th>Date</th>
                                             </tr>
                                         </thead>
                                         <tbody>
                                             <c:forEach items="${orders}" var="order">
                                                 <tr>
-                                                    <td><strong>#${order.orderNo}</strong></td>
+                                                    <td><strong>#${order.id}</strong></td>
                                                     <td>
-                                                        <fmt:formatDate value="${order.orderDate}" pattern="dd/MM/yyyy HH:mm"/>
+                                                        ${order.orderNumber}
                                                     </td>
                                                     <td>
-                                                        <strong class="amount">
-                                                            <fmt:formatNumber value="${order.totalAmount}" type="currency" currencySymbol="₫" groupingUsed="true"/>
-                                                        </strong>
+                                                        <fmt:formatNumber value="${order.totalAmount}" type="currency" currencySymbol="₫" groupingUsed="true" maxFractionDigits="0"/>
                                                     </td>
                                                     <td>
                                                         <span class="order-status status-${order.status.toLowerCase()}">
@@ -205,11 +203,7 @@
                                                         </span>
                                                     </td>
                                                     <td>
-                                                        <a href="${pageContext.request.contextPath}/customer/order-details?id=${order.id}" 
-                                                           class="btn-sm btn-view" 
-                                                           target="_blank">
-                                                            <i class="fas fa-eye"></i>
-                                                        </a>
+                                                        <fmt:formatDate value="${order.createdAt}" pattern="dd/MM/yyyy HH:mm"/>
                                                     </td>
                                                 </tr>
                                             </c:forEach>
@@ -243,32 +237,28 @@
                                         <thead>
                                             <tr>
                                                 <th>Mã phiếu</th>
+                                                <th>Mã đơn hàng</th>
                                                 <th>Tiêu đề</th>
-                                                <th>Ngày tạo</th>
+                                                <th>Chú thích</th>
                                                 <th>Trạng thái</th>
-                                                <th>Ưu tiên</th>
-                                                <th>Thao tác</th>
+                                                <th>Ngày tạo</th>
                                             </tr>
                                         </thead>
                                         <tbody>
                                             <c:forEach items="${tickets}" var="ticket">
                                                 <tr>
                                                     <td><strong>#${ticket.id}</strong></td>
-                                                    <td>${ticket.subject}</td>
+                                                    <td>${ticket.orderId==null?"null":ticket.orderId}</td>
                                                     <td>
-                                                        <c:choose>
-                                                            <c:when test="${not empty ticket.createdAtDate}">
-                                                                <fmt:formatDate value="${ticket.createdAtDate}" pattern="dd/MM/yyyy"/>
-                                                            </c:when>
-                                                            <c:otherwise>
-                                                                -
-                                                            </c:otherwise>
-                                                        </c:choose>
+                                                        ${ticket.title}
+                                                    </td>
+                                                    <td>
+                                                        ${ticket.description}
                                                     </td>
                                                     <td>
                                                         <c:choose>
                                                             <c:when test="${not empty ticket.status}">
-                                                                <span class="ticket-status status-${fn:toLowerCase(ticket.status)}">
+                                                                <span class="ticket-status status-${fn:replace(fn:toLowerCase(ticket.status), ' ', '')}">
                                                                     ${ticket.status}
                                                                 </span>
                                                             </c:when>
@@ -278,23 +268,7 @@
                                                         </c:choose>
                                                     </td>
                                                     <td>
-                                                        <c:choose>
-                                                            <c:when test="${not empty ticket.priority}">
-                                                                <span class="priority-badge priority-${fn:toLowerCase(ticket.priority)}">
-                                                                    ${ticket.priority}
-                                                                </span>
-                                                            </c:when>
-                                                            <c:otherwise>
-                                                                <span class="priority-badge priority-medium">MEDIUM</span>
-                                                            </c:otherwise>
-                                                        </c:choose>
-                                                    </td>
-                                                    <td>
-                                                        <a href="${pageContext.request.contextPath}/support/agent/ticket-details?id=${ticket.id}" 
-                                                           class="btn-sm btn-view"
-                                                           target="_blank">
-                                                            <i class="fas fa-eye"></i>
-                                                        </a>
+                                                        <fmt:formatDate value="${ticket.createdAt}" pattern="dd/MM/yyyy HH:mm"/>
                                                     </td>
                                                 </tr>
                                             </c:forEach>

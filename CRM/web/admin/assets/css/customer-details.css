@@ -409,7 +409,7 @@ body {
     color: #065f46;
 }
 
-.status-shipped {
+.status-delivered {
     background: #dbeafe;
     color: #1e3a8a;
 }
@@ -444,7 +444,7 @@ body {
     color: #3730a3;
 }
 
-.status-in_progress {
+.status-inprogress {
     background: #fef3c7;
     color: #92400e;
 }

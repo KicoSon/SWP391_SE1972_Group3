@@ -27,7 +27,7 @@ import model.Staff;
 @MultipartConfig
 public class ImportCustomerPreviewController extends HttpServlet {
 
-    Pattern phonePattern = Pattern.compile("^[0-9]{10,11}$");
+    Pattern phonePattern = Pattern.compile("^0[0-9]{9,10}$");
     Pattern emailPattern = Pattern.compile("^[A-Za-z0-9+_.-]+@[A-Za-z0-9.-]+$");
 
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
