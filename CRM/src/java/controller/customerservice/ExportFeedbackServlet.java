@@ -62,7 +62,7 @@ public class ExportFeedbackServlet extends HttpServlet {
         List<TicketFeedback> ticketList = ticketFeedbackDAO.getFeedbacksByRating(0);
 
         // Stats gộp từ DashboardDAO (reuse logic UNION ALL)
-        // Dùng trực tiếp từ 2 DAO riêng để đơn giản
+        // Dùng trực tiếp từ 2 DAO riêng
         Map<String, Object> customerStats = customerFeedbackDAO.getFeedbackStats();
         Map<String, Object> ticketStats = ticketFeedbackDAO.getFeedbackStats();
 
