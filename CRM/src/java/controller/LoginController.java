@@ -114,7 +114,7 @@ public class LoginController extends HttpServlet {
         String contextPath = request.getContextPath();
 
         if (userSession.isCustomer()) {
-            response.sendRedirect(contextPath + "/home");
+            response.sendRedirect(contextPath + "/customer/dashboard");
 
         } else if (userSession.isStaff()) {
 

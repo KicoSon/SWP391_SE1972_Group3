@@ -203,4 +203,19 @@ public class TicketDAO extends DBContext {
         }
         return list;
     }
+    public List<SupportTicket> getTicketsByCustomerIdAndStatus(int customerId, String status) {
+        List<SupportTicket> list = new ArrayList<>();
+        String sql = BASE_SELECT + "WHERE t.customer_id = ? and t.status = ?";
+        try (PreparedStatement ps = connection.prepareStatement(sql)) {
+            ps.setInt(1, customerId);
+            ps.setString(2, status);
+            ResultSet rs = ps.executeQuery();
+            while (rs.next()) {
+                list.add(mapRow(rs));
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return list;
+    }
 }

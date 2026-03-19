@@ -1,0 +1,281 @@
+.main-content {
+    margin-left: 280px;
+    padding: 2rem;
+    min-height: 100vh;
+    background: #f5f6fa;
+}
+
+.details-container {
+    padding: 2rem;
+    max-width: 1200px;
+    margin: 0 auto;
+}
+
+.back-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    color: #667eea;
+    text-decoration: none;
+    font-weight: 600;
+    margin-bottom: 1.5rem;
+    transition: all 0.3s;
+}
+
+.back-link:hover {
+    color: #764ba2;
+    gap: 0.75rem;
+}
+
+.ticket-header {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    padding: 2rem;
+    border-radius: 15px;
+    margin-bottom: 2rem;
+}
+
+.ticket-header h1 {
+    margin: 0 0 0.5rem 0;
+    font-size: 2rem;
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+}
+
+.ticket-header p {
+    margin: 0;
+    opacity: 0.9;
+    font-size: 1.1rem;
+}
+
+.ticket-grid {
+    display: grid;
+    grid-template-columns: 2fr 1fr;
+    gap: 2rem;
+    margin-bottom: 2rem;
+}
+
+.ticket-info {
+    background: white;
+    padding: 2rem;
+    border-radius: 15px;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+}
+
+.section-title {
+    font-size: 1.3rem;
+    font-weight: 700;
+    color: #333;
+    margin-bottom: 1.5rem;
+    padding-bottom: 0.75rem;
+    border-bottom: 3px solid #667eea;
+}
+
+.info-group {
+    margin-bottom: 1.5rem;
+}
+
+.info-label {
+    font-size: 0.85rem;
+    color: #666;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    margin-bottom: 0.5rem;
+    font-weight: 600;
+}
+
+.info-value {
+    font-size: 1.05rem;
+    color: #333;
+    line-height: 1.6;
+}
+
+.ticket-meta {
+    background: white;
+    padding: 2rem;
+    border-radius: 15px;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+}
+
+.meta-item {
+    padding: 1rem;
+    background: #f8f9ff;
+    border-radius: 10px;
+    margin-bottom: 1rem;
+    border-left: 4px solid #667eea;
+}
+
+.meta-item:last-child {
+    margin-bottom: 0;
+}
+
+/* Badges với kích thước nhỏ hơn */
+.badge {
+    display: inline-block;
+    padding: 0.35rem 0.9rem;
+    border-radius: 20px;
+    font-size: 0.75rem;
+    font-weight: 600;
+    text-align: center;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.badge-cao {
+    background-color: #ff4757;
+    color: white;
+}
+
+.badge-trung-binh {
+    background-color: #ffa502;
+    color: white;
+}
+
+.badge-thap {
+    background-color: #1e90ff;
+    color: white;
+}
+
+.badge-open,
+.badge-moi {
+    background-color: #3498db;
+    color: white;
+}
+
+.badge-dang-xu-ly,
+.badge-in-progress {
+    background-color: #f39c12;
+    color: white;
+}
+
+.badge-da-giai-quyet,
+.badge-resolved {
+    background-color: #2ecc71;
+    color: white;
+}
+
+.badge-dong,
+.badge-closed {
+    background-color: #95a5a6;
+    color: white;
+}
+
+.history-section {
+    background: white;
+    padding: 2rem;
+    border-radius: 15px;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+}
+
+.history-timeline {
+    position: relative;
+    padding-left: 2rem;
+}
+
+.history-timeline::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 0;
+    bottom: 0;
+    width: 3px;
+    background: linear-gradient(180deg, #667eea 0%, #764ba2 100%);
+}
+
+.history-item {
+    position: relative;
+    margin-bottom: 2rem;
+    padding-left: 2rem;
+}
+
+.history-item::before {
+    content: '';
+    position: absolute;
+    left: -2rem;
+    top: 0.5rem;
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    background: white;
+    border: 3px solid #667eea;
+}
+
+.history-item:last-child {
+    margin-bottom: 0;
+}
+
+.history-date {
+    font-size: 0.85rem;
+    color: #999;
+    margin-bottom: 0.5rem;
+}
+
+.history-content {
+    background: #f8f9ff;
+    padding: 1rem;
+    border-radius: 10px;
+}
+
+.history-action {
+    font-weight: 600;
+    color: #667eea;
+    margin-bottom: 0.5rem;
+}
+
+.history-details {
+    color: #666;
+    font-size: 0.95rem;
+}
+
+.history-evidence {
+    margin-top: 0.5rem;
+    font-size: 0.9rem;
+}
+
+.history-evidence a {
+    color: #667eea;
+    text-decoration: none;
+    font-weight: 600;
+}
+
+.history-evidence a:hover {
+    text-decoration: underline;
+}
+
+.history-staff {
+    font-size: 0.9rem;
+    color: #999;
+    margin-top: 0.5rem;
+}
+
+.empty-history {
+    text-align: center;
+    padding: 3rem;
+    color: #999;
+}
+
+.empty-history i {
+    font-size: 3rem;
+    color: #ddd;
+    margin-bottom: 1rem;
+}
+
+@media (max-width: 768px) {
+    .main-content {
+        margin-left: 0;
+        padding: 1rem;
+    }
+    
+    .ticket-grid {
+        grid-template-columns: 1fr;
+    }
+    
+    .details-container {
+        padding: 1rem;
+    }
+    
+    .ticket-header h1 {
+        font-size: 1.5rem;
+    }
+}

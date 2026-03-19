@@ -1,0 +1,326 @@
+/* Create Ticket Styles */
+
+.content-wrapper {
+    padding: 2rem;
+    max-width: 1200px;
+    margin: 0;
+}
+
+.page-header {
+    margin-bottom: 2rem;
+}
+
+.page-header h1 {
+    color: #2c3e50;
+    margin: 0 0 0.5rem 0;
+    font-size: 2rem;
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    font-weight: 700;
+}
+
+.page-header h1 i {
+    color: #667eea;
+}
+
+.page-header .subtitle {
+    color: #666;
+    margin: 0;
+    font-size: 1rem;
+}
+
+.alert {
+    padding: 1rem 1.5rem;
+    border-radius: 10px;
+    margin-bottom: 1.5rem;
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    animation: slideIn 0.3s ease;
+}
+
+@keyframes slideIn {
+    from {
+        opacity: 0;
+        transform: translateY(-10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.alert i {
+    font-size: 1.25rem;
+}
+
+.alert-success {
+    background: #d4edda;
+    border-left: 4px solid #28a745;
+    color: #155724;
+}
+
+.alert-danger {
+    background: #f8d7da;
+    border-left: 4px solid #dc3545;
+    color: #721c24;
+}
+
+.ticket-form-card {
+    background: white;
+    border-radius: 12px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+    padding: 2.5rem;
+    border: 1px solid #f0f0f0;
+    transition: box-shadow 0.3s ease;
+}
+
+.ticket-form-card:hover {
+    box-shadow: 0 8px 20px rgba(0,0,0,0.12);
+}
+
+.form-group {
+    margin-bottom: 1.75rem;
+}
+
+.form-group label {
+    display: block;
+    margin-bottom: 0.75rem;
+    font-weight: 600;
+    color: #333;
+    font-size: 0.95rem;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.form-group label i {
+    color: #667eea;
+    font-size: 1.1rem;
+}
+
+.required {
+    color: #dc3545;
+    margin-left: 0.25rem;
+    font-weight: 700;
+}
+
+.form-group small {
+    display: block;
+    margin-top: 0.5rem;
+    color: #888;
+    font-size: 0.875rem;
+    font-style: italic;
+}
+
+/* Character counter styling */
+.form-group {
+    position: relative;
+}
+
+.form-group textarea + small {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.form-group textarea[maxlength] ~ small::after {
+    content: attr(data-counter);
+    color: #999;
+    font-style: normal;
+    font-weight: 500;
+}
+
+.form-control, .form-select, select, textarea {
+    width: 100%;
+    padding: 0.875rem 1rem;
+    border: 2px solid #e0e0e0;
+    border-radius: 8px;
+    font-size: 1rem;
+    transition: all 0.3s ease;
+    background: #fafafa;
+    font-family: inherit;
+}
+
+.form-control:focus, .form-select:focus, select:focus, textarea:focus {
+    outline: none;
+    border-color: #667eea;
+    box-shadow: 0 0 0 4px rgba(102, 126, 234, 0.15);
+    background: white;
+}
+
+textarea {
+    resize: vertical;
+    min-height: 140px;
+}
+
+.ticket-form {
+    background: white;
+    border-radius: 12px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+    padding: 2.5rem;
+    border: 1px solid #f0f0f0;
+    transition: box-shadow 0.3s ease;
+}
+
+.ticket-form:hover {
+    box-shadow: 0 8px 20px rgba(0,0,0,0.12);
+}
+
+.form-actions {
+    display: flex;
+    gap: 1rem;
+    margin-top: 2rem;
+    padding-top: 2rem;
+    border-top: 2px solid #f0f0f0;
+}
+
+.btn, .btn-primary, .btn-submit {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    padding: 1rem 2.5rem;
+    border: none;
+    border-radius: 10px;
+    font-size: 1rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.75rem;
+    box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
+    text-decoration: none;
+}
+
+.btn:hover, .btn-primary:hover, .btn-submit:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 8px 25px rgba(102, 126, 234, 0.5);
+}
+
+.btn:active, .btn-primary:active, .btn-submit:active {
+    transform: translateY(-1px);
+}
+
+.btn i, .btn-primary i, .btn-submit i {
+    font-size: 1.1rem;
+}
+
+.btn-secondary, .btn-cancel {
+    background: #e0e0e0;
+    color: #666;
+    padding: 1rem 2.5rem;
+    border: 2px solid #d0d0d0;
+    border-radius: 10px;
+    font-size: 1rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.75rem;
+    text-decoration: none;
+}
+
+.btn-secondary:hover, .btn-cancel:hover {
+    background: #d0d0d0;
+    border-color: #c0c0c0;
+    transform: translateY(-2px);
+}
+
+.help-section {
+    background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+    padding: 1.75rem;
+    border-radius: 12px;
+    border-left: 4px solid #667eea;
+    margin-top: 2rem;
+}
+
+.help-section h3 {
+    margin-top: 0;
+    margin-bottom: 1.25rem;
+    color: #2c3e50;
+    font-size: 1.125rem;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-weight: 600;
+}
+
+.help-section h3 i {
+    color: #667eea;
+}
+
+.help-section ul {
+    margin: 0;
+    padding-left: 1.5rem;
+    list-style: none;
+}
+
+.help-section li {
+    margin-bottom: 0.75rem;
+    color: #555;
+    position: relative;
+    padding-left: 1.5rem;
+}
+
+.help-section li:before {
+    content: "✓";
+    position: absolute;
+    left: 0;
+    color: #667eea;
+    font-weight: bold;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+    .content-wrapper {
+        padding: 1.5rem;
+    }
+    
+    .ticket-form-card {
+        padding: 1.5rem;
+    }
+    
+    .page-header h1 {
+        font-size: 1.5rem;
+    }
+    
+    .form-actions {
+        flex-direction: column;
+        gap: 0.75rem;
+    }
+    
+    .btn-cancel {
+        width: 100%;
+        justify-content: center;
+    }
+    
+    .btn-submit {
+        width: 100%;
+        justify-content: center;
+    }
+}
+
+@media (max-width: 480px) {
+    .content-wrapper {
+        padding: 1rem;
+    }
+    
+    .ticket-form-card {
+        padding: 1.25rem;
+    }
+    
+    .form-group {
+        margin-bottom: 1.25rem;
+    }
+    
+    .btn-submit, .btn-cancel {
+        padding: 0.875rem 1.5rem;
+        font-size: 0.95rem;
+    }
+    
+    .help-section {
+        padding: 1.25rem;
+    }
+}
