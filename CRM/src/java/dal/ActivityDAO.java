@@ -9,6 +9,7 @@ import model.activity.ActivityParticipant;
 
 public class ActivityDAO extends DBContext {
 
+    // Tạo activity + participants trong cùng transaction để đảm bảo nhất quán dữ liệu.
     public int insertActivity(Activity activity, List<Integer> participantIds) {
         String sqlActivity = "INSERT INTO activities "
                 + "(title, type, description, lead_id, customer_id, opportunity_id, due_date, reminder_at, status, priority, created_by, created_at) "
@@ -76,6 +77,7 @@ public class ActivityDAO extends DBContext {
                     psPart.setInt(1, activityId);
                     psPart.setInt(2, userId);
 
+                    // Quy ước role: phần tử đầu là Owner, còn lại là Participant.
                     String role = (i == 0) ? "Owner" : "Participant";
                     psPart.setString(3, role);
 
@@ -378,7 +380,7 @@ public class ActivityDAO extends DBContext {
     }
 
     public void insertAttachment(int activityId, String fileName, String filePath) {
-        String sql = "INSERT INTO activity_attachments (activity_id, file_name, file_path) VALUES (?, ?, ?)";
+        String sql = "INSERT INTO activity_attachments (activity_id, file_name, file_path, uploaded_at) VALUES (?, ?, ?, GETDATE())";
         try (PreparedStatement ps = getConnection().prepareStatement(sql)) {
             ps.setInt(1, activityId);
             ps.setString(2, fileName);
@@ -387,6 +389,8 @@ public class ActivityDAO extends DBContext {
             System.out.println("[insertAttachment] File saved: " + fileName + " for activityId=" + activityId);
         } catch (SQLException e) {
             System.err.println("[insertAttachment] FAILED to save attachment: " + e.getMessage());
+            System.err.println("[insertAttachment] SQLState=" + e.getSQLState() + ", ErrorCode=" + e.getErrorCode());
+            System.err.println("[insertAttachment] activityId=" + activityId + ", fileName=" + fileName + ", filePath=" + filePath);
             e.printStackTrace();
         }
     }
@@ -636,6 +640,7 @@ public class ActivityDAO extends DBContext {
     }
 
     public void insertComment(int activityId, int userId, String content) {
+        // Điểm insert comment dùng chung cho cả API comments và detail form submit.
         String sql = "INSERT INTO activity_comments (activity_id, user_id, content) VALUES (?, ?, ?)";
         try (PreparedStatement ps = getConnection().prepareStatement(sql)) {
             ps.setInt(1, activityId);
@@ -648,6 +653,7 @@ public class ActivityDAO extends DBContext {
     }
 
     public boolean updateActivityStatus(int id, String status, String outcomeNotes) {
+        // Dùng trong luồng gửi email để đóng activity và ghi outcome note.
         String sql = "UPDATE activities SET status = ?, outcome_notes = ?, completed_at = GETDATE(), updated_at = GETDATE() WHERE id = ?";
         try (PreparedStatement ps = connection.prepareStatement(sql)) {
             ps.setString(1, status);
@@ -880,6 +886,7 @@ public class ActivityDAO extends DBContext {
     }
 
     public void updateActivityParticipants(int activityId, List<Integer> participantIds) {
+        // Chiến lược update: xóa toàn bộ participants cũ rồi insert lại danh sách mới.
         String deleteSql = "DELETE FROM activity_participants WHERE activity_id = ?";
         String insertSql = "INSERT INTO activity_participants (activity_id, user_id, role) VALUES (?, ?, ?)";
         Connection conn = null;
@@ -925,6 +932,7 @@ public class ActivityDAO extends DBContext {
     }
 
     public boolean deleteActivity(int activityId) {
+        // Xóa theo thứ tự phụ thuộc khóa ngoại: participants -> comments -> attachments -> activity.
         String sqlParticipants = "DELETE FROM activity_participants WHERE activity_id = ?";
         String sqlComments = "DELETE FROM activity_comments WHERE activity_id = ?";
         String sqlAttachments = "DELETE FROM activity_attachments WHERE activity_id = ?";
@@ -955,6 +963,7 @@ public class ActivityDAO extends DBContext {
 
             psAct = conn.prepareStatement(sqlActivity);
             psAct.setInt(1, activityId);
+            // rowsDeleted chỉ phản ánh bảng activities (row gốc).
             int rowsDeleted = psAct.executeUpdate();
 
             if (rowsDeleted > 0) {

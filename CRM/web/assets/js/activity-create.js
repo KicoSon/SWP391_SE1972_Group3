@@ -264,6 +264,7 @@ function populateForm(activity) {
     }
 
     const ownerSelect = document.querySelector('select[name="owner"]');
+    // Không ghi đè owner đã preselect từ server-side JSP.
     if (ownerSelect && !ownerSelect.value) {
         if (activity.ownerId) {
             ownerSelect.value = String(activity.ownerId);
@@ -272,6 +273,7 @@ function populateForm(activity) {
         }
     }
 
+    // Chỉ add participants từ API khi hidden input chưa có dữ liệu để tránh trùng chip.
     if ((!hiddenInput || !hiddenInput.value) && activity.participantIds && activity.participantIds.length > 0 && typeof addParticipant === 'function') {
         activity.participantIds.forEach(participantId => {
             addParticipant(String(participantId));
@@ -292,7 +294,7 @@ document.getElementById('activityForm').addEventListener('submit', function(e) {
     // Lấy toàn bộ dữ liệu từ form (bao gồm cả input hidden và fileInput hiện tại)
     const formData = new FormData(this);
 
-    // Gửi bằng AJAX
+    // Gửi bằng AJAX để giữ UX mượt và xử lý redirect linh hoạt.
     fetch(this.action, {
         method: 'POST',
         body: formData

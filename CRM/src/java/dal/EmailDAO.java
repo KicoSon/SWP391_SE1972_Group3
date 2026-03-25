@@ -6,6 +6,7 @@ import java.util.List;
 
 public class EmailDAO extends DBContext {
     public boolean insertEmailLog(int fromUserId, int toCustomerId, String toEmail, String subject, String content, String status) {
+        // Lưu log gửi email để truy vết, kể cả khi trạng thái là Failed.
         String sql = "INSERT INTO emails (subject, content, from_user_id, to_customer_id, to_email, status, sent_at) "
                    + "VALUES (?, ?, ?, ?, ?, ?, GETDATE())";
         try (PreparedStatement ps = getConnection().prepareStatement(sql)) {

@@ -34,11 +34,13 @@ public class ActivityDeleteController extends HttpServlet {
         try {
             int activityId = Integer.parseInt(request.getParameter("id"));
             ActivityDAO activityDAO = new ActivityDAO();
+            // Đọc metadata file trước khi xóa DB để còn biết cần dọn file nào trên disk.
             List<ActivityAttachment> attachments = activityDAO.getAttachmentsByActivityId(activityId);
             
             boolean success = activityDAO.deleteActivity(activityId);
             
             if (success) {
+                // Chỉ xóa file vật lý khi transaction DB đã commit thành công.
                 deletePhysicalFiles(attachments);
                 response.getWriter().write("{\"success\":true,\"message\":\"Đã xóa Activity thành công!\"}");
             } else {
@@ -65,6 +67,7 @@ public class ActivityDeleteController extends HttpServlet {
             }
 
             try {
+                // filePath trong DB chứa đường dẫn tương đối, lấy ra tên lưu thực tế để xóa.
                 String storedFileName = Paths.get(attachment.getFilePath()).getFileName().toString();
                 File physicalFile = new File(uploadPath, storedFileName);
                 if (physicalFile.exists() && !physicalFile.delete()) {

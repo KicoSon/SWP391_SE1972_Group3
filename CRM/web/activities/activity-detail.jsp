@@ -266,6 +266,7 @@
                 </div>
 
                 <script>
+                    // Gửi comment mới lên API rồi tải lại danh sách comment.
                     function sendComment() {
                         var actId = document.getElementById("cmtActivityId").value;
                         var content = document.getElementById("cmtContent").value;
@@ -279,6 +280,7 @@
                         btn.disabled = true;
                         btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Đang gửi...';
 
+                        // API nhận dữ liệu dạng x-www-form-urlencoded.
                         fetch('${pageContext.request.contextPath}/api/comments', {
                             method: 'POST',
                             headers: {
@@ -300,6 +302,7 @@
                                 });
                     }
 
+                    // Tải toàn bộ comment của activity hiện tại và render lại khu vực thảo luận.
                     function loadComments() {
                         var actId = document.getElementById("cmtActivityId").value;
                         var listArea = document.getElementById("commentListArea");
@@ -341,6 +344,7 @@
 
                     document.addEventListener("DOMContentLoaded", function () {
                         loadComments();
+                        // Polling 3 giây/lần để các user thấy bình luận mới gần realtime.
                         setInterval(loadComments, 3000);
                     });
                 </script>

@@ -9,7 +9,7 @@
         <link rel="stylesheet" href="${pageContext.request.contextPath}/assets/css/sidebar.css">
         <link href="https://cdn.quilljs.com/1.3.6/quill.snow.css" rel="stylesheet">
         <style>
-            /* Override the purple body background so the purple Manager sidebar stands out */
+            /* Tùy biến nền để đồng bộ giao diện trang soạn email. */
             body {
                 background: linear-gradient(135deg, #3a7bd5, #3a6073) !important;
             }
@@ -38,6 +38,7 @@
                     </div>
 
                     <form action="compose" method="POST" id="emailForm" enctype="multipart/form-data" style="padding: 30px;">
+                        <%-- Nếu mở từ activity thì giữ sourceActivityId để backend cập nhật đúng activity đó. --%>
                         <input type="hidden" name="activityId" value="${sourceActivityId}">
                         <div class="form-grid">
                             <div class="form-row">
@@ -45,6 +46,7 @@
 
                                 <c:choose>
                                     <c:when test="${not empty fixedCustomer}">
+                                        <%-- Trường hợp vào từ activity có customer: khóa người nhận bằng hidden input. --%>
                                         <div class="form-control" style="background: #f3f4f6; font-weight: 600; border-color: #10b981; display: flex; align-items: center; gap: 10px;">
                                             <i class="fas fa-user-check" style="color: #10b981;"></i> 
                                             ${fixedCustomer.fullName} (${fixedCustomer.email})
@@ -53,6 +55,7 @@
                                     </c:when>
                                     
                                     <c:when test="${not empty fixedLead}">
+                                        <%-- Trường hợp vào từ activity có lead: khóa người nhận bằng hidden input. --%>
                                         <div class="form-control" style="background: #f3f4f6; font-weight: 600; border-color: #10b981; display: flex; align-items: center; gap: 10px;">
                                             <i class="fas fa-user-check" style="color: #10b981;"></i> 
                                             ${fixedLead.fullName} (${fixedLead.email})
@@ -119,6 +122,7 @@
                                 });
 
                                 function prepareSubmit() {
+                                    // Quill editor trả HTML, cần copy vào hidden input trước submit form.
                                     document.getElementById('contentInput').value = quill.root.innerHTML;
                                     document.getElementById('emailForm').submit();
                                 }

@@ -38,6 +38,7 @@ public class ActivityCalendarApiController extends HttpServlet {
 
         Integer filterUserId = null;
         if (!userSession.isAdmin()) {
+            // Non-admin chỉ thấy activity có liên quan đến chính mình.
             filterUserId = userSession.getStaff().getId();
         }
 
@@ -64,6 +65,7 @@ public class ActivityCalendarApiController extends HttpServlet {
             String type = act.getType() != null ? act.getType() : "";
             String status = act.getStatus() != null ? act.getStatus() : "";
 
+            // Màu sự kiện theo trạng thái để nhìn nhanh trên calendar.
             String color = "#3B82F6";
             if ("In Progress".equals(status)) {
                 color = "#F59E0B";
@@ -73,6 +75,7 @@ public class ActivityCalendarApiController extends HttpServlet {
                 color = "#EF4444";
             }
 
+            // Icon theo type để phân biệt nhanh Call/Email/Meeting...
             String icon = "";
             if ("Call".equals(type)) icon = "<i class=\\\"fas fa-phone-alt me-1\\\"></i>";
             else if ("Email".equals(type)) icon = "<i class=\\\"fas fa-envelope me-1\\\"></i>";

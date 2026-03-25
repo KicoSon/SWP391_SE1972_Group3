@@ -11,17 +11,17 @@ public class AuthorizationFilter {
             String requestURI = (String) request.getClass().getMethod("getRequestURI").invoke(request);
             String contextPath = (String) request.getClass().getMethod("getContextPath").invoke(request);
             
-            // Remove context path from request URI
+            // Cắt context path để còn lại route nội bộ dùng cho phân quyền.
             String path = requestURI.substring(contextPath.length());
             
-            // Allow access to login page and assets
+            // Cho phép truy cập tự do vào login/logout và tài nguyên tĩnh.
             if (path.equals("/login") || path.startsWith("/assets/") || 
                 path.equals("/") || path.equals("/logout")) {
                 chain.getClass().getMethod("doFilter", Object.class, Object.class).invoke(chain, request, response);
                 return;
             }
             
-            // Get user session
+            // Lấy userSession hiện tại từ HttpSession.
             Object session = request.getClass().getMethod("getSession", boolean.class).invoke(request, false);
             UserSession userSession = null;
             
@@ -29,13 +29,13 @@ public class AuthorizationFilter {
                 userSession = (UserSession) session.getClass().getMethod("getAttribute", String.class).invoke(session, "userSession");
             }
             
-            // Check if user is logged in
+            // Chưa đăng nhập thì buộc quay lại login.
             if (userSession == null) {
                 response.getClass().getMethod("sendRedirect", String.class).invoke(response, contextPath + "/login");
                 return;
             }
             
-            // Check role-based access
+            // Phân quyền theo prefix URL.
             if (path.startsWith("/admin/")) {
                 if (!userSession.isStaff() || !userSession.isAdmin()) {
                     response.getClass().getMethod("sendError", int.class, String.class).invoke(response, 403, "Access Denied");
@@ -68,7 +68,7 @@ public class AuthorizationFilter {
                 }
             }
             
-            // Continue with the request
+            // Hợp lệ thì cho request đi tiếp chuỗi filter/controller.
             chain.getClass().getMethod("doFilter", Object.class, Object.class).invoke(chain, request, response);
             
         } catch (Exception e) {

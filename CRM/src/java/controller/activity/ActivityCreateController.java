@@ -39,6 +39,7 @@ import jakarta.servlet.http.Part;
 )
 public class ActivityCreateController extends HttpServlet {
 
+    // Luật Maker-Checker cho quyền sửa: chỉ Admin hoặc người tạo mới có quyền FULL.
     private String resolveCanEdit(Activity activity, UserSession userSession) {
         if (activity == null || userSession == null || userSession.getStaff() == null) {
             return "NONE";
@@ -75,6 +76,7 @@ public class ActivityCreateController extends HttpServlet {
             return;
         }
 
+        // Khối dữ liệu dropdown dùng chung cho cả create/edit.
         CustomerDAO customerDAO = new CustomerDAO();
         List<Customer> customerList;
         if (userSession.isSaleStaff() && !userSession.isAdmin()) {
@@ -111,6 +113,7 @@ public class ActivityCreateController extends HttpServlet {
         StaffDAO staffDAO = new StaffDAO();
         request.setAttribute("staffList", staffDAO.getAllActiveStaff());
 
+        // Có id -> mở form ở chế độ edit, không có id -> create mới.
         String idParam = request.getParameter("id");
         if (idParam != null && !idParam.isEmpty()) {
             try {
@@ -119,6 +122,7 @@ public class ActivityCreateController extends HttpServlet {
                 Activity existingActivity = dao.getActivityById(id);
 
                 if (existingActivity != null) {
+                    // Check quyền lần 1: chặn ngay từ bước vào form sửa.
                     String canEdit = resolveCanEdit(existingActivity, userSession);
 
                     if ("NONE".equals(canEdit)) {
@@ -128,6 +132,7 @@ public class ActivityCreateController extends HttpServlet {
 
                     request.setAttribute("activity", existingActivity);
 
+                    // Tách Owner và Participant để JSP prefill chính xác.
                     List<ActivityParticipant> existingParticipants = dao.getParticipantsByActivityId(id);
                     Integer ownerId = null;
                     List<Integer> participantIds = new ArrayList<>();
@@ -171,6 +176,7 @@ public class ActivityCreateController extends HttpServlet {
                 return;
             }
 
+            // Điều hướng nhánh xử lý create/edit dựa trên id từ form.
             String idParam = request.getParameter("id");
             int activityId = -1;
             boolean isEditMode = false;
@@ -192,6 +198,7 @@ public class ActivityCreateController extends HttpServlet {
                     return;
                 }
 
+                // Check quyền lần 2: chặn bypass UI (gửi POST trực tiếp).
                 String canEdit = resolveCanEdit(existingActivity, userSession);
 
                 if ("NONE".equals(canEdit)) {
@@ -204,7 +211,7 @@ public class ActivityCreateController extends HttpServlet {
                 act.setTitle(request.getParameter("title"));
                 act.setDescription(request.getParameter("description"));
                 act.setType(request.getParameter("type"));
-                act.setStatus(request.getParameter("status"));
+                act.setStatus(request.getParameter("status"));  
                 String priority = request.getParameter("priority");
                 act.setPriority((priority != null && !priority.isEmpty()) ? priority : "Medium");
                 act.setCreatedBy(userSession.getStaff().getId());
@@ -218,6 +225,7 @@ public class ActivityCreateController extends HttpServlet {
                 }
                 act.setReminderAt(null);
 
+                // related_to có format: opp-<id> hoặc lead-<id>.
                 String relatedTo = request.getParameter("related_to");
                 if (relatedTo != null && !relatedTo.isEmpty()) {
                     String[] parts = relatedTo.split("-");
@@ -237,6 +245,7 @@ public class ActivityCreateController extends HttpServlet {
 
                 boolean updateSuccess = dao.updateActivity(act);
                 if (updateSuccess) {
+                    // Quy ước: phần tử đầu tiên là Owner, các phần tử sau là Participant.
                     List<Integer> participantIds = new ArrayList<>();
                     String ownerIdRaw = request.getParameter("owner");
                     if (ownerIdRaw != null && !ownerIdRaw.isEmpty()) {
@@ -257,6 +266,7 @@ public class ActivityCreateController extends HttpServlet {
                     }
 
                     ActivityDAO attachmentDao = new ActivityDAO();
+                    // Edit file theo thứ tự: xóa file bị bỏ chọn -> thêm file mới upload.
                     deleteRemovedAttachments(request, activityId, attachmentDao);
 
                     handleAttachmentUpload(request, activityId, attachmentDao);
@@ -286,6 +296,7 @@ public class ActivityCreateController extends HttpServlet {
             }
             act.setReminderAt(null);
 
+            // related_to có format: opp-<id> hoặc lead-<id>.
             String relatedTo = request.getParameter("related_to");
             if (relatedTo != null && !relatedTo.isEmpty()) {
                 String[] parts = relatedTo.split("-");
@@ -303,6 +314,7 @@ public class ActivityCreateController extends HttpServlet {
                 catch (NumberFormatException ex) { }
             }
 
+            // Quy ước: phần tử đầu tiên là Owner, các phần tử sau là Participant.
             List<Integer> participantIds = new ArrayList<>();
             String ownerIdRaw = request.getParameter("owner");
             if (ownerIdRaw != null && !ownerIdRaw.isEmpty()) {
@@ -321,7 +333,8 @@ public class ActivityCreateController extends HttpServlet {
 
             int newActivityId = dao.insertActivity(act, participantIds);
             if (newActivityId > 0) {
-                handleAttachmentUpload(request, newActivityId, dao);
+                // Dùng DAO mới cho upload attachment để tránh reuse connection đã bị đóng sau insertActivity.
+                handleAttachmentUpload(request, newActivityId, new ActivityDAO());
                 response.sendRedirect(request.getContextPath() + "/sale/dashboard?msg=success");
             } else {
                 request.setAttribute("error", "Lỗi: Không thể lưu vào Database. Vui lòng thử lại.");
@@ -337,6 +350,7 @@ public class ActivityCreateController extends HttpServlet {
 
     private void handleAttachmentUpload(HttpServletRequest request, int activityId, ActivityDAO attachmentDao)
             throws Exception {
+        // Lưu file vật lý vào uploadDirectory, lưu metadata vào DB.
         String uploadPath = getServletContext().getInitParameter("uploadDirectory");
         if (uploadPath == null || uploadPath.isEmpty()) return;
 
@@ -355,6 +369,7 @@ public class ActivityCreateController extends HttpServlet {
 
     private void deleteRemovedAttachments(HttpServletRequest request, int activityId, ActivityDAO attachmentDao)
             throws Exception {
+        // keptIds là các attachment còn tồn tại trên form sau khi user bấm "Bỏ file này".
         Set<Integer> keptIds = new HashSet<>();
         List<String> existingAttachmentIds = getMultipartFieldValues(request, "existingAttachmentIds");
         if (!existingAttachmentIds.isEmpty()) {
@@ -366,6 +381,7 @@ public class ActivityCreateController extends HttpServlet {
             }
         }
 
+        // removedIds có thể đến từ form hoặc được suy luận khi ID cũ không còn nằm trong keptIds.
         Set<Integer> removedIds = new HashSet<>();
         String removedIdsRaw = getMultipartFieldValue(request, "removedAttachmentIds");
         if (removedIdsRaw != null && !removedIdsRaw.trim().isEmpty()) {
@@ -392,6 +408,7 @@ public class ActivityCreateController extends HttpServlet {
             return;
         }
 
+        // Xóa file vật lý tương ứng với các ID đã xác định cần xóa.
         String uploadPath = getServletContext().getInitParameter("uploadDirectory");
         for (model.activity.ActivityAttachment attachment : existingAttachments) {
             if (!removedIds.contains(attachment.getId())) {
@@ -434,6 +451,7 @@ public class ActivityCreateController extends HttpServlet {
             }
         }
 
+        // Fallback: một số parser multipart không trả đủ giá trị qua getParameterValues.
         for (Part part : request.getParts()) {
             if (!fieldName.equals(part.getName()) || part.getSubmittedFileName() != null) {
                 continue;

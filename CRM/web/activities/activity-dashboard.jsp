@@ -390,6 +390,7 @@
 
                                             <c:if test="${act.type == 'Email' && act.status != 'Completed'
                                                           && !sessionScope.userSession.marketingStaff}">
+                                                  <%-- Nút gửi mail nhanh chỉ hiện cho activity Email chưa Completed. --%>
                                                   <a href="${pageContext.request.contextPath}/emails/compose?customerId=${act.customerId}&activityId=${act.id}"
                                                      class="action-btn email-btn"
                                                      title="Gửi mail thực hiện ngay">
@@ -454,6 +455,7 @@
     <script>
         function deleteActivity(id, btnElement) {
             if (confirm('Bạn có chắc muốn xóa hoạt động này?')) {
+                // Gọi API xóa; backend trả JSON success/message.
                 fetch('${pageContext.request.contextPath}/activities/delete?id=' + id, {
                     method: 'GET'
                 })
@@ -496,9 +498,11 @@
                 btnList.classList.remove('active');
 
                 if (!calendarLoaded) {
+                    // Lazy-load calendar để tránh tốn tài nguyên khi user chỉ dùng list view.
                     initCalendar();
                     calendarLoaded = true;
                 } else {
+                    // Render lại để sửa lỗi kích thước khi container vừa được hiển thị.
                     calendarInstance.render();
                 }
             }

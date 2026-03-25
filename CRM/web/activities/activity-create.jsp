@@ -49,6 +49,7 @@
                     <form id="activityForm" method="POST"
                           action="${pageContext.request.contextPath}/activities/create"
                           enctype="multipart/form-data">
+                        <%-- Có param.id thì đây là chế độ Edit và phải gửi lại id trong POST. --%>
                         <c:if test="${not empty param.id}">
                             <input type="hidden" name="id" value="${param.id}">
                         </c:if>
@@ -223,6 +224,7 @@
                                                 <select class="form-control" name="owner" required>
                                                     <option value="">-- Chọn người phụ trách --</option>
                                                     <c:forEach items="${staffList}" var="u">
+                                                                                                                <%-- Ưu tiên owner đã lưu khi edit; create mới thì chọn user hiện tại. --%>
                                                         <option value="${u.id}" data-role="${not empty u.department ? u.department : 'Staff'}"
                                                                 ${(not empty activityOwnerId and activityOwnerId == u.id)
                                                                   or (empty param.id and sessionScope.userSession.userId == u.id)
@@ -307,6 +309,7 @@
                                             <c:if test="${not empty existingAttachments}">
                                                 <div class="uploaded-files" id="existingAttachmentsList">
                                                     <c:forEach items="${existingAttachments}" var="file">
+                                                        <%-- Hidden existingAttachmentIds là tín hiệu cho backend biết file nào còn được giữ. --%>
                                                         <div class="uploaded-file existing-file" data-attachment-id="${file.id}">
                                                             <input type="hidden" name="existingAttachmentIds" value="${file.id}">
                                                             <div class="file-info">
@@ -335,6 +338,7 @@
 
             <script>
                 const ownerOptions = document.querySelectorAll('select[name="owner"] option');
+                // Dùng danh sách owner để cấp nguồn autocomplete Participants ở JS.
                 const allParticipantsData = Array.from(ownerOptions)
                         .filter(option => option.value)
                         .map(option => ({
@@ -343,6 +347,7 @@
                                 role: (option.dataset.role || 'Staff').trim()
                             }));
 
+                // Chế độ edit hiện chưa đổ trực tiếp từ JSP, JS sẽ hydrate qua API detail.
                 const initialParticipantIds = [];
             </script>
             <script src="${pageContext.request.contextPath}/assets/js/activity-create.js"></script>

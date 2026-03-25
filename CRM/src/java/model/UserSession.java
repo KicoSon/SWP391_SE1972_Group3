@@ -3,7 +3,7 @@ package model;
 import java.util.List;
 
 /**
- * User session model for managing login session
+ * Model lưu ngữ cảnh người dùng đăng nhập trong session.
  */
 public class UserSession {
     private String userType; // "CUSTOMER" or "STAFF"
@@ -77,7 +77,7 @@ public class UserSession {
         this.permissions = permissions;
     }
     
-    // Helper method to get user ID
+    // Hàm tiện ích lấy userId chung cho cả customer/staff.
     public int getUserId() {
         if (isCustomer() && customer != null) {
             return customer.getId();
@@ -87,7 +87,7 @@ public class UserSession {
         return -1;
     }
     
-    // Helper methods
+    // Nhóm hàm tiện ích xác định loại user.
     public boolean isCustomer() {
         return "CUSTOMER".equals(userType);
     }
@@ -126,6 +126,7 @@ public class UserSession {
     
     public boolean isAdmin() {
 //        return hasRole("ADMIN");
+        // Hệ thống hiện map vai trò quản trị sang role "Manager".
         return hasRole("Manager");
     }
     

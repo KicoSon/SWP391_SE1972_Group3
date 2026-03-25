@@ -3,7 +3,7 @@
  * Click nbfs://nbhost/SystemFileSystem/Templates/JSP_Servlet/JavaScript.js to edit this template
  */
 
-// Search functionality
+// Tìm kiếm nhanh theo text toàn dòng trong bảng.
 const searchInput = document.querySelector('.search-input');
 const tableRows = document.querySelectorAll('.activity-table tbody tr');
 
@@ -16,7 +16,7 @@ searchInput.addEventListener('input', (e) => {
     });
 });
 
-// Filter functionality
+// Lọc theo loại activity (logic phía client, không thay thế filter server-side).
 const filterBtn = document.querySelector('.btn-primary');
 const typeFilter = document.querySelector('select');
 
@@ -33,7 +33,7 @@ filterBtn.addEventListener('click', () => {
     });
 });
 
-// Pagination
+// Pagination demo phía client (UI mẫu).
 const prevBtn = document.querySelector('.page-btn:first-child');
 const nextBtn = document.querySelector('.page-btn:last-child');
 const pageInfo = document.querySelector('.page-info');
@@ -61,7 +61,7 @@ function updatePagination() {
     nextBtn.disabled = currentPage === totalPages;
 }
 
-// Add hover effects to chart bars
+// Tương tác tạm cho chart bar.
 const chartBars = document.querySelectorAll('.chart-bar');
 chartBars.forEach(bar => {
     bar.addEventListener('click', () => {
@@ -69,7 +69,7 @@ chartBars.forEach(bar => {
     });
 });
 
-// Animation on scroll
+// Animation khi section đi vào viewport.
 const observerOptions = {
     threshold: 0.1,
     rootMargin: '0px 0px -50px 0px'
@@ -86,7 +86,7 @@ const observer = new IntersectionObserver((entries) => {
 document.querySelectorAll('.summary-section').forEach(el => observer.observe(el));
     
 function openDetailModal(id) {
-    // Gắn URL kèm tham số view=modal
+    // Mở detail theo chế độ modal bằng iframe.
     document.getElementById('detailIframe').src = '/CRM/activities/detail?id=' + id + '&view=modal';
     document.getElementById('detailModalOverlay').style.display = 'flex';
     document.body.style.overflow = 'hidden'; // Khóa cuộn trang chính
@@ -98,7 +98,7 @@ function closeDetailModal() {
     document.body.style.overflow = 'auto'; // Mở lại cuộn trang chính
 }
 
-// Auto-hide toast notification
+// Tự ẩn toast sau 5 giây.
 setTimeout(() => {
     let toast = document.getElementById("toastSuccess");
     if (toast) {

@@ -25,6 +25,7 @@ public class EmailService {
     private static final String APP_PASSWORD = "celo ljup vjqa plzx";
 
     public static boolean sendEmail(String toEmail, String subject, String bodyHTML, Collection<Part> fileParts) {
+        // Cấu hình Gmail SMTP qua STARTTLS.
         Properties props = new Properties();
         props.put("mail.smtp.host", "smtp.gmail.com");
         props.put("mail.smtp.port", "587");
@@ -56,6 +57,7 @@ public class EmailService {
             }
 
             if (hasAttachments) {
+                // Có đính kèm: tạo multipart gồm phần nội dung HTML + các part file.
                 Multipart multipart = new MimeMultipart();
                 MimeBodyPart textPart = new MimeBodyPart();
                 textPart.setContent(bodyHTML, "text/html; charset=UTF-8");
@@ -66,6 +68,7 @@ public class EmailService {
                         MimeBodyPart attachPart = new MimeBodyPart();
                         String fileName = part.getSubmittedFileName();
 
+                        // Stream trực tiếp file upload (Part) sang mail attachment.
                         DataSource source = new DataSource() {
                             @Override
                             public InputStream getInputStream() throws IOException {
@@ -104,6 +107,7 @@ public class EmailService {
 
         } catch (Exception e) {
             e.printStackTrace();
+            // Ghi lại stacktrace để controller có thể hiển thị/chẩn đoán khi gửi lỗi.
             lastError = e.toString() + "\n";
             for (StackTraceElement element : e.getStackTrace()) {
                 lastError += element.toString() + "\n";

@@ -46,6 +46,7 @@ public class EmailComposeController extends HttpServlet {
             return;
         }
 
+        // Nếu mở từ activity, sẽ khóa người nhận theo customer/lead của activity đó.
         String activityIdParam = request.getParameter("activityId");
 
         if (activityIdParam != null && !activityIdParam.trim().isEmpty()) {
@@ -94,6 +95,7 @@ public class EmailComposeController extends HttpServlet {
         request.setCharacterEncoding("UTF-8");
 
         try {
+            // recipientId có format customer_<id> hoặc lead_<id>.
             String recipientRaw = request.getParameter("recipientId");
             int customerId = 0;
             Long leadId = null;
@@ -117,10 +119,12 @@ public class EmailComposeController extends HttpServlet {
                 }
             }
 
+            // Có activityId => gửi mail để hoàn tất một activity có sẵn.
             String activityIdRaw = request.getParameter("activityId");
             String subject = request.getParameter("subject");
             String content = request.getParameter("content");
 
+            // Thu thập file đính kèm để stream qua EmailService.
             List<Part> fileParts = new ArrayList<>();
             if (request.getParts() != null) {
                 for (Part part : request.getParts()) {
@@ -134,18 +138,22 @@ public class EmailComposeController extends HttpServlet {
             UserSession userSession = (UserSession) session.getAttribute("userSession");
             int fromUserId = userSession.getStaff().getId();
 
+            // Gọi SMTP thật qua Jakarta Mail.
             boolean sendSuccess = EmailService.sendEmail(receiverEmail, subject, content, fileParts);
 
             EmailDAO emailDAO = new EmailDAO();
+            // Dù thành công hay thất bại đều log vào bảng emails.
             emailDAO.insertEmailLog(fromUserId, customerId, receiverEmail, subject, content, sendSuccess ? "Sent" : "Failed");
 
             if (sendSuccess) {
                 ActivityDAO activityDAO = new ActivityDAO();
 
                 if (activityIdRaw != null && !activityIdRaw.trim().isEmpty()) {
+                    // Nhánh 1: cập nhật activity hiện hữu thành Completed.
                     int actId = Integer.parseInt(activityIdRaw);
                     activityDAO.updateActivityStatus(actId, "Completed", "Đã gửi email: " + subject);
                 } else {
+                    // Nhánh 2: compose tự do thì tạo activity Email mới để lưu vết hành vi gửi.
                     model.activity.Activity newAct = new model.activity.Activity();
                     newAct.setTitle("Gửi Email: " + subject);
                     newAct.setType("Email");

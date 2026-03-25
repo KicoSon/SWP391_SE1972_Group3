@@ -17,6 +17,7 @@ import java.util.List;
 @WebServlet(name = "ActivityCommentApiController", urlPatterns = {"/api/comments"})
 public class ActivityCommentApiController extends HttpServlet {
 
+    // Quyền đọc/ghi comment giống quyền xem activity.
     private boolean canAccessActivity(UserSession userSession, model.activity.Activity activity, ActivityDAO dao) {
         if (userSession == null || userSession.getStaff() == null || activity == null) {
             return false;
@@ -50,6 +51,7 @@ public class ActivityCommentApiController extends HttpServlet {
                 return;
             }
 
+            // Trả danh sách comment dưới dạng JSON để frontend polling mỗi 3 giây.
             List<ActivityComment> comments = dao.getCommentsByActivityId(activityId);
             
             StringBuilder json = new StringBuilder();
@@ -59,6 +61,7 @@ public class ActivityCommentApiController extends HttpServlet {
                 json.append("{");
                 json.append("\"commenterName\": \"").append(escapeJson(c.getCommenterName())).append("\",");
                 json.append("\"content\": \"").append(escapeJson(c.getContent())).append("\",");
+                // Format thời gian ngay tại server để UI hiển thị trực tiếp.
                 String dateStr = new SimpleDateFormat("dd/MM/yyyy 'lúc' HH:mm").format(c.getCreatedAt());
                 json.append("\"createdAt\": \"").append(dateStr).append("\"");
                 json.append("}");
@@ -82,6 +85,7 @@ public class ActivityCommentApiController extends HttpServlet {
         response.setContentType("application/json;charset=UTF-8");
         
         try {
+            // Body từ fetch dạng x-www-form-urlencoded: activityId + content.
             int activityId = Integer.parseInt(request.getParameter("activityId"));
             String content = request.getParameter("content");
             

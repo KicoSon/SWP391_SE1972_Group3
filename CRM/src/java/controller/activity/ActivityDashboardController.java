@@ -44,6 +44,7 @@ public class ActivityDashboardController extends HttpServlet {
             pageIndex = 1;
         }
 
+        // Admin xem toàn bộ; staff chỉ xem dữ liệu theo userId của mình.
         Integer filterUserId = null;
         if (!userSession.isAdmin()) {
             filterUserId = userSession.getStaff().getId();
@@ -51,10 +52,12 @@ public class ActivityDashboardController extends HttpServlet {
 
         ActivityDAO dao = new ActivityDAO();
 
+        // Bảng chính dashboard.
         List<Activity> list = dao.searchActivities(filterUserId, keyword, type, fromDate, toDate, pageIndex, pageSize);
         int totalRecords = dao.countActivities(filterUserId, keyword, type, fromDate, toDate);
         int totalPages = (int) Math.ceil((double) totalRecords / pageSize);
 
+        // 5 chỉ số tổng hợp cho Overview.
         int[] stats = dao.getActivityStats(filterUserId);
 
         request.setAttribute("statTotal", stats[0]);

@@ -41,6 +41,7 @@ public class ActivityDetailApiController extends HttpServlet {
                 return;
             }
             
+            // API này phục vụ prefill form edit ở activity-create.js.
             String json = buildActivityJson(activity, dao);
             
             PrintWriter out = response.getWriter();
@@ -94,6 +95,7 @@ public class ActivityDetailApiController extends HttpServlet {
         json.append("\"createdBy\": ").append(activity.getCreatedBy()).append(",");
         json.append("\"ownerId\": ").append(ownerId).append(",");
 
+        // participantIds chỉ chứa người không phải Owner để JS dựng tag participants.
         json.append("\"participantIds\": [");
         boolean firstParticipant = true;
         for (ActivityParticipant ap : participantRows) {

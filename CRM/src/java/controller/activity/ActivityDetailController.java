@@ -17,6 +17,7 @@ import jakarta.servlet.http.HttpSession;
 @WebServlet(name = "ActivityDetailController", urlPatterns = {"/activities/detail"})
 public class ActivityDetailController extends HttpServlet {
 
+    // Quyền xem detail: Admin, Creator hoặc người có trong participants.
     private boolean canAccessActivity(UserSession userSession, Activity activity, ActivityDAO dao) {
         if (userSession == null || userSession.getStaff() == null || activity == null) {
             return false;
@@ -61,6 +62,7 @@ public class ActivityDetailController extends HttpServlet {
                 return;
             }
 
+            // Quyền edit trên màn detail chỉ dành cho Admin/Creator.
             String canEdit = "NONE";
 
             if (userSession != null && userSession.getStaff() != null) {
@@ -115,6 +117,7 @@ public class ActivityDetailController extends HttpServlet {
                     return;
                 }
 
+                // Nhánh submit form comment kiểu truyền thống (không phải AJAX API).
                 dao.insertComment(activityId, userId, content);
             }
 
