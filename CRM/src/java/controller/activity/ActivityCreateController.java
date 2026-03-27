@@ -321,7 +321,7 @@ public class ActivityCreateController extends HttpServlet {
 
             int newActivityId = dao.insertActivity(act, participantIds);
             if (newActivityId > 0) {
-                handleAttachmentUpload(request, newActivityId, dao);
+                handleAttachmentUpload(request, newActivityId, new ActivityDAO());
                 response.sendRedirect(request.getContextPath() + "/sale/dashboard?msg=success");
             } else {
                 request.setAttribute("error", "Lỗi: Không thể lưu vào Database. Vui lòng thử lại.");

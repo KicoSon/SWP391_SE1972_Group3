@@ -215,9 +215,9 @@
             <div class="nav-section">Leads</div>
             <a href="${pageContext.request.contextPath}/sales/my-leads"><i class="fas fa-user-tag"></i> Leads được giao</a>
 
-            <div class="nav-section">Marketing</div>
+<!--            <div class="nav-section">Marketing</div>
             <a href="${pageContext.request.contextPath}/marketing/campaignmanagement"><i class="fas fa-bullhorn"></i> Chiến dịch</a>
-            <a href="${pageContext.request.contextPath}/marketing/leadmanagement"><i class="fas fa-user-plus"></i> Quản lý Leads</a>
+            <a href="${pageContext.request.contextPath}/marketing/leadmanagement"><i class="fas fa-user-plus"></i> Quản lý Leads</a>-->
         </nav>
     </div>
 

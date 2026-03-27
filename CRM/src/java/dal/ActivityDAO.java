@@ -377,8 +377,8 @@ public class ActivityDAO extends DBContext {
         return false;
     }
 
-    public void insertAttachment(int activityId, String fileName, String filePath) {
-        String sql = "INSERT INTO activity_attachments (activity_id, file_name, file_path) VALUES (?, ?, ?)";
+public void insertAttachment(int activityId, String fileName, String filePath) {
+        String sql = "INSERT INTO activity_attachments (activity_id, file_name, file_path, uploaded_at) VALUES (?, ?, ?, GETDATE())";
         try (PreparedStatement ps = getConnection().prepareStatement(sql)) {
             ps.setInt(1, activityId);
             ps.setString(2, fileName);
@@ -387,6 +387,8 @@ public class ActivityDAO extends DBContext {
             System.out.println("[insertAttachment] File saved: " + fileName + " for activityId=" + activityId);
         } catch (SQLException e) {
             System.err.println("[insertAttachment] FAILED to save attachment: " + e.getMessage());
+            System.err.println("[insertAttachment] SQLState=" + e.getSQLState() + ", ErrorCode=" + e.getErrorCode());
+            System.err.println("[insertAttachment] activityId=" + activityId + ", fileName=" + fileName + ", filePath=" + filePath);
             e.printStackTrace();
         }
     }
