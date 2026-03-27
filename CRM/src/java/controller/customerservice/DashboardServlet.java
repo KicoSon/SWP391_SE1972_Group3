@@ -5,24 +5,20 @@ import model.UserSession;
 
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;
-import jakarta.servlet.http.HttpServlet;
-import jakarta.servlet.http.HttpServletRequest;
-import jakarta.servlet.http.HttpServletResponse;
-import jakarta.servlet.http.HttpSession;
+import jakarta.servlet.http.*;
 
 import java.io.IOException;
 import java.util.Map;
 
-/**
- * Servlet cho trang Dashboard — hiển thị thống kê ticket + feedback.
- *
- * URL  : /customerservice/dashboard
- * Quyền: chỉ staff
- */
 @WebServlet("/customerservice/dashboard")
 public class DashboardServlet extends HttpServlet {
 
-    private final CSDashboardDAO dashboardDAO = new CSDashboardDAO();
+    private CSDashboardDAO dashboardDAO;
+
+    @Override
+    public void init() {
+        dashboardDAO = new CSDashboardDAO();
+    }
 
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp)
@@ -33,7 +29,6 @@ public class DashboardServlet extends HttpServlet {
             resp.sendRedirect(req.getContextPath() + "/login");
             return;
         }
-
         UserSession user = (UserSession) session.getAttribute("userSession");
         if (!user.isStaff()) {
             resp.sendRedirect(req.getContextPath() + "/customerservice/ticketlist");
@@ -42,9 +37,11 @@ public class DashboardServlet extends HttpServlet {
 
         Map<String, Object> ticketStats   = dashboardDAO.getTicketStats();
         Map<String, Object> feedbackStats = dashboardDAO.getFeedbackStats();
+        Map<String, Object> overdueStats  = dashboardDAO.getOverdueStats(); // THÊM MỚI
 
         req.setAttribute("ticketStats",   ticketStats);
         req.setAttribute("feedbackStats", feedbackStats);
+        req.setAttribute("overdueStats",  overdueStats);
 
         req.getRequestDispatcher("/customerservice/dashboard.jsp")
            .forward(req, resp);

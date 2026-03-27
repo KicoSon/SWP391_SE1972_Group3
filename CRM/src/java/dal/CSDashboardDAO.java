@@ -206,4 +206,78 @@ public class CSDashboardDAO extends DBContext {
         }
         return stats;
     }
+    public Map<String, Object> getOverdueStats() {
+        Map<String, Object> stats = new HashMap<>();
+ 
+        // Đếm từng loại priority quá hạn SLA
+        String sqlCount =
+            "SELECT " +
+            "  SUM(CASE WHEN priority='Urgent' " +
+            "       AND DATEDIFF(HOUR, created_at, GETDATE()) > 4   THEN 1 ELSE 0 END) AS overdue_urgent, " +
+            "  SUM(CASE WHEN priority='High' " +
+            "       AND DATEDIFF(HOUR, created_at, GETDATE()) > 24  THEN 1 ELSE 0 END) AS overdue_high, " +
+            "  SUM(CASE WHEN priority='Medium' " +
+            "       AND DATEDIFF(HOUR, created_at, GETDATE()) > 72  THEN 1 ELSE 0 END) AS overdue_medium " +
+            "FROM support_tickets " +
+            "WHERE status IN ('Open','In Progress')";
+ 
+        // 5 ticket quá hạn lâu nhất để hiện trong dashboard
+        String sqlList =
+            "SELECT TOP 5 " +
+            "  t.id, t.title, t.priority, t.status, " +
+            "  DATEDIFF(HOUR, t.created_at, GETDATE()) AS hours_elapsed, " +
+            "  c.full_name AS customer_name " +
+            "FROM support_tickets t " +
+            "LEFT JOIN customers c ON c.id = t.customer_id " +
+            "WHERE t.status IN ('Open','In Progress') " +
+            "AND ( " +
+            "  (t.priority='Urgent' AND DATEDIFF(HOUR,t.created_at,GETDATE()) > 4) OR " +
+            "  (t.priority='High'   AND DATEDIFF(HOUR,t.created_at,GETDATE()) > 24) OR " +
+            "  (t.priority='Medium' AND DATEDIFF(HOUR,t.created_at,GETDATE()) > 72) OR " +
+            "  (t.priority='Low'    AND DATEDIFF(HOUR,t.created_at,GETDATE()) > 168) " +
+            ") " +
+            "ORDER BY DATEDIFF(HOUR,t.created_at,GETDATE()) DESC";
+ 
+        try {
+            // Đếm
+            try (PreparedStatement ps = connection.prepareStatement(sqlCount);
+                 ResultSet rs = ps.executeQuery()) {
+                if (rs.next()) {
+                    int urgent = rs.getInt("overdue_urgent");
+                    int high   = rs.getInt("overdue_high");
+                    int medium = rs.getInt("overdue_medium");
+                    stats.put("overdueUrgent", urgent);
+                    stats.put("overdueHigh",   high);
+                    stats.put("overdueMedium", medium);
+                    stats.put("overdueTotal",  urgent + high + medium);
+                }
+            }
+ 
+            // Danh sách
+            List<Map<String, String>> list = new ArrayList<>();
+            try (PreparedStatement ps = connection.prepareStatement(sqlList);
+                 ResultSet rs = ps.executeQuery()) {
+                while (rs.next()) {
+                    Map<String, String> row = new LinkedHashMap<>();
+                    row.put("id",           String.valueOf(rs.getInt("id")));
+                    row.put("title",        rs.getString("title"));
+                    row.put("priority",     rs.getString("priority"));
+                    row.put("status",       rs.getString("status"));
+                    row.put("hoursElapsed", String.valueOf(rs.getInt("hours_elapsed")));
+                    row.put("customerName", rs.getString("customer_name"));
+                    list.add(row);
+                }
+            }
+            stats.put("overdueList", list);
+ 
+        } catch (SQLException e) {
+            e.printStackTrace();
+            stats.putIfAbsent("overdueUrgent", 0);
+            stats.putIfAbsent("overdueHigh",   0);
+            stats.putIfAbsent("overdueMedium", 0);
+            stats.putIfAbsent("overdueTotal",  0);
+            stats.putIfAbsent("overdueList",   new ArrayList<>());
+        }
+        return stats;
+    }
 }

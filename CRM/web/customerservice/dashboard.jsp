@@ -485,6 +485,17 @@
                         <small>Resolved</small>
                     </div>
                 </div>
+                <div class="kpi-card">
+                    <div class="kpi-icon" style="background:linear-gradient(135deg,#dc3545,#c0392b)">
+                        <i class="fas fa-fire"></i>
+                    </div>
+                    <div class="kpi-info">
+                        <p>Quá Hạn SLA</p>
+                        <h3 style="${overdueStats['overdueTotal'] > 0 ? 'color:#dc3545' : ''}">
+                            ${overdueStats['overdueTotal']}
+                        </h3>
+                    </div>
+                </div>
             </div>
 
             <!-- ===== KPI — FEEDBACK (phân biệt 2 nguồn) ===== -->
@@ -538,362 +549,479 @@
                 </div>
             </div>
 
-            <!-- ===== CHARTS ROW ===== -->
-            <div class="two-col">
-
-                <%-- Donut: Ticket theo Status --%>
-                <div class="card">
-                    <div class="card-header-strip purple">
-                        <i class="fas fa-circle-half-stroke"></i> Ticket Theo Trạng Thái
-                    </div>
-                    <div class="donut-wrap">
-                        <%-- Donut SVG render bằng JS bên dưới --%>
-                        <div class="donut">
-                            <svg width="130" height="130" viewBox="0 0 130 130">
-                            <circle cx="65" cy="65" r="50"
-                                    fill="none" stroke="#f0f0f0" stroke-width="18"/>
-                            <%-- Segments được tính bằng JS --%>
-                            <circle id="seg-open"     cx="65" cy="65" r="50"
-                                    fill="none" stroke="#dc3545" stroke-width="18"
-                                    stroke-dasharray="0 314" stroke-linecap="round"/>
-                            <circle id="seg-progress" cx="65" cy="65" r="50"
-                                    fill="none" stroke="#ffc107" stroke-width="18"
-                                    stroke-dasharray="0 314" stroke-linecap="round"/>
-                            <circle id="seg-resolved" cx="65" cy="65" r="50"
-                                    fill="none" stroke="#28a745" stroke-width="18"
-                                    stroke-dasharray="0 314" stroke-linecap="round"/>
-                            </svg>
-                            <div class="donut-center">
-                                <span class="donut-num">${ticketStats['total']}</span>
-                                <span class="donut-lbl">Tickets</span>
-                            </div>
-                        </div>
-                        <div class="donut-legend">
-                            <div class="legend-item">
-                                <div class="legend-dot" style="background:#dc3545"></div>
-                                <span class="legend-label">Open</span>
-                                <span class="legend-val">${ticketStats['open']}</span>
-                                <span class="legend-pct" id="pct-open"></span>
-                            </div>
-                            <div class="legend-item">
-                                <div class="legend-dot" style="background:#ffc107"></div>
-                                <span class="legend-label">In Progress</span>
-                                <span class="legend-val">${ticketStats['inProgress']}</span>
-                                <span class="legend-pct" id="pct-progress"></span>
-                            </div>
-                            <div class="legend-item">
-                                <div class="legend-dot" style="background:#28a745"></div>
-                                <span class="legend-label">Resolved</span>
-                                <span class="legend-val">${ticketStats['resolved']}</span>
-                                <span class="legend-pct" id="pct-resolved"></span>
-                            </div>
-                        </div>
-                    </div>
+            <c:if test="${overdueStats['overdueTotal'] > 0}">
+                <div class="section-title" style="color:white">
+                    🔥 Ticket Quá Hạn SLA
                 </div>
 
-                <%-- Donut: Ticket theo Priority --%>
-                <div class="card">
-                    <div class="card-header-strip purple">
-                        <i class="fas fa-circle-half-stroke"></i> Ticket Theo Mức Ưu Tiên
-                    </div>
-                    <div class="donut-wrap">
-                        <div class="donut">
-                            <svg width="130" height="130" viewBox="0 0 130 130">
-                            <circle cx="65" cy="65" r="50"
-                                    fill="none" stroke="#f0f0f0" stroke-width="18"/>
-                            <circle id="seg-urgent" cx="65" cy="65" r="50"
-                                    fill="none" stroke="#dc3545" stroke-width="18"
-                                    stroke-dasharray="0 314" stroke-linecap="round"/>
-                            <circle id="seg-high"   cx="65" cy="65" r="50"
-                                    fill="none" stroke="#fd7e14" stroke-width="18"
-                                    stroke-dasharray="0 314" stroke-linecap="round"/>
-                            <circle id="seg-medium" cx="65" cy="65" r="50"
-                                    fill="none" stroke="#ffc107" stroke-width="18"
-                                    stroke-dasharray="0 314" stroke-linecap="round"/>
-                            <circle id="seg-low"    cx="65" cy="65" r="50"
-                                    fill="none" stroke="#17a2b8" stroke-width="18"
-                                    stroke-dasharray="0 314" stroke-linecap="round"/>
-                            </svg>
-                            <div class="donut-center">
-                                <span class="donut-num">${ticketStats['total']}</span>
-                                <span class="donut-lbl">Tickets</span>
-                            </div>
-                        </div>
-                        <div class="donut-legend">
-                            <div class="legend-item">
-                                <div class="legend-dot" style="background:#dc3545"></div>
-                                <span class="legend-label">Urgent</span>
-                                <span class="legend-val">${ticketStats['urgent']}</span>
-                                <span class="legend-pct" id="pct-urgent"></span>
-                            </div>
-                            <div class="legend-item">
-                                <div class="legend-dot" style="background:#fd7e14"></div>
-                                <span class="legend-label">High</span>
-                                <span class="legend-val">${ticketStats['high']}</span>
-                                <span class="legend-pct" id="pct-high"></span>
-                            </div>
-                            <div class="legend-item">
-                                <div class="legend-dot" style="background:#ffc107"></div>
-                                <span class="legend-label">Medium</span>
-                                <span class="legend-val">${ticketStats['medium']}</span>
-                                <span class="legend-pct" id="pct-medium"></span>
-                            </div>
-                            <div class="legend-item">
-                                <div class="legend-dot" style="background:#17a2b8"></div>
-                                <span class="legend-label">Low</span>
-                                <span class="legend-val">${ticketStats['low']}</span>
-                                <span class="legend-pct" id="pct-low"></span>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
+                <div class="card" style="border:2px solid #f5c6cb">
 
-            <!-- ===== FEEDBACK DISTRIBUTION ===== -->
-            <div class="two-col">
-                <div class="card">
-                    <div class="card-header-strip teal">
-                        <i class="fas fa-chart-bar"></i> Phân Bổ Rating Feedback
-                    </div>
-                    <div class="dist-grid">
-                        <div class="dist-row">
-                            <div class="dist-label">★★★★★</div>
-                            <div class="dist-bar-wrap">
-                                <div class="dist-bar r5" style="width:${feedbackStats['pct5']}%"></div>
-                            </div>
-                            <div class="dist-count">${feedbackStats['count5']} (${feedbackStats['pct5']}%)</div>
-                        </div>
-                        <div class="dist-row">
-                            <div class="dist-label">★★★★☆</div>
-                            <div class="dist-bar-wrap">
-                                <div class="dist-bar r4" style="width:${feedbackStats['pct4']}%"></div>
-                            </div>
-                            <div class="dist-count">${feedbackStats['count4']} (${feedbackStats['pct4']}%)</div>
-                        </div>
-                        <div class="dist-row">
-                            <div class="dist-label">★★★☆☆</div>
-                            <div class="dist-bar-wrap">
-                                <div class="dist-bar r3" style="width:${feedbackStats['pct3']}%"></div>
-                            </div>
-                            <div class="dist-count">${feedbackStats['count3']} (${feedbackStats['pct3']}%)</div>
-                        </div>
-                        <div class="dist-row">
-                            <div class="dist-label">★★☆☆☆</div>
-                            <div class="dist-bar-wrap">
-                                <div class="dist-bar r2" style="width:${feedbackStats['pct2']}%"></div>
-                            </div>
-                            <div class="dist-count">${feedbackStats['count2']} (${feedbackStats['pct2']}%)</div>
-                        </div>
-                        <div class="dist-row">
-                            <div class="dist-label">★☆☆☆☆</div>
-                            <div class="dist-bar-wrap">
-                                <div class="dist-bar r1" style="width:${feedbackStats['pct1']}%"></div>
-                            </div>
-                            <div class="dist-count">${feedbackStats['count1']} (${feedbackStats['pct1']}%)</div>
-                        </div>
-                    </div>
-                </div>
+                    <%-- Sub KPI --%>
+                    <div style="display:flex;gap:16px;padding:14px 20px;background:#fff9f9;
+                         border-bottom:1px solid rgba(0,0,0,0.07);flex-wrap:wrap">
 
-                <%-- Recent feedbacks --%>
-                <div class="card">
-                    <div class="card-header-strip teal">
-                        <i class="fas fa-clock"></i> Phản Hồi Gần Đây
+                        <c:if test="${overdueStats['overdueUrgent'] > 0}">
+                            <div style="display:flex;align-items:center;gap:8px">
+                                <span class="badge urgent">Urgent</span>
+                                <span style="font-size:14px;font-weight:700;color:#dc3545">
+                                    ${overdueStats['overdueUrgent']}
+                                </span>
+                                <span style="font-size:12px;color:#aaa">quá 4h</span>
+                            </div>
+                        </c:if>
+
+                        <c:if test="${overdueStats['overdueHigh'] > 0}">
+                            <div style="display:flex;align-items:center;gap:8px">
+                                <span class="badge high">High</span>
+                                <span style="font-size:14px;font-weight:700;color:#fd7e14">
+                                    ${overdueStats['overdueHigh']}
+                                </span>
+                                <span style="font-size:12px;color:#aaa">quá 24h</span>
+                            </div>
+                        </c:if>
+
+                        <c:if test="${overdueStats['overdueMedium'] > 0}">
+                            <div style="display:flex;align-items:center;gap:8px">
+                                <span class="badge medium">Medium</span>
+                                <span style="font-size:14px;font-weight:700;color:#856404">
+                                    ${overdueStats['overdueMedium']}
+                                </span>
+                                <span style="font-size:12px;color:#aaa">quá 72h</span>
+                            </div>
+                        </c:if>
                     </div>
+
+                    <%-- Bảng danh sách --%>
                     <div class="card-inner" style="padding:0">
                         <table>
                             <thead>
                                 <tr>
+                                    <th>Ticket</th>
                                     <th>Khách hàng</th>
-                                    <th>Rating</th>
-                                    <th>Nhận xét</th>
+                                    <th>Ưu tiên</th>
+                                    <th>Trạng thái</th>
+                                    <th>Đã quá</th>
+                                    <th></th>
                                 </tr>
                             </thead>
                             <tbody>
-                                <c:forEach var="fb" items="${feedbackStats['recentFeedbacks']}">
+                                <c:forEach var="t" items="${overdueStats['overdueList']}">
                                     <tr>
                                         <td>
-                                            <i class="fas fa-user-circle" style="color:#667eea;margin-right:5px"></i>
-                                            ${fb['customerName']}
-                                        </td>
-                                        <td>
-                                            <%-- Badge phân biệt nguồn --%>
-                                            <c:choose>
-                                                <c:when test="${fb['source'] == 'ticket'}">
-                                                    <span style="background:#e8f4f8;color:#0fb8ad;
-                                                          padding:2px 7px;border-radius:8px;
-                                                          font-size:10px;font-weight:600;margin-right:4px">
-                                                        Ticket
-                                                    </span>
-                                                </c:when>
-                                                <c:otherwise>
-                                                    <span style="background:#f0eeff;color:#667eea;
-                                                          padding:2px 7px;border-radius:8px;
-                                                          font-size:10px;font-weight:600;margin-right:4px">
-                                                        Customer
-                                                    </span>
-                                                </c:otherwise>
-                                            </c:choose>
-                                            <span class="rating-badge rating-${fb['rating']}">
-                                                ${fb['rating']}
-                                                <i class="fas fa-star" style="font-size:9px"></i>
+                                            <strong style="color:#667eea">#${t['id']}</strong>
+                                            <span style="font-size:13px;color:#555;margin-left:6px">
+                                                ${t['title']}
                                             </span>
                                         </td>
-                                        <td style="max-width:160px;overflow:hidden;text-overflow:ellipsis;
-                                            white-space:nowrap;font-style:italic;color:#666;font-size:12px;">
+                                        <td>
+                                            <i class="fas fa-user-circle"
+                                               style="color:#667eea;margin-right:5px"></i>
+                                            ${t['customerName']}
+                                        </td>
+                                        <td>
+                                            <span class="badge ${t['priority'].toLowerCase()}">
+                                                ${t['priority']}
+                                            </span>
+                                        </td>
+                                        <td>
                                             <c:choose>
-                                                <c:when test="${not empty fb['comments']}">${fb['comments']}</c:when>
-                                                <c:otherwise><span style="color:#ccc">—</span></c:otherwise>
+                                                <c:when test="${t['status']=='Open'}">
+                                                    <span class="badge status-open">Open</span>
+                                                </c:when>
+                                                <c:otherwise>
+                                                    <span class="badge status-progress">In Progress</span>
+                                                </c:otherwise>
                                             </c:choose>
+                                        </td>
+                                        <td>
+                                            <span style="color:#dc3545;font-weight:600;font-size:13px">
+                                                ${t['hoursElapsed']} giờ
+                                            </span>
+                                        </td>
+                                        <td>
+                                            <a href="${pageContext.request.contextPath}/customerservice/ticketdetail?id=${t['id']}"
+                                               class="view-btn">
+                                                <i class="fas fa-eye"></i>
+                                            </a>
                                         </td>
                                     </tr>
                                 </c:forEach>
                             </tbody>
                         </table>
-                        <c:if test="${empty feedbackStats['recentFeedbacks']}">
-                            <div class="empty-msg">Chưa có phản hồi nào.</div>
-                        </c:if>
+                    </div>
+                </div>
+            </c:if>
+
+            
+            <c:if test="${overdueStats['overdueTotal'] == 0}">
+                <div class="section-title" style="color:white">✅ SLA Status</div>
+                <div class="card">
+                    <div style="text-align:center;padding:24px;color:#28a745">
+                        <i class="fas fa-shield-check" style="font-size:32px;display:block;margin-bottom:10px"></i>
+                        <strong>Tất cả ticket đang trong hạn SLA</strong>
+                        <p style="color:#aaa;font-size:13px;margin:6px 0 0">
+                            Không có ticket nào quá hạn xử lý
+                        </p>
+                    </div>
+                </div>
+            </c:if>
+
+            <!-- ===== CHARTS ROW ===== -->
+            <div class="two-col">
+
+            <%-- Donut: Ticket theo Status --%>
+            <div class="card">
+                <div class="card-header-strip purple">
+                    <i class="fas fa-circle-half-stroke"></i> Ticket Theo Trạng Thái
+                </div>
+                <div class="donut-wrap">
+                    <%-- Donut SVG render bằng JS bên dưới --%>
+                    <div class="donut">
+                        <svg width="130" height="130" viewBox="0 0 130 130">
+                        <circle cx="65" cy="65" r="50"
+                                fill="none" stroke="#f0f0f0" stroke-width="18"/>
+                        <%-- Segments được tính bằng JS --%>
+                        <circle id="seg-open"     cx="65" cy="65" r="50"
+                                fill="none" stroke="#dc3545" stroke-width="18"
+                                stroke-dasharray="0 314" stroke-linecap="round"/>
+                        <circle id="seg-progress" cx="65" cy="65" r="50"
+                                fill="none" stroke="#ffc107" stroke-width="18"
+                                stroke-dasharray="0 314" stroke-linecap="round"/>
+                        <circle id="seg-resolved" cx="65" cy="65" r="50"
+                                fill="none" stroke="#28a745" stroke-width="18"
+                                stroke-dasharray="0 314" stroke-linecap="round"/>
+                        </svg>
+                        <div class="donut-center">
+                            <span class="donut-num">${ticketStats['total']}</span>
+                            <span class="donut-lbl">Tickets</span>
+                        </div>
+                    </div>
+                    <div class="donut-legend">
+                        <div class="legend-item">
+                            <div class="legend-dot" style="background:#dc3545"></div>
+                            <span class="legend-label">Open</span>
+                            <span class="legend-val">${ticketStats['open']}</span>
+                            <span class="legend-pct" id="pct-open"></span>
+                        </div>
+                        <div class="legend-item">
+                            <div class="legend-dot" style="background:#ffc107"></div>
+                            <span class="legend-label">In Progress</span>
+                            <span class="legend-val">${ticketStats['inProgress']}</span>
+                            <span class="legend-pct" id="pct-progress"></span>
+                        </div>
+                        <div class="legend-item">
+                            <div class="legend-dot" style="background:#28a745"></div>
+                            <span class="legend-label">Resolved</span>
+                            <span class="legend-val">${ticketStats['resolved']}</span>
+                            <span class="legend-pct" id="pct-resolved"></span>
+                        </div>
                     </div>
                 </div>
             </div>
 
-            <!-- ===== RECENT TICKETS ===== -->
-            <div class="section-title">🕐 Ticket Mới Nhất</div>
+            <%-- Donut: Ticket theo Priority --%>
             <div class="card">
+                <div class="card-header-strip purple">
+                    <i class="fas fa-circle-half-stroke"></i> Ticket Theo Mức Ưu Tiên
+                </div>
+                <div class="donut-wrap">
+                    <div class="donut">
+                        <svg width="130" height="130" viewBox="0 0 130 130">
+                        <circle cx="65" cy="65" r="50"
+                                fill="none" stroke="#f0f0f0" stroke-width="18"/>
+                        <circle id="seg-urgent" cx="65" cy="65" r="50"
+                                fill="none" stroke="#dc3545" stroke-width="18"
+                                stroke-dasharray="0 314" stroke-linecap="round"/>
+                        <circle id="seg-high"   cx="65" cy="65" r="50"
+                                fill="none" stroke="#fd7e14" stroke-width="18"
+                                stroke-dasharray="0 314" stroke-linecap="round"/>
+                        <circle id="seg-medium" cx="65" cy="65" r="50"
+                                fill="none" stroke="#ffc107" stroke-width="18"
+                                stroke-dasharray="0 314" stroke-linecap="round"/>
+                        <circle id="seg-low"    cx="65" cy="65" r="50"
+                                fill="none" stroke="#17a2b8" stroke-width="18"
+                                stroke-dasharray="0 314" stroke-linecap="round"/>
+                        </svg>
+                        <div class="donut-center">
+                            <span class="donut-num">${ticketStats['total']}</span>
+                            <span class="donut-lbl">Tickets</span>
+                        </div>
+                    </div>
+                    <div class="donut-legend">
+                        <div class="legend-item">
+                            <div class="legend-dot" style="background:#dc3545"></div>
+                            <span class="legend-label">Urgent</span>
+                            <span class="legend-val">${ticketStats['urgent']}</span>
+                            <span class="legend-pct" id="pct-urgent"></span>
+                        </div>
+                        <div class="legend-item">
+                            <div class="legend-dot" style="background:#fd7e14"></div>
+                            <span class="legend-label">High</span>
+                            <span class="legend-val">${ticketStats['high']}</span>
+                            <span class="legend-pct" id="pct-high"></span>
+                        </div>
+                        <div class="legend-item">
+                            <div class="legend-dot" style="background:#ffc107"></div>
+                            <span class="legend-label">Medium</span>
+                            <span class="legend-val">${ticketStats['medium']}</span>
+                            <span class="legend-pct" id="pct-medium"></span>
+                        </div>
+                        <div class="legend-item">
+                            <div class="legend-dot" style="background:#17a2b8"></div>
+                            <span class="legend-label">Low</span>
+                            <span class="legend-val">${ticketStats['low']}</span>
+                            <span class="legend-pct" id="pct-low"></span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ===== FEEDBACK DISTRIBUTION ===== -->
+        <div class="two-col">
+            <div class="card">
+                <div class="card-header-strip teal">
+                    <i class="fas fa-chart-bar"></i> Phân Bổ Rating Feedback
+                </div>
+                <div class="dist-grid">
+                    <div class="dist-row">
+                        <div class="dist-label">★★★★★</div>
+                        <div class="dist-bar-wrap">
+                            <div class="dist-bar r5" style="width:${feedbackStats['pct5']}%"></div>
+                        </div>
+                        <div class="dist-count">${feedbackStats['count5']} (${feedbackStats['pct5']}%)</div>
+                    </div>
+                    <div class="dist-row">
+                        <div class="dist-label">★★★★☆</div>
+                        <div class="dist-bar-wrap">
+                            <div class="dist-bar r4" style="width:${feedbackStats['pct4']}%"></div>
+                        </div>
+                        <div class="dist-count">${feedbackStats['count4']} (${feedbackStats['pct4']}%)</div>
+                    </div>
+                    <div class="dist-row">
+                        <div class="dist-label">★★★☆☆</div>
+                        <div class="dist-bar-wrap">
+                            <div class="dist-bar r3" style="width:${feedbackStats['pct3']}%"></div>
+                        </div>
+                        <div class="dist-count">${feedbackStats['count3']} (${feedbackStats['pct3']}%)</div>
+                    </div>
+                    <div class="dist-row">
+                        <div class="dist-label">★★☆☆☆</div>
+                        <div class="dist-bar-wrap">
+                            <div class="dist-bar r2" style="width:${feedbackStats['pct2']}%"></div>
+                        </div>
+                        <div class="dist-count">${feedbackStats['count2']} (${feedbackStats['pct2']}%)</div>
+                    </div>
+                    <div class="dist-row">
+                        <div class="dist-label">★☆☆☆☆</div>
+                        <div class="dist-bar-wrap">
+                            <div class="dist-bar r1" style="width:${feedbackStats['pct1']}%"></div>
+                        </div>
+                        <div class="dist-count">${feedbackStats['count1']} (${feedbackStats['pct1']}%)</div>
+                    </div>
+                </div>
+            </div>
+
+            <%-- Recent feedbacks --%>
+            <div class="card">
+                <div class="card-header-strip teal">
+                    <i class="fas fa-clock"></i> Phản Hồi Gần Đây
+                </div>
                 <div class="card-inner" style="padding:0">
                     <table>
                         <thead>
                             <tr>
-                                <th>ID</th>
-                                <th>Tiêu đề</th>
                                 <th>Khách hàng</th>
-                                <th>Ưu tiên</th>
-                                <th>Trạng thái</th>
-                                <th>Ngày tạo</th>
-                                <th></th>
+                                <th>Rating</th>
+                                <th>Nhận xét</th>
                             </tr>
                         </thead>
                         <tbody>
-                            <c:forEach var="t" items="${ticketStats['recentTickets']}">
+                            <c:forEach var="fb" items="${feedbackStats['recentFeedbacks']}">
                                 <tr>
-                                    <td style="color:#aaa;font-size:12px">#${t['id']}</td>
-                                    <td style="font-weight:500;max-width:200px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${t['title']}</td>
                                     <td>
                                         <i class="fas fa-user-circle" style="color:#667eea;margin-right:5px"></i>
-                                        ${t['customerName']}
+                                        ${fb['customerName']}
                                     </td>
                                     <td>
-                                        <span class="badge ${t['priority'].toLowerCase()}">${t['priority']}</span>
-                                    </td>
-                                    <td>
+                                        <%-- Badge phân biệt nguồn --%>
                                         <c:choose>
-                                            <c:when test="${t['status'] == 'Open'}">
-                                                <span class="badge status-open">Open</span>
-                                            </c:when>
-                                            <c:when test="${t['status'] == 'In Progress'}">
-                                                <span class="badge status-progress">In Progress</span>
+                                            <c:when test="${fb['source'] == 'ticket'}">
+                                                <span style="background:#e8f4f8;color:#0fb8ad;
+                                                      padding:2px 7px;border-radius:8px;
+                                                      font-size:10px;font-weight:600;margin-right:4px">
+                                                    Ticket
+                                                </span>
                                             </c:when>
                                             <c:otherwise>
-                                                <span class="badge status-resolved">Resolved</span>
+                                                <span style="background:#f0eeff;color:#667eea;
+                                                      padding:2px 7px;border-radius:8px;
+                                                      font-size:10px;font-weight:600;margin-right:4px">
+                                                    Customer
+                                                </span>
                                             </c:otherwise>
                                         </c:choose>
+                                        <span class="rating-badge rating-${fb['rating']}">
+                                            ${fb['rating']}
+                                            <i class="fas fa-star" style="font-size:9px"></i>
+                                        </span>
                                     </td>
-                                    <td style="font-size:12px;color:#888">${t['createdAt']}</td>
-                                    <td>
-                                        <a href="${pageContext.request.contextPath}/customerservice/ticketdetail?id=${t['id']}"
-                                           class="view-btn">
-                                            <i class="fas fa-eye"></i>
-                                        </a>
+                                    <td style="max-width:160px;overflow:hidden;text-overflow:ellipsis;
+                                        white-space:nowrap;font-style:italic;color:#666;font-size:12px;">
+                                        <c:choose>
+                                            <c:when test="${not empty fb['comments']}">${fb['comments']}</c:when>
+                                            <c:otherwise><span style="color:#ccc">—</span></c:otherwise>
+                                        </c:choose>
                                     </td>
                                 </tr>
                             </c:forEach>
                         </tbody>
                     </table>
-                    <c:if test="${empty ticketStats['recentTickets']}">
-                        <div class="empty-msg">Chưa có ticket nào.</div>
+                    <c:if test="${empty feedbackStats['recentFeedbacks']}">
+                        <div class="empty-msg">Chưa có phản hồi nào.</div>
                     </c:if>
                 </div>
-                <div style="padding:14px 20px;border-top:1px solid rgba(0,0,0,0.07);text-align:right">
-                    <a href="${pageContext.request.contextPath}/customerservice/ticketlist"
-                       style="font-size:13px;color:#667eea;font-weight:600;text-decoration:none">
-                        Xem tất cả ticket <i class="fas fa-arrow-right"></i>
-                    </a>
-                </div>
             </div>
-
-            <!-- ===== SHORTCUT LINKS ===== -->
-            <div class="section-title">🔗 Truy Cập Nhanh</div>
-            <div class="shortcut-grid">
-                <a href="${pageContext.request.contextPath}/customerservice/ticketlist"
-                   class="shortcut-card">
-                    <div class="shortcut-icon bg-blue"><i class="fas fa-ticket-alt"></i></div>
-                    <span>Quản lý Ticket</span>
-                </a>
-                <a href="${pageContext.request.contextPath}/customerservice/feedbackmanagement"
-                   class="shortcut-card">
-                    <div class="shortcut-icon bg-gold"><i class="fas fa-star"></i></div>
-                    <span>Quản lý Phản Hồi</span>
-                </a>
-                <a href="${pageContext.request.contextPath}/customerservice/customerlist"
-                   class="shortcut-card">
-                    <div class="shortcut-icon bg-purple"><i class="fas fa-users"></i></div>
-                    <span>Quản lý Khách Hàng</span>
-                </a>
-                <a href="${pageContext.request.contextPath}/customerservice/exportfeedback"
-                   class="shortcut-card">
-                    <div class="shortcut-icon bg-green"><i class="fas fa-file-excel"></i></div>
-                    <span>Xuất Excel Feedback</span>
-                </a>
-            </div>
-
         </div>
 
-        <!-- ===== DONUT CHART SCRIPT ===== -->
-        <script>
-            // Hàm vẽ donut dùng stroke-dasharray/dashoffset
-            function drawDonut(segments, ids) {
-                const circumference = 2 * Math.PI * 50; // r=50 → ~314
-                const total = segments.reduce((s, x) => s + x.val, 0);
-                if (total === 0)
+        <!-- ===== RECENT TICKETS ===== -->
+        <div class="section-title">🕐 Ticket Mới Nhất</div>
+        <div class="card">
+            <div class="card-inner" style="padding:0">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Tiêu đề</th>
+                            <th>Khách hàng</th>
+                            <th>Ưu tiên</th>
+                            <th>Trạng thái</th>
+                            <th>Ngày tạo</th>
+                            <th></th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <c:forEach var="t" items="${ticketStats['recentTickets']}">
+                            <tr>
+                                <td style="color:#aaa;font-size:12px">#${t['id']}</td>
+                                <td style="font-weight:500;max-width:200px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${t['title']}</td>
+                                <td>
+                                    <i class="fas fa-user-circle" style="color:#667eea;margin-right:5px"></i>
+                                    ${t['customerName']}
+                                </td>
+                                <td>
+                                    <span class="badge ${t['priority'].toLowerCase()}">${t['priority']}</span>
+                                </td>
+                                <td>
+                                    <c:choose>
+                                        <c:when test="${t['status'] == 'Open'}">
+                                            <span class="badge status-open">Open</span>
+                                        </c:when>
+                                        <c:when test="${t['status'] == 'In Progress'}">
+                                            <span class="badge status-progress">In Progress</span>
+                                        </c:when>
+                                        <c:otherwise>
+                                            <span class="badge status-resolved">Resolved</span>
+                                        </c:otherwise>
+                                    </c:choose>
+                                </td>
+                                <td style="font-size:12px;color:#888">${t['createdAt']}</td>
+                                <td>
+                                    <a href="${pageContext.request.contextPath}/customerservice/ticketdetail?id=${t['id']}"
+                                       class="view-btn">
+                                        <i class="fas fa-eye"></i>
+                                    </a>
+                                </td>
+                            </tr>
+                        </c:forEach>
+                    </tbody>
+                </table>
+                <c:if test="${empty ticketStats['recentTickets']}">
+                    <div class="empty-msg">Chưa có ticket nào.</div>
+                </c:if>
+            </div>
+            <div style="padding:14px 20px;border-top:1px solid rgba(0,0,0,0.07);text-align:right">
+                <a href="${pageContext.request.contextPath}/customerservice/ticketlist"
+                   style="font-size:13px;color:#667eea;font-weight:600;text-decoration:none">
+                    Xem tất cả ticket <i class="fas fa-arrow-right"></i>
+                </a>
+            </div>
+        </div>
+
+        <!-- ===== SHORTCUT LINKS ===== -->
+        <div class="section-title">🔗 Truy Cập Nhanh</div>
+        <div class="shortcut-grid">
+            <a href="${pageContext.request.contextPath}/customerservice/ticketlist"
+               class="shortcut-card">
+                <div class="shortcut-icon bg-blue"><i class="fas fa-ticket-alt"></i></div>
+                <span>Quản lý Ticket</span>
+            </a>
+            <a href="${pageContext.request.contextPath}/customerservice/feedbackmanagement"
+               class="shortcut-card">
+                <div class="shortcut-icon bg-gold"><i class="fas fa-star"></i></div>
+                <span>Quản lý Phản Hồi</span>
+            </a>
+            <a href="${pageContext.request.contextPath}/customerservice/customerlist"
+               class="shortcut-card">
+                <div class="shortcut-icon bg-purple"><i class="fas fa-users"></i></div>
+                <span>Quản lý Khách Hàng</span>
+            </a>
+            <a href="${pageContext.request.contextPath}/customerservice/exportfeedback"
+               class="shortcut-card">
+                <div class="shortcut-icon bg-green"><i class="fas fa-file-excel"></i></div>
+                <span>Xuất Excel Feedback</span>
+            </a>
+        </div>
+
+    </div>
+
+    <!-- ===== DONUT CHART SCRIPT ===== -->
+    <script>
+        // Hàm vẽ donut dùng stroke-dasharray/dashoffset
+        function drawDonut(segments, ids) {
+            const circumference = 2 * Math.PI * 50; // r=50 → ~314
+            const total = segments.reduce((s, x) => s + x.val, 0);
+            if (total === 0)
+                return;
+
+            let offset = 0;
+            segments.forEach(seg => {
+                const el = document.getElementById(seg.id);
+                if (!el)
                     return;
+                const pct = seg.val / total;
+                const dash = pct * circumference;
+                const gap = circumference - dash;
+                el.setAttribute("stroke-dasharray", dash + " " + gap);
+                el.setAttribute("stroke-dashoffset", -offset);
+                offset += dash;
 
-                let offset = 0;
-                segments.forEach(seg => {
-                    const el = document.getElementById(seg.id);
-                    if (!el)
-                        return;
-                    const pct = seg.val / total;
-                    const dash = pct * circumference;
-                    const gap = circumference - dash;
-                    el.setAttribute("stroke-dasharray", dash + " " + gap);
-                    el.setAttribute("stroke-dashoffset", -offset);
-                    offset += dash;
-
-                    // Ghi % vào legend
-                    if (seg.pctId) {
-                        const p = document.getElementById(seg.pctId);
-                        if (p)
-                            p.textContent = "(" + Math.round(pct * 100) + "%)";
-                    }
-                });
-            }
-
-            document.addEventListener("DOMContentLoaded", function () {
-                // Donut 1: Status
-                drawDonut([
-                    {id: "seg-open", val: ${ticketStats['open']}, pctId: "pct-open"},
-                    {id: "seg-progress", val: ${ticketStats['inProgress']}, pctId: "pct-progress"},
-                    {id: "seg-resolved", val: ${ticketStats['resolved']}, pctId: "pct-resolved"}
-                ]);
-
-                // Donut 2: Priority
-                drawDonut([
-                    {id: "seg-urgent", val: ${ticketStats['urgent']}, pctId: "pct-urgent"},
-                    {id: "seg-high", val: ${ticketStats['high']}, pctId: "pct-high"},
-                    {id: "seg-medium", val: ${ticketStats['medium']}, pctId: "pct-medium"},
-                    {id: "seg-low", val: ${ticketStats['low']}, pctId: "pct-low"}
-                ]);
+                // Ghi % vào legend
+                if (seg.pctId) {
+                    const p = document.getElementById(seg.pctId);
+                    if (p)
+                        p.textContent = "(" + Math.round(pct * 100) + "%)";
+                }
             });
-        </script>
+        }
 
-    </body>
+        document.addEventListener("DOMContentLoaded", function () {
+            // Donut 1: Status
+            drawDonut([
+                {id: "seg-open", val: ${ticketStats['open']}, pctId: "pct-open"},
+                {id: "seg-progress", val: ${ticketStats['inProgress']}, pctId: "pct-progress"},
+                {id: "seg-resolved", val: ${ticketStats['resolved']}, pctId: "pct-resolved"}
+            ]);
+
+            // Donut 2: Priority
+            drawDonut([
+                {id: "seg-urgent", val: ${ticketStats['urgent']}, pctId: "pct-urgent"},
+                {id: "seg-high", val: ${ticketStats['high']}, pctId: "pct-high"},
+                {id: "seg-medium", val: ${ticketStats['medium']}, pctId: "pct-medium"},
+                {id: "seg-low", val: ${ticketStats['low']}, pctId: "pct-low"}
+            ]);
+        });
+    </script>
+
+</body>
 </html>

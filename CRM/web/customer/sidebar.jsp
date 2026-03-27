@@ -57,6 +57,12 @@
                             <span class="nav-text">Dashboard</span>
                         </a>
                     </li>
+                    <li class="nav-item">
+                        <a href="${pageContext.request.contextPath}/customer/tickets" class="nav-link">
+                            <i class="fas fa-ticket-alt"></i>
+                            <span class="nav-text">Phiếu Hỗ Trợ Của Tôi</span>
+                        </a>
+                    </li>
                     
 <!--                    <li class="nav-item">
                         <a href="${pageContext.request.contextPath}/customer/create-ticket" class="nav-link">

@@ -238,6 +238,150 @@
                 font-size: 14px;
                 margin-bottom: 14px;
             }
+            /* Modal overlay */
+            #reopenOverlay {
+                display: none;
+                position: fixed;
+                inset: 0;
+                background: rgba(0,0,0,0.45);
+                z-index: 9000;
+                align-items: center;
+                justify-content: center;
+            }
+            #reopenOverlay.open {
+                display: flex;
+            }
+
+            #reopenModal {
+                background: white;
+                border-radius: 16px;
+                width: 100%;
+                max-width: 440px;
+                margin: 16px;
+                overflow: hidden;
+                box-shadow: 0 20px 60px rgba(0,0,0,0.2);
+            }
+
+            .reopen-header {
+                background: linear-gradient(135deg, #f59e0b, #d97706);
+                color: white;
+                padding: 18px 22px;
+                display: flex;
+                align-items: center;
+                gap: 10px;
+            }
+            .reopen-header h4 {
+                margin: 0;
+                font-size: 16px;
+                font-weight: 600;
+                flex: 1;
+            }
+
+            .reopen-body {
+                padding: 22px 24px;
+            }
+            .reopen-body p {
+                margin: 0 0 16px;
+                font-size: 14px;
+                color: #374151;
+                line-height: 1.6;
+            }
+
+            .reopen-status-flow {
+                display: flex;
+                align-items: center;
+                gap: 10px;
+                background: #fffbeb;
+                border-radius: 8px;
+                padding: 12px 16px;
+                margin-bottom: 16px;
+                font-size: 13px;
+                font-weight: 600;
+            }
+            .status-pill-resolved {
+                background: #f0fdf4;
+                color: #16a34a;
+                padding: 4px 12px;
+                border-radius: 20px;
+                font-size: 12px;
+            }
+            .status-pill-progress {
+                background: #fffbeb;
+                color: #d97706;
+                padding: 4px 12px;
+                border-radius: 20px;
+                font-size: 12px;
+            }
+            .reopen-arrow {
+                color: #9ca3af;
+                font-size: 16px;
+            }
+
+            /* Reason textarea */
+            .reopen-label {
+                font-size: 13px;
+                font-weight: 600;
+                color: #374151;
+                display: block;
+                margin-bottom: 8px;
+            }
+            .reopen-textarea {
+                width: 100%;
+                box-sizing: border-box;
+                border: 1.5px solid #e5e7eb;
+                border-radius: 8px;
+                padding: 10px 12px;
+                font-size: 13px;
+                font-family: inherit;
+                resize: vertical;
+                min-height: 80px;
+                outline: none;
+                transition: border-color 0.2s;
+            }
+            .reopen-textarea:focus {
+                border-color: #f59e0b;
+            }
+
+            .reopen-footer {
+                padding: 14px 22px;
+                border-top: 1px solid #f3f4f6;
+                display: flex;
+                gap: 10px;
+                justify-content: flex-end;
+            }
+
+            .btn-reopen-cancel {
+                background: white;
+                color: #6b7280;
+                border: 1.5px solid #e5e7eb;
+                padding: 8px 18px;
+                border-radius: 8px;
+                font-size: 13px;
+                font-weight: 500;
+                cursor: pointer;
+                transition: all 0.2s;
+            }
+            .btn-reopen-cancel:hover {
+                border-color: #6b7280;
+            }
+
+            .btn-reopen-confirm {
+                background: #f59e0b;
+                color: white;
+                border: none;
+                padding: 8px 20px;
+                border-radius: 8px;
+                font-size: 13px;
+                font-weight: 600;
+                cursor: pointer;
+                display: inline-flex;
+                align-items: center;
+                gap: 6px;
+                transition: background 0.2s;
+            }
+            .btn-reopen-confirm:hover {
+                background: #d97706;
+            }
         </style>
     </head>
     <body>
@@ -410,5 +554,127 @@
             <%@ include file="feedbackSection.jsp" %>
 
         </div>
+        <%-- Modal HTML --%>
+        <div id="reopenOverlay">
+            <div id="reopenModal">
+                <div class="reopen-header">
+                    <i class="fas fa-exclamation-triangle"></i>
+                    <h4>Xác Nhận Mở Lại Ticket</h4>
+                </div>
+                <div class="reopen-body">
+                    <p>Ticket này đã được đánh dấu <strong>Resolved</strong>. Bạn có chắc muốn mở lại để tiếp tục xử lý?</p>
+
+                    <div class="reopen-status-flow">
+                        <span class="status-pill-resolved">Resolved</span>
+                        <span class="reopen-arrow"><i class="fas fa-arrow-right"></i></span>
+                        <span class="status-pill-progress">In Progress</span>
+                    </div>
+
+                    <label class="reopen-label" for="reopenReason">
+                        Lý do mở lại <span style="color:#ef4444">*</span>
+                    </label>
+                    <textarea id="reopenReason" class="reopen-textarea"
+                              placeholder="Ví dụ: Vấn đề chưa được giải quyết hoàn toàn, khách hàng phản hồi lại..."
+                              maxlength="500"></textarea>
+                    <div id="reopenReasonError"
+                         style="color:#ef4444;font-size:12px;margin-top:4px;display:none">
+                        Vui lòng nhập lý do mở lại ticket.
+                    </div>
+                </div>
+                <div class="reopen-footer">
+                    <button class="btn-reopen-cancel" onclick="cancelReopen()">Hủy</button>
+                    <button class="btn-reopen-confirm" onclick="confirmReopen()">
+                        <i class="fas fa-undo"></i> Xác Nhận Mở Lại
+                    </button>
+                </div>
+            </div>
+        </div>
+        <script>
+            (function () {
+                var updateForm = document.querySelector('form[action*="updateticket"]');
+                var statusSelect = updateForm ? updateForm.querySelector('select[name="status"]') : null;
+                var submitBtn = updateForm ? updateForm.querySelector('button[type="submit"]') : null;
+
+                // Đổi submit button thành button type="button" để chặn submit trực tiếp
+                if (submitBtn) {
+                    submitBtn.type = 'button';
+                    submitBtn.addEventListener('click', checkReopenConfirm);
+                }
+
+                // Thêm hidden input lưu current status nếu chưa có
+                if (updateForm && !updateForm.querySelector('input[name="currentStatus"]')) {
+                    var hidden = document.createElement('input');
+                    hidden.type = 'hidden';
+                    hidden.name = 'currentStatus';
+                    // Lấy selected option hiện tại là currentStatus
+                    hidden.value = statusSelect ? statusSelect.value : '';
+                    hidden.id = 'currentStatusInput';
+                    updateForm.appendChild(hidden);
+                }
+
+                // Lưu trạng thái hiện tại của ticket khi trang load
+                var originalStatus = statusSelect ? statusSelect.value : '';
+
+                function checkReopenConfirm() {
+                    var newStatus = statusSelect ? statusSelect.value : '';
+
+                    // Chỉ hỏi confirmation khi đổi từ Resolved → In Progress hoặc Open
+                    if (originalStatus === 'Resolved' && newStatus !== 'Resolved') {
+                        document.getElementById('reopenReason').value = '';
+                        document.getElementById('reopenReasonError').style.display = 'none';
+                        document.getElementById('reopenOverlay').classList.add('open');
+                        document.body.style.overflow = 'hidden';
+                    } else {
+                        // Không cần confirm — submit bình thường
+                        updateForm.submit();
+                    }
+                }
+
+                function confirmReopen() {
+                    var reason = document.getElementById('reopenReason').value.trim();
+                    if (!reason) {
+                        document.getElementById('reopenReasonError').style.display = 'block';
+                        return;
+                    }
+
+                    // Thêm reason vào form rồi submit
+                    var reasonInput = document.createElement('input');
+                    reasonInput.type = 'hidden';
+                    reasonInput.name = 'reopenReason';
+                    reasonInput.value = reason;
+                    updateForm.appendChild(reasonInput);
+
+                    document.getElementById('reopenOverlay').classList.remove('open');
+                    document.body.style.overflow = '';
+                    updateForm.submit();
+                }
+
+                function cancelReopen() {
+                    // Reset dropdown về Resolved
+                    if (statusSelect)
+                        statusSelect.value = 'Resolved';
+                    document.getElementById('reopenOverlay').classList.remove('open');
+                    document.body.style.overflow = '';
+                }
+
+                // Expose ra global scope để inline onclick có thể gọi
+                window.checkReopenConfirm = checkReopenConfirm;
+                window.confirmReopen = confirmReopen;
+                window.cancelReopen = cancelReopen;
+
+                // Click outside modal để cancel
+                document.getElementById('reopenOverlay').addEventListener('click', function (e) {
+                    if (e.target === this)
+                        cancelReopen();
+                });
+
+                // Esc để cancel
+                document.addEventListener('keydown', function (e) {
+                    if (e.key === 'Escape')
+                        cancelReopen();
+                });
+            })();
+        </script>
+
     </body>
 </html>

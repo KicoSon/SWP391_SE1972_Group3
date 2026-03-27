@@ -54,8 +54,6 @@ public class TicketManagementServlet extends HttpServlet {
                 List<SupportTicket> ticketList =
                         ticketDAO.filterTickets(search, statusFilter);
 
-                // FIX: dùng getUserId() thay vì getStaff().getId()
-                // để khớp với users.id trong DB
                 int staffId = userSession.getUserId();
                 List<SupportTicket> myTickets =
                         ticketDAO.getTicketsByStaffId(staffId);
