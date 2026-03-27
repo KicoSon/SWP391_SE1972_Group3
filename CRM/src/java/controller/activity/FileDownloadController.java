@@ -26,7 +26,7 @@ public class FileDownloadController extends HttpServlet {
 
         String uploadDir = getServletContext().getInitParameter("uploadDirectory");
         if (uploadDir == null || uploadDir.isEmpty()) {
-            uploadDir = "D:/uploads";
+            uploadDir = "C:/uploads";
         }
 
         String fileName = filePath;

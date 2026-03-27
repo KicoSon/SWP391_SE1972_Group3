@@ -135,6 +135,7 @@
                 padding:5px 10px;
                 font-size:12px;
                 color:white;
+                white-space: nowrap;
             }
 
             .badge.active {
